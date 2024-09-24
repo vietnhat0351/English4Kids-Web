@@ -2,8 +2,17 @@ import { Button, FormControl, IconButton, InputAdornment, InputLabel, OutlinedIn
 import axios from 'axios';
 import React from 'react'
 import { MdOutlineVisibility, MdOutlineVisibilityOff } from 'react-icons/md';
+import { useDispatch } from 'react-redux';
+import { setUserProfile } from '../redux/slices/userSlice';
+
+import { FcGoogle } from "react-icons/fc";
+
+import { jwtDecode } from 'jwt-decode';
+import { Navigate } from 'react-router-dom';
 
 const Login = () => {
+
+    const dispatch = useDispatch()
 
     const [showPassword, setShowPassword] = React.useState(false);
     const [email, setEmail] = React.useState('');
@@ -19,31 +28,59 @@ const Login = () => {
         event.preventDefault();
     };
 
+    function openLoginPopup() {
+        const width = 500;
+        const height = 600;
+
+        const left = (window.screen.width - width) / 2;
+        const top = (window.screen.height - height) / 2;
+
+        // const popup = window.open('http://localhost:8080/oauth2/authorization/github?redirect_uri=http://localhost:3000/', 'Login with Google',
+        //   `width=${width},height=${height},top=${top},left=${left}`);
+
+        const popup = window.open('http://localhost:8080/oauth2/authorization/google', 'Login with Google',
+            `width=${width},height=${height},top=${top},left=${left}`);
+
+        // Monitor the popup for changes
+        const interval = setInterval(() => {
+            if (popup.closed) {
+                clearInterval(interval);
+                // Handle popup closed logic, e.g., reload page or check login status
+                console.log("Popup closed");
+            }
+        }, 500);
+    }
+
     const handleLogin = () => {
         axios.post(`${process.env.REACT_APP_API_URL}/api/v1/auth/login`, {
             email,
             password
         }).then((response) => {
             console.log(response.data);
-            // Save the token in local storage
             localStorage.setItem('accessToken', response.data.accessToken);
             localStorage.setItem('refreshToken', response.data.refreshToken);
+
+            const decoded = jwtDecode(response.data.accessToken);
+            console.log(decoded);
+
+            axios.get(`${process.env.REACT_APP_API_URL}/api/v1/user/current`
+                , {
+                    headers: {
+                        Authorization: `Bearer ${response.data.accessToken}`
+                    }
+                }
+            )
+                .then((response) => {
+                    console.log(response.data);
+                    dispatch(setUserProfile(response.data));
+
+                    // Redirect to home page
+                    window.location.href = '/';
+                }).catch((error) => {
+                    console.error(error);
+                })
         })
             .catch((error) => {
-                console.error(error);
-            })
-    }
-
-    const handleLoginn = () => {
-        const token = localStorage.getItem('accessToken');
-        axios.get(`${process.env.REACT_APP_API_URL}/api/v1/management`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
-            .then((response) => {
-                console.log(response.data);
-            }).catch((error) => {
                 console.error(error);
             })
     }
@@ -65,7 +102,7 @@ const Login = () => {
             }}>
                 <h1>Đăng nhập</h1>
                 <p>Please login to view this page.</p>
-                <FormControl sx={{ m: 1, width: '25ch' }} variant="outlined">
+                <FormControl sx={{ m: 1, width: '50ch' }} variant="outlined">
                     <InputLabel htmlFor="outlined-adornment-password">Email</InputLabel>
                     <OutlinedInput
                         id="outlined-adornment-password"
@@ -74,7 +111,7 @@ const Login = () => {
                         onChange={(e) => setEmail(e.target.value)}
                     />
                 </FormControl>
-                <FormControl sx={{ m: 1, width: '25ch' }} variant="outlined">
+                <FormControl sx={{ m: 1, width: '50ch' }} variant="outlined">
                     <InputLabel htmlFor="outlined-adornment-password">Mật khẩu</InputLabel>
                     <OutlinedInput
                         id="outlined-adornment-password"
@@ -96,12 +133,40 @@ const Login = () => {
                         label="Password"
                     />
                 </FormControl>
-                <p>Chưa có tài khoản? <a href='/signup'>Đăng ký</a></p>
+
                 <Button variant='contained' onClick={handleLogin}
-                    style={{ width: '25ch', margin: '1rem 0' }}>Đăng nhập</Button>
-                <Button variant='contained' onClick={handleLoginn} style={{ width: '25ch' }}>Đăng nhập với Google</Button>
+                    style={{ margin: '1rem 0' }}>Đăng nhập</Button>
+                <p style={{
+                    color: "#818181",
+                    fontFamily: "Arial, sans-serif",
+                }}>Chưa có tài khoản? <a href='/signup'>Đăng ký</a></p>
+
+                <div style={{
+                    display: "flex",
+                    width: "50%",
+                    alignItems: "center",
+                }}>
+                    <div style={{
+                        flex: 1,
+                        borderBottom: "1px solid #ccc",
+                    }}></div>
+                    <div style={{
+                        margin: "0 10px",
+                        color: "#818181",
+                        fontFamily: "Arial, sans-serif"
+                    }}>Hoặc tiếp tục với</div>
+                    <div style={{
+                        flex: 1,
+                        borderBottom: "1px solid #ccc"
+                    }}></div>
+                </div>
+                <FcGoogle style={{
+                    fontSize: "3rem",
+                    margin: "1rem 0",
+                    cursor: "pointer"
+                }} onClick={openLoginPopup}/>
             </div>
-        </div>
+        </div >
 
     )
 }
