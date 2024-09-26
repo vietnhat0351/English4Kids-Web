@@ -1,0 +1,140 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  overflow-y: scroll; /* Ensure the page can scroll */
+}
+
+@font-face {
+  font-family: ultra;
+  src: url(../../../../public/Ultra-Regular.ttf);
+}
+
+@font-face {
+  font-family: GBS;
+  src: url(../../../../public/PlaywriteGBS-VariableFont_wght.ttf);
+}
+
+.container {
+  display: flex; /* Enable flexbox for layout */
+  flex: 1;
+}
+
+
+.left {
+  left: 0; /* Align to the left side */
+  display: flex;
+  flex-direction: column; /* Stack buttons vertically */
+  align-items: flex-start;
+  padding: 10px; 
+  background-color: #ffffff;
+  height: 100vh; 
+  position: fixed; /* Fix the sidebar in place */
+  top: 0; /* Align to the top */
+
+}
+.center {
+  margin-left: 200px; /* Space for left sidebar */
+  margin-right: 350px; /* Space for right sidebar */
+  padding: 20px;
+  background-color: #e0e0e0;
+  min-height: 100vh; /* Ensure center area covers full height */
+  overflow-y: auto; /* Allow scrolling if content is long */
+  align-items: center;
+  justify-content: center;
+}
+
+
+.right {
+  background-color: #ffffff;
+  height: 100vh; /* Set fixed height to cover full screen */
+  position: fixed; /* Fix the sidebar in place */
+  top: 0; /* Align to the top */
+  right: 0; /* Align to the right */
+}
+.right-header{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+}
+.right-content {
+  padding: 20px;
+  margin: 20px;
+  flex: 1;
+  border-width: 1px;
+  border-color: grey;
+  border-radius: 20px;
+  border-style: solid;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+
+
+.left button {
+  width: 100%; /* Buttons take full width */
+  padding: 20px;
+  margin: 5px 0; /* Space between buttons */
+  font-size: 16px;
+  font-weight: bold;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+.selected-button {
+  background-color: #9FE2BF; /* Selected color */
+  color: black;
+  border-radius: 10px;
+  border-width: 2px;
+  border-color: #228B22;
+  
+}
+.bbton {
+  width: 100%; /* Make buttons full width */
+  padding: 10px;
+  margin: 5px 0;
+  border: none;
+  background-color:#ffffff;
+  color: black;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 10px;
+  border-width: 1px;
+  border-color: #228B22;
+  
+  
+}
+.button:hover {
+  background-color: #9FE2BF; /* Color on hover */
+  color: black;
+  
+}
+.button-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+
+
+}
+
+
+.title-left {
+  text-align: center;
+  padding-top: 50px;
+  padding-bottom: 50px;
+  font-family: GBS;
+  font-size: 20px;
+}
+

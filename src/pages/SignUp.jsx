@@ -112,6 +112,7 @@ const SignUp = () => {
                     id="outlined-adornment-firstname"
                     type='text'
                     label="Họ"
+                    value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                 />
             </FormControl>

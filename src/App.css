@@ -163,3 +163,10 @@
   text-align: center;
 }
 
+@font-face{
+  font-family: elaris;
+  src: url(../public/Ultra-Regular.ttf);
+}
+.ultra{
+  font-family: ultra;
+}

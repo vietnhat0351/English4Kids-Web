@@ -1,4 +1,4 @@
-import { Button, FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput, TextField } from '@mui/material'
+import { Button, FormControl, IconButton, InputAdornment, InputLabel, OutlinedInput } from '@mui/material'
 import axios from 'axios';
 import React from 'react'
 import { MdOutlineVisibility, MdOutlineVisibilityOff } from 'react-icons/md';
@@ -6,9 +6,7 @@ import { useDispatch } from 'react-redux';
 import { setUserProfile } from '../redux/slices/userSlice';
 
 import { FcGoogle } from "react-icons/fc";
-
 import { jwtDecode } from 'jwt-decode';
-import { Navigate } from 'react-router-dom';
 
 const Login = () => {
 
