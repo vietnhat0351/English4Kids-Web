@@ -1,9 +1,35 @@
 import { jwtDecode } from 'jwt-decode';
 import { Navigate, Outlet } from 'react-router-dom'
+import { setUserProfile } from '../redux/slices/userSlice';
+import { useDispatch } from 'react-redux';
+import axios from 'axios';
+import { useEffect } from 'react';
 
 const ProtectedRoute = ({ roles }) => {
-    
+    const dispatch = useDispatch();
     const token = localStorage.getItem('accessToken');
+
+    useEffect(() => {
+        const fetchCurrentUser = async () => {
+            try {
+                axios.get(`${process.env.REACT_APP_API_URL}/api/v1/user/current`,{
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                })
+                .then((response) => {  
+                    dispatch(setUserProfile(response.data));
+                })
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        if (token) {
+            fetchCurrentUser();
+        }
+    }, [token, dispatch]);
+
 
     if(!token) {
         return <Navigate to="/login" />;

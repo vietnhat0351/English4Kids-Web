@@ -1,0 +1,129 @@
+
+  
+  @font-face {
+    font-family: ultra;
+    src: url(../../../public/Ultra-Regular.ttf);
+  }
+  
+  @font-face {
+    font-family: GBS;
+    src: url(../../../public/PlaywriteGBS-VariableFont_wght.ttf);
+  }
+  
+  .container {
+    display: flex;
+    width: 100%;
+  }
+  
+  .leftContainer {
+    /* left: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      
+      position: fixed; 
+      top: 0; */
+    flex: 0 0 15%;
+    background-color: #ffffff;
+    height: 100vh; 
+    padding: 10px; 
+
+  }
+  .centerContainer {
+    /* margin-left: 200px; 
+    margin-right: 350px; 
+    padding: 20px;
+    
+    min-height: 100vh; 
+   
+    align-items: center;
+    justify-content: center; */
+    flex: 0 0 60%; /* 45% của chiều rộng */
+    background-color: #e0e0e0;
+    overflow-y: auto;
+  }
+  
+  .rightContainer {
+    /* 
+    height: 100vh; 
+    position: fixed; 
+    right: 0; */
+    flex: 0 0 25%; /* 35% của chiều rộng */
+    background-color: #ffffff;
+  }
+  .right-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
+  } 
+   .right-content {
+    padding: 20px;
+    margin: 20px;
+    flex: 1;
+    border-width: 1px;
+    border-color: grey;
+    border-radius: 20px;
+    border-style: solid;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+  } 
+  
+  .left button {
+    width: 100%;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    justify-content: flex-start;
+  } 
+  .selected-button {
+
+    width: 100%; 
+    padding: 10px;
+    margin: 5px 0;
+    background-color: #d5f7e5;
+    color: black;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 10px;
+    border: solid 2px #228b22;
+
+  }
+  .bbton {
+    width: 100%; 
+    padding: 10px;
+    margin: 5px 0;
+    border: none;
+    background-color: #ffffff;
+    color: black;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 10px;
+    border-width: 1px;
+    border-color: #228b22;
+  }
+  .button:hover {
+    background-color: rgb(231, 229, 229); 
+    color: black;
+  }
+  .button-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 30px;
+  }
+  
+  .title-left {
+    text-align: center; 
+    font-family: GBS;
+    font-size: 20px;
+    color: #228b22;
+    font-weight: bolder;
+  } 
+  

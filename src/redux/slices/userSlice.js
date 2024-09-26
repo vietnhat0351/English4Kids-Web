@@ -11,8 +11,11 @@ export const userSlice = createSlice({
         setUserProfile: (state, action) => {
             state.profile = action.payload;
         },
+        clearUser: (state) => {
+            state.currentUser = null;
+        },
     },
 });
 
-export const { setUserProfile } = userSlice.actions;
+export const { setUserProfile , clearUser} = userSlice.actions;
 export default userSlice.reducer;
