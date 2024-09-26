@@ -5,8 +5,10 @@ import UnauthorizedPage from './pages/UnauthorizedPage';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
 import { useEffect } from 'react';
-import Home from './pages/Home';
 import ProtectedRoute from './routes/ProtectedRoute';
+import Profile from './pages/Profile';
+import Home from './pages/user/homepage/Home';
+
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -14,10 +16,14 @@ const router = createBrowserRouter(
       <Route element={<ProtectedRoute roles={['ROLE_USER']} />} >
         <Route index element={<Home />} />
       </Route>
+      <Route element={<ProtectedRoute roles={['ROLE_ADMIN']} />} >
+        <Route index element={<Home />} />
+        <Route path='/profile' element={<Profile/>} />
+      </Route>
       <Route path='login' element={<Login />} />
       <Route path='signup' element={<SignUp />} />
       <Route path='*' element={<h1>404 Not Found</h1>} />
-      <Route path='unauthorized' element={<UnauthorizedPage />} />
+      <Route path='unauthorized' element={<UnauthorizedPage />} /> 
     </Route>
   )
 );
