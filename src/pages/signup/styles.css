@@ -1,0 +1,19 @@
+.container{
+    display: flex;
+    flex-direction: row;
+
+}
+.imgLogin{
+    display: flex;
+    flex: 0 0 50%;
+    background-color: white;
+    flex-direction: column;
+}
+.loginContainer {
+    display: flex;
+    flex: 0 0 50%;
+    background-color: white;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }

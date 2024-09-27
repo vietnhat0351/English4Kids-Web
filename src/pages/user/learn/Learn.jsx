@@ -7,12 +7,7 @@ export class Learn extends Component {
 
   render() {
     return (
-      <div style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100vh"
-      }}>
+      <div s>
         <h1>Learn</h1>
       </div>
     )

@@ -1,17 +1,15 @@
-import React, { Component } from 'react'
+import React from 'react'
 
-export class Vocabulary extends Component {
-  static propTypes = {
+function Vocabulary ( ){
+  
 
-  }
-
-  render() {
+  
     return (
       <div>
         <h1>Vocabulary</h1>
       </div>
     )
-  }
+  
 }
 
 export default Vocabulary
