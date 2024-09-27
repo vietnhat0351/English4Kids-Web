@@ -149,6 +149,7 @@
   align-items: center;
   backface-visibility: hidden;
   transition: transform 0.5s;
+  padding: 20px;
 }
 
 .front {
