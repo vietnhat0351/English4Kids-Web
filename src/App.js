@@ -17,8 +17,9 @@ import Learn from "./pages/user/learn/Learn";
 import Flashcard from "./pages/user/flashcard/Flashcard";
 import Vocabulary from "./pages/user/vocabulary/Vocabulary";
 import Home from "./pages/user/homepage/Home";
+import CreateFlashcardSet from "./pages/user/create-flashcard-set/CreateFlashcardSet";
+import LearnFlashcard from "./pages/user/flashcard/LearnFlashcard";
 import EmptyLayout from "./layouts/empty-layout/EmptyLayout";
-
 import HomePage from "./pages/admin/home-page/HomePage";
 
 const router = createBrowserRouter(
@@ -34,7 +35,12 @@ const router = createBrowserRouter(
         <Route element={<ProtectedRoute roles={["ROLE_USER"]} />}>
           <Route index element={<Home />} />
           <Route path="learn" element={<Learn />} />
-          <Route path="flashcard" element={<Flashcard />} />
+          <Route path="flashcard" >
+            <Route index element={<Flashcard />} />
+            <Route path="create" element={<CreateFlashcardSet />} />
+            {/* <Route path="edit/:flashcardSetId" element={<CreateFlashcardSet />} /> */}
+            <Route path=":flashcardSetId" element={<LearnFlashcard />} />
+          </Route>
           <Route path="vocabulary" element={<Vocabulary />} />
           <Route path="profile" element={<Profile />} />
         </Route>
