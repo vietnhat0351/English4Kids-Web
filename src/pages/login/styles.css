@@ -1,0 +1,67 @@
+@font-face {
+  font-family: NotoSan;
+  src: url(../../../public/NotoSansJP-VariableFont_wght.ttf);
+}
+
+.container {
+  display: "flex";
+  flex-direction: row;
+
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+}
+.imgLogin {
+  display: flex;
+  flex: 0 0 50%;
+  background-color: white;
+  flex-direction: column;
+}
+
+.loginContainer {
+  display: flex;
+  flex: 0 0 50%;
+  background-color: white;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.loginHeader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.loginBody {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.title {
+  text-align: center;
+  font-family: GBS;
+  font-size: 60px;
+  color: #228b22;
+  font-weight: bolder;
+}
+.loginFooter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.loginGoogle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  gap: 5px;
+  color: #ccc;
+  width: 60%;
+  padding-top: 10px;
+}
+.dash {
+    flex: 1;
+    border-bottom: 1px solid #ccc;
+}

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import './styles.css';
+import "./user-styles.css";
 import imgLearn from "../../assets/graduate.png";
 import imgLearnGif from "../../assets/graduate.gif";
 import imgWord from "../../assets/book.png";
