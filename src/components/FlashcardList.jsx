@@ -1,6 +1,6 @@
 import React from 'react';
 import Flashcard from './Flashcard';
-import "../../src/App.css";
+import "./Flashcard.css";
 
 function FlashcardList({ flashcards }) {
   return (

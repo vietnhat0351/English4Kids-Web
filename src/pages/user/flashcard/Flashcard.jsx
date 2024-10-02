@@ -6,6 +6,7 @@ import { visuallyHidden } from '@mui/utils';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { formatDateTime } from '../../../utils/Utils';
+import customFetch from '../../../utils/customFetch';
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -155,12 +156,7 @@ function EnhancedTableToolbar(props) {
       {numSelected > 0 ? (
         <Tooltip title="Delete"
           onClick={() => {
-            axios.post(`${process.env.REACT_APP_API_URL}/api/v1/products/deleteByIdIn`, { ids: selected },
-              {
-                headers: {
-                  // Authorization: `Bearer ${keycloak.keycloak.token}`,
-                }
-              })
+            customFetch.post(`/api/v1/flashcards/delete-flashcard-sets`, { ids: selected })
               .then(response => {
                 if (response.status === 200) {
                   setRows(rows.filter(row => !selected.includes(row.id)));

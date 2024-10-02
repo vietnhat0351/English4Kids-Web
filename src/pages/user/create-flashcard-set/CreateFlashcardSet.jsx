@@ -3,12 +3,18 @@ import axios from 'axios';
 import { useSnackbar } from 'notistack';
 import React, { useState } from 'react'
 import { FaImage, FaTrash } from "react-icons/fa6";
-import Modal from 'react-bootstrap/Modal';
+import MyVerticallyCenteredModal from './MyVerticallyCenteredModal';
 
 const CreateFlashcardForm = (props) => {
-    const { flashcards, setFlashcards, index } = props;
+    const { flashcards, setFlashcards, index, setModalShow, setChoosingFlashcard, setKeyword } = props;
     const updatedFlashcards = [...flashcards];
     const flashcard = updatedFlashcards[index];
+
+    const handleChooseImage = () => {
+        setModalShow(true);
+        setKeyword(flashcard.word);
+        setChoosingFlashcard(index);
+    }
 
     return (
         <div key={index} style={{
@@ -17,6 +23,14 @@ const CreateFlashcardForm = (props) => {
             borderRadius: '0.5rem',
             margin: '0.5rem',
         }}>
+            {/* <MyVerticallyCenteredModal
+                show={modalShow}
+                onHide={() => setModalShow(false)}
+                choosingFlashcard={choosingFlashcard}
+                flashcards={flashcards ? flashcards : []}
+                setFlashcards={setFlashcards}
+                keyword={keyword}
+            /> */}
             <div style={{
                 display: 'flex',
                 flexDirection: 'row',
@@ -46,7 +60,8 @@ const CreateFlashcardForm = (props) => {
                 {/* <label htmlFor={`flashcardQuestion${index}`}>Thuật ngữ</label> */}
                 <TextField id="standard-basic" label="Thuật Ngữ" variant="standard" onChange={(e) => {
                     updatedFlashcards[index] = {
-                        ...updatedFlashcards[index],
+                        // ...updatedFlashcards[index],
+                        ...flashcard,
                         word: e.target.value
                     }
                     setFlashcards(updatedFlashcards);
@@ -58,7 +73,8 @@ const CreateFlashcardForm = (props) => {
                 />
                 <TextField id="standard-basic" label="Định Nghĩa" variant="standard" onChange={(e) => {
                     updatedFlashcards[index] = {
-                        ...updatedFlashcards[index],
+                        // ...updatedFlashcards[index],
+                        ...flashcard,
                         meaning: e.target.value
                     }
                     setFlashcards(updatedFlashcards);
@@ -68,29 +84,43 @@ const CreateFlashcardForm = (props) => {
                     }}
                     value={flashcard.meaning}
                 />
-
-                <div style={{
-                    border: '1px dotted black',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    padding: '1rem',
-                    borderRadius: '0.5rem',
-                    cursor: 'pointer',
-                }}
-                    onClick={() => console.log('Upload image')}
-                >
-                    <FaImage />
-                    <h6>HÌNH ẢNH</h6>
-                </div>
+                {
+                    flashcard.image ? (
+                        <img src={flashcard.image} alt="Ảnh"
+                            style={{ 
+                                maxHeight: '100px',
+                            }}
+                            onClick={handleChooseImage} />
+                    ) : (
+                        <div style={{
+                            border: '1px dotted black',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            padding: '1rem',
+                            borderRadius: '0.5rem',
+                            cursor: 'pointer',
+                        }}
+                            onClick={handleChooseImage}
+                        >
+                            <FaImage />
+                            <h6>HÌNH ẢNH</h6>
+                        </div>
+                    )
+                }
             </div>
         </div>
     )
 }
 
 const CreateFlashcardSet = () => {
+
+    const [modalShow, setModalShow] = React.useState(false);
+
+    const [choosingFlashcard, setChoosingFlashcard] = useState(null);
+    const [keyword, setKeyword] = useState('');
 
     const [flashcardSet, setFlashcardSet] = useState({});
     // const [flashcardQuantity, setFlashcardQuantity] = useState(3);
@@ -147,19 +177,20 @@ const CreateFlashcardSet = () => {
                     description: e.target.value
                 })} />
             </div>
-            <div>
-                <label htmlFor="flashcardSetImage">Ảnh</label>
-                <input type="file" id="flashcardSetImage" value={flashcardSet.image} onChange={(e) => setFlashcardSet({
-                    ...flashcardSet,
-                    image: e.target.value
-                })} />
-            </div>
             {
                 // flashcardQuantity > 0 && Array.from({ length: flashcardQuantity }).map((_, index) => (
                 //     <CreateFlashcardForm key={index} flashcards={flashcards} setFlashcards={setFlashcards} index={index} />
                 // ))
                 flashcards.map((_, index) => (
-                    <CreateFlashcardForm key={index} flashcards={flashcards} setFlashcards={setFlashcards} index={index} />
+                    <CreateFlashcardForm
+                        key={index}
+                        flashcards={flashcards}
+                        setFlashcards={setFlashcards}
+                        index={index}
+                        setModalShow={setModalShow}
+                        setChoosingFlashcard={setChoosingFlashcard}
+                        setKeyword={setKeyword}
+                    />
                 ))
             }
             <div style={{
@@ -172,6 +203,15 @@ const CreateFlashcardSet = () => {
                     setFlashcards([...flashcards, { word: '', meaning: '' }]);
                 }}>Thêm Flashcard</Button>
                 <Button variant="contained" color="primary" onClick={handleSaveFlashcardSet}>Tạo bộ Flashcard</Button>
+
+                <MyVerticallyCenteredModal
+                    show={modalShow}
+                    onHide={() => setModalShow(false)}
+                    choosingFlashcard={choosingFlashcard}
+                    flashcards={flashcards ? flashcards : []}
+                    setFlashcards={setFlashcards}
+                    keyword={keyword}
+                />
             </div>
         </div>
     )
