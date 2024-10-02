@@ -1,32 +1,115 @@
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
+import { useEffect, useState } from 'react';
+import customFetch from '../../../utils/customFetch';
+import { Button, TextField } from '@mui/material';
+
+// import '../../../../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import './MyVerticallyCenteredModal.css';
 
 function MyVerticallyCenteredModal(props) {
-    const { flashcard, setFlashcard } = props;
+  const { flashcards, choosingFlashcard, setFlashcards, keyword, show, onHide } = props;
+
+  const updatedFlashcards = [...flashcards];
+  const flashcard = updatedFlashcards[choosingFlashcard];
+
+  const [keywordState, setKeywordState] = useState(keyword);
+
+  const [images, setImages] = useState([]);
+
+  useEffect(() => {
+    fetchImages(keyword);
+  }, [keyword]);
+
+  const fetchImages = (keyword) => {
+    customFetch.get(`/api/v1/pixabay/search?query=${keyword}`)
+      .then((response) => {
+        console.log(response.data);
+        const imagesURL = response.data.hits.map((image) => image.webformatURL);
+        setImages(imagesURL);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  const handleChooseImage = (index) => {
+    updatedFlashcards[choosingFlashcard] = {
+      ...updatedFlashcards[index],
+      ...flashcard,
+      image: images[index],
+    }
+    setFlashcards(updatedFlashcards);
+  }
+
+  // When the user clicks anywhere outside of the modal, close it
+  window.onclick = function (event) {
+    const modal = document.getElementById('myModal');
+    if (event.target === modal) {
+      onHide();
+    }
+  }
+
   return (
-    <Modal
-      {...props}
-      size="lg"
-      aria-labelledby="contained-modal-title-vcenter"
-      centered
+
+    <div id="myModal" className="modal"
+      style={{
+        display: show ? 'block' : 'none'
+      }}
     >
-      <Modal.Header closeButton>
-        <Modal.Title id="contained-modal-title-vcenter">
-          Chọn ảnh cho thẻ flashcard
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <h4>Centered Modal</h4>
-        <p>
-          Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
-          dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac
-          consectetur ac, vestibulum at eros.
-        </p>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button onClick={props.onHide}>Close</Button>
-      </Modal.Footer>
-    </Modal>
+
+      <div className="modal-content">
+        <div className="modal-header">
+          <span className="close" onClick={
+            () => {
+              onHide();
+            }
+          }>&times;</span>
+          <h2>Chọn Hình Ảnh Cho Flashcard </h2>
+        </div>
+        <div className="modal-body">
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            flexDirection: 'row',
+            paddingBottom: '1rem',
+          }}>
+            <TextField id="outlined-basic" label="Từ Khóa" variant="outlined"
+              value={keyword}
+              onChange={(event) => {
+                setKeywordState(event.target.value);
+              }}
+              style={{
+                width: '80%'
+              }}
+            />
+            <Button variant="contained" onClick={() => fetchImages(keywordState)}>Tìm Ảnh</Button>
+          </div>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '1rem',
+            maxHeight: '80vh',
+            overflowY: 'auto',
+          }}>
+            {
+              images.length > 0 && images.map((image, index) => (
+                <img key={index} src={image} alt="Ảnh" style={{ width: '100%', cursor: 'pointer' }}
+                  // onClick={handleChooseImage(index)}
+                  onClick={() => {
+                    handleChooseImage(index);
+                    onHide();
+                  }
+                  }
+                />
+              ))
+            }
+          </div>
+        </div>
+        {/* <div className="modal-footer">
+          <h3>Modal Footer</h3>
+        </div> */}
+      </div>
+
+    </div>
   );
 }
 

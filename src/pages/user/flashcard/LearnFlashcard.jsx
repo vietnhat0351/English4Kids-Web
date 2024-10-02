@@ -21,31 +21,21 @@ const LearnFlashcard = () => {
     const [flashcardSet, setFlashcardSet] = useState(null);
 
     useEffect(() => {
-        console.log(flashcardSetId);
         customFetch.get(`/api/v1/flashcards/get-flashcard-set/${flashcardSetId}`)
             .then(response => {
-                console.log(response.data);
                 setFlashcardSet(response.data);
+                console.log(response.data);
             })
             .catch(error => {
                 console.error(error);
             })
-    }, [])
+    }, [flashcardSetId])
 
     return (
         <div>
-            {/* {flashcardSet?.flashcards.map(flashcard => (
-                <Flashcard flashcard={flashcard} key={flashcard.id} />
-            ))} */}
+            <h1>{flashcardSet?.name}</h1>
             <div className="flashcard-container">
                 <Swiper
-                    // spaceBetween={50}
-                    // slidesPerView={1}
-                    // navigation
-                    // pagination={{
-                    //     type: 'fraction', // Hiển thị bộ đếm dạng x/y (6/10)
-                    // }}
-                    // className="flashcard-swiper"
                     modules={[Navigation, Pagination, Scrollbar, A11y, Keyboard]}
                     spaceBetween={50}
                     slidesPerView={1}
@@ -54,8 +44,8 @@ const LearnFlashcard = () => {
                         type: 'fraction',
                     }}
                     scrollbar={{ draggable: true }}
-                    onSwiper={(swiper) => console.log(swiper)}
-                    onSlideChange={() => console.log('slide change')}
+                    // onSwiper={(swiper) => console.log(swiper)}
+                    // onSlideChange={() => console.log('slide change')}
                     keyboard={{
                         enabled: true,
                     }}

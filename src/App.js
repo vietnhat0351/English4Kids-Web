@@ -24,7 +24,9 @@ import HomePage from "./pages/admin/home-page/HomePage";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route path="/" >
+    <Route path="/" style={{
+      border: "5px solid red",
+    }}>
       <Route element={<AdminLayout />} path="/admin">
         <Route element={<ProtectedRoute roles={["ROLE_ADMIN"]} />}>
           <Route index element={<HomePage />} />
@@ -81,7 +83,10 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
+    // border: 1px solid #e0e0e0; className="App"
+    <div style={{
+      // border: "5px solid black",
+    }}>
       <RouterProvider router={router} />
     </div>
   );
