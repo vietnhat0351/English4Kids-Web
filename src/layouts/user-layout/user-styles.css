@@ -9,6 +9,9 @@
     font-family: GBS;
     src: url(../../../public/PlaywriteGBS-VariableFont_wght.ttf);
   }
+  * {
+    user-select: none; /* Ngăn chọn văn bản */
+  }
   
   .container {
     display: flex;
@@ -16,18 +19,14 @@
   }
   
   .leftContainer {
-    /* left: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      
-      position: fixed; 
-      top: 0; */
-    flex: 0 0 15%;
+
+    flex: 0 0 20%;
     background-color: #ffffff;
     height: 100vh; 
     padding: 10px; 
-
+    position: fixed;
+    left: 0;
+    top: 0;
   }
   .centerContainer {
     /* margin-left: 200px; 
@@ -38,19 +37,19 @@
    
     align-items: center;
     justify-content: center; */
-    flex: 0 0 65%; /* 45% của chiều rộng */
+    flex: 0 0 60%; 
     background-color: #e0e0e0;
     overflow-y: auto;
+    
   }
   
   .rightContainer {
-    /* 
-    height: 100vh; 
-    position: fixed; 
-    right: 0; */
-    flex: 0 0 20%; /* 35% của chiều rộng */
+    flex: 0 0 20%; 
     background-color: #ffffff;
     height: 100vh; 
+    position: fixed; 
+    right: 0; 
+    top: 0;
     
   }
   .right-header {
@@ -122,12 +121,14 @@
     align-items: center;
     justify-content: flex-start;
     gap: 30px;
+    font-weight: bold;
+    color: gray;
   }
   
   .title-left {
     text-align: center; 
     font-family: GBS;
-    font-size: 30px;
+    font-size: 50px;
     color: #228b22;
     font-weight: bolder;
   } 

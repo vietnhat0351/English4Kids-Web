@@ -1,11 +1,12 @@
+
 import React from 'react'
 
-const HomePage = () => {
+const Grammar = () => {
   return (
     <div>
-      Home
+      Gammar
     </div>
   )
 }
 
-export default HomePage
+export default Grammar

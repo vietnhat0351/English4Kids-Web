@@ -1,121 +1,144 @@
-import React, { useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
-import './styles.css';
-import imgLearn from "../../assets/graduate.png";
-import imgLearnGif from "../../assets/graduate.gif";
-import imgWord from "../../assets/book.png";
-import imgWordGif from "../../assets/book.gif";
-import imgFlashCard from "../../assets/books.png";
-import imgFlashCardGif from "../../assets/books.gif";
-import imgFire from "../../assets/fire.gif";
-import imgSuccess from "../../assets/success.gif";
-import Learn from "../../pages/user/learn/Learn";
-import Flashcard from "../../pages/user/flashcard/Flashcard";
-import Vocabulary from "../../pages/user/vocabulary/Vocabulary";
+import React, { useEffect, useState } from "react";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import Avatar from "@mui/material/Avatar";
+
+import "./styles.css";
+
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import { setUserProfile } from "../../redux/slices/userSlice";
+
 const AdminLayout = () => {
   const navigate = useNavigate();
-  const [centerContent, setCenterContent] = useState(<Learn />); 
-  const [selectedButton, setSelectedButton] = useState(1);
+  const dispatch = useDispatch();
 
-  const handleButtonClick = (contentComponent, buttonIndex) => {
-    setCenterContent(contentComponent); // Cập nhật component khi nhấn nút
-    setSelectedButton(buttonIndex); // Cập nhật nút được chọn
-    if (buttonIndex === 1) navigate("/learn");
-    if (buttonIndex === 2) navigate("/vocabulary");
-    if (buttonIndex === 3) navigate("/flashcard");
-  };
+  const [seletedContent, setSelectedContent] = useState("");
+  const currentUser = useSelector((state) => state.user.profile);
+
+  const currentUrl = window.location.href;
+  const lastUrl = currentUrl.split("/").pop();
+
+  useEffect(() => {
+    setSelectedContent(lastUrl);
+    if (currentUser === null) {
+      axios
+        .get(`${process.env.REACT_APP_API_URL}/api/v1/user/current`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        })
+        .then((response) => {
+          console.log(response.data);
+          dispatch(setUserProfile(response.data));
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+    // lấy ra url hiện tại
+  }, [lastUrl]);
+
   return (
-    <div className="container">
-     <div className="leftContainer">
-        <button style={{
-          backgroundColor: "transparent",
-          border: "none",
-          cursor: "pointer",
-          outline: "none",
-          textAlign: "center",
-          padding: "0",
-          margin: "0",
-          width: "100%",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-        }} onClick={()=>{navigate("/")}}><h2 className="title-left">English4Kids</h2></button>
-        <button
-          className={`button ${
-            selectedButton === 1 ? "selected-button" : "bbton"
-          }`}
-          onClick={() => handleButtonClick(<Learn/>, 1)}
-        >
-          <div className="button-content">
-            <img
-              src={selectedButton === 1 ? imgLearn : imgLearnGif}
-              alt="My GIF"
-              style={{ width: "50px", height: "50px" }} // Thay đổi kích thước tại đây
-            />
-            <strong>Học</strong>
+    <div className="ad-container">
+      <div className="ad-left">
+        <div className="ad-avatar">
+          <Avatar
+            src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/avatar.jpg"
+            sx={{ width: 64, height: 64 }}
+          ></Avatar>
+          <div>
+            {currentUser?.firstName} {currentUser?.lastName}
           </div>
-        </button>
-
-        <button
-          className={`button ${
-            selectedButton === 2 ? "selected-button" : "bbton"
-          }`}
-          onClick={() => handleButtonClick(<Vocabulary />, 2)}
-        >
-          <div className="button-content">
-            <img
-              src={selectedButton === 2 ? imgWord : imgWordGif}
-              alt="My GIF"
-              style={{ width: "50px", height: "50px" }} // Thay đổi kích thước tại đây
-            />
-            <strong>Từ vựng</strong>
-          </div>
-        </button>
-
-        <button
-          className={`button ${
-            selectedButton === 3 ? "selected-button" : "bbton"
-          }`}
-          onClick={() => handleButtonClick(<Flashcard/>, 3)}
-        >
-          <div className="button-content">
-            <img
-              src={selectedButton === 3 ? imgFlashCard : imgFlashCardGif}
-              alt="My GIF"
-              style={{ width: "50px", height: "50px" }} // Thay đổi kích thước tại đây
-            />
-            <strong>Flashcard</strong>
-          </div>
-        </button>
-      </div>
-      <div className="centerContainer" >
-       
-        <Outlet />
-      </div>
-      <div className="rightContainer">
-        
-        <div className="right-header">
-          <img
-            src={imgFire}
-            alt="My GIF"
-            style={{ width: "100px", height: "100px" }} // Thay đổi kích thước tại đây
-          />
-          <strong>Bạn đã học 0 ngày liên tục</strong>
         </div>
-        <div className="right-content">
-          <img
-            src={imgSuccess}
-            alt="My GIF"
-            style={{ width: "80px", height: "80px" }} // Thay đổi kích thước tại đây
-          />
-          <div>
-          <strong>Bạn đang ở hạng ...</strong>
-          <div>
-            <p>Hãy tiếp tục phấn đấu !</p>
-            
-          </div>
-          </div>
+        <div className="ad-menu">
+          <NavLink
+            className={`ad-menu-item ${
+              seletedContent === "lesson"
+                ? "ad-menu-item-selected"
+                : "ad-menu-item-none"
+            }`}
+            to={"/admin/lesson"}
+            //set
+          >
+            <img
+              src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/lesson.png"
+              width={40}
+              height={40}
+              alt="lesson"
+            />
+            Quản lý bài học
+          </NavLink>
+
+          <NavLink
+            className={`ad-menu-item ${
+              seletedContent === "vocabulary"
+                ? "ad-menu-item-selected"
+                : "ad-menu-item-none"
+            }`}
+            to={"/admin/vocabulary"}
+          >
+            <img
+              src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/dictionary.png"
+              width={40}
+              height={40}
+              alt="lesson"
+            />
+            Quản lý từ vựng
+          </NavLink>
+          <NavLink
+            className={`ad-menu-item ${
+              seletedContent === "test"
+                ? "ad-menu-item-selected"
+                : "ad-menu-item-none"
+            }`}
+            to={"/admin/test"}
+          >
+            <img
+              src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/test.png"
+              width={40}
+              height={40}
+              alt="lesson"
+            />
+            Quản lý bài kiểm tra
+          </NavLink>
+          <NavLink
+            className={`ad-menu-item ${
+              seletedContent === "user"
+                ? "ad-menu-item-selected"
+                : "ad-menu-item-none"
+            }`}
+            to={"/admin/user"}
+          >
+            <img
+              src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/team-management.png"
+              width={40}
+              height={40}
+              alt="lesson"
+            />
+            Quản lý người dùng
+          </NavLink>
+          <NavLink
+            className={`ad-menu-item ${
+              seletedContent === "data"
+                ? "ad-menu-item-selected"
+                : "ad-menu-item-none"
+            }`}
+            to={"/admin/data"}
+          >
+            <img
+              src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/exploration.png"
+              width={40}
+              height={40}
+              alt="lesson"
+            />
+            Phân tích dữ liệu
+          </NavLink>
+        </div>
+      </div>
+      <div className="ad-right">
+        <div className="ad-header">header</div>
+        <div className="ad-content">
+          <Outlet />
         </div>
       </div>
     </div>
