@@ -9,8 +9,6 @@ function Flashcard({ flashcard }) {
   const [audioUrl, setAudioUrl] = useState(null);
 
   useEffect(() => {
-    console.log('fetching audio');
-    // 
     const fetchAudio = async () => {
       try {
 
@@ -30,6 +28,8 @@ function Flashcard({ flashcard }) {
         const blob = new Blob([response.data], { type: "audio/mpeg" });
         const url = URL.createObjectURL(blob);
         setAudioUrl(url);  // Lưu URL để phát hoặc tải xuống
+        console.log("Audio URL:", url);
+
       } catch (error) {
         console.error("Error generating audio:", error);
       }
