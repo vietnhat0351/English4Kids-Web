@@ -94,7 +94,7 @@
   transform: rotateY(180deg);
 } */
 
-.flashcard {
+/* .flashcard {
   position: relative;
   width: 300px;
   height: 400px;
@@ -172,4 +172,7 @@
 
 .ultra {
   font-family: ultra;
-}
+} */
+ *{
+  font-family: Roboto, sans-serif;
+ }

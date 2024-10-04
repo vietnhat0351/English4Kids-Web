@@ -1,132 +1,90 @@
+@font-face {
+  font-family: ultra;
+  src: url(../../../public/Ultra-Regular.ttf);
+}
 
-  
-  @font-face {
-    font-family: ultra;
-    src: url(../../../public/Ultra-Regular.ttf);
-  }
-  
-  @font-face {
-    font-family: GBS;
-    src: url(../../../public/PlaywriteGBS-VariableFont_wght.ttf);
-  }
-  
-  .container {
-    display: flex;
-    width: 100%;
-  }
-  
-  .leftContainer {
-    /* left: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      
-      position: fixed; 
-      top: 0; */
-    flex: 0 0 15%;
-    background-color: #ffffff;
-    height: 100vh; 
-    padding: 10px; 
+@font-face {
+  font-family: GBS;
+  src: url(../../../public/PlaywriteGBS-VariableFont_wght.ttf);
+}
 
-  }
-  .centerContainer {
-    /* margin-left: 200px; 
-    margin-right: 350px; 
-    padding: 20px;
-    
-    min-height: 100vh; 
-   
-    align-items: center;
-    justify-content: center; */
-    flex: 0 0 65%; /* 45% của chiều rộng */
-    background-color: #e0e0e0;
-    overflow-y: auto;
-  }
-  
-  .rightContainer {
-    /* 
-    height: 100vh; 
-    position: fixed; 
-    right: 0; */
-    flex: 0 0 20%; /* 35% của chiều rộng */
-    background-color: #ffffff;
-  }
-  .right-header {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 10px;
-    background-color: #ffffff;
-    border-bottom: 1px solid #e0e0e0;
-  } 
-   .right-content {
-    padding: 20px;
-    margin: 20px;
-    flex: 1;
-    border-width: 1px;
-    border-color: grey;
-    border-radius: 20px;
-    border-style: solid;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-  } 
-  
-  .left button {
-    width: 100%;
-    font-size: 16px;
-    font-weight: bold;
-    display: flex;
-    justify-content: flex-start;
-  } 
-  .selected-button {
-    display: flex;
-    justify-content: flex-start;
-    width: 100%; 
-    padding: 10px;
-    margin: 5px 0;
-    background-color: #d5f7e5;
-    color: black;
-    cursor: pointer;
-    font-size: 16px;
-    border-radius: 10px;
-    border: solid 2px #228b22;
+@font-face {
+  font-family: Signika;
+  src: url(../../../public/SignikaNegative-VariableFont_wght.ttf);
+}
 
-  }
-  .bbton {
-    display: flex;
-    justify-content: flex-start;
-    width: 100%; 
-    padding: 10px;
-    margin: 5px 0;
-    border: none;
-    background-color: #ffffff;
-    color: black;
-    cursor: pointer;
-    font-size: 16px;
-    border-radius: 10px;
-    border-width: 1px;
-    border-color: #228b22;
-  }
-  .button:hover {
-    background-color: rgb(231, 229, 229); 
-    color: black;
-  }
-  .button-content {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 30px;
-  }
-  
-  .title-left {
-    text-align: center; 
-    font-family: GBS;
-    font-size: 20px;
-    color: #228b22;
-    font-weight: bolder;
-  } 
-  
+.ad-container {
+  display: flex;
+  width: 100%;
+  height: 100vh; /* Chiều cao toàn màn hình */
+}
+
+.ad-left {
+  width: 15%; /* Chiếm 20% chiều rộng màn hình */
+  flex-direction: column;
+  border-right: 2px solid lightgray;
+  background-color: #f0f0f0;
+}
+
+.ad-right {
+  width: 85%; /* Chiếm 80% chiều rộng màn hình */
+  display: flex;
+  flex-direction: column; /* Sắp xếp theo chiều dọc */
+}
+
+.ad-header {
+  height: 10%; /* Chiếm 10% chiều cao của ad-right */
+  background-color: lightcoral; /* Chỉ để dễ nhìn, bạn có thể thay đổi */
+}
+
+.ad-content {
+  height: 90%; /* Chiếm phần còn lại (90% chiều cao của ad-right) */
+}
+
+.ad-avatar {
+  display: flex;
+  flex-direction: row;
+  padding: 1rem;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid aquamarine;
+  background: linear-gradient(to right, #228b22, darkGreen);
+}
+.ad-menu {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 30px;
+  padding: 10px;
+}
+.ad-menu-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 20px;
+  padding: 5px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  text-decoration: none;
+  font-size: large;
+}
+.ad-menu-item-selected {
+  border: solid 2px #228b22;
+  background-color: #d5f7e5;
+}
+.ad-menu-item-none {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  text-decoration: none;
+  font-size: large;
+}
+.ad-menu-item-none:hover {
+  background-color: rgb(236, 235, 235);
+}
