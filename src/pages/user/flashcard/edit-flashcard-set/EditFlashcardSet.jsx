@@ -1,9 +1,10 @@
 import { Button, TextField } from '@mui/material';
 import { useSnackbar } from 'notistack';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { FaImage, FaTrash } from "react-icons/fa6";
-import MyVerticallyCenteredModal from './MyVerticallyCenteredModal';
-import customFetch from '../../../utils/customFetch';
+import { useParams } from 'react-router-dom';
+import MyVerticallyCenteredModal from '../../create-flashcard-set/MyVerticallyCenteredModal';
+import customFetch from '../../../../utils/customFetch';
 
 const CreateFlashcardForm = (props) => {
     const { flashcards, setFlashcards, index, setModalShow, setChoosingFlashcard, setKeyword } = props;
@@ -118,7 +119,27 @@ const CreateFlashcardForm = (props) => {
     )
 }
 
-const CreateFlashcardSet = () => {
+const EditFlashcardSet = () => {
+
+    const flashcardSetId = useParams().flashcardSetId;
+
+    useEffect(() => {
+        customFetch.get(`/api/v1/flashcards/get-flashcard-set/${flashcardSetId}`)
+            .then(response => {
+                setFlashcardSet(response.data);
+                let flashcards = response.data.flashcards.map((flashcard) => {
+                    return {
+                        ...flashcard,
+                        isValidate: false
+                    }
+                })
+                setFlashcards(flashcards);
+                console.log(response.data);
+            })
+            .catch(error => {
+                console.error(error);
+            })
+    }, [flashcardSetId])
 
     const [modalShow, setModalShow] = useState(false);
 
@@ -144,10 +165,7 @@ const CreateFlashcardSet = () => {
             return;
         }
 
-        console.log("11111111111111111", flashcards);
-
         // kiểm tra xem có flashcard nào không có word hoặc meaning không
-
         let fl = flashcards.map((flashcard, index) => {
             if (!flashcard.word || !flashcard.meaning) {
                 return {
@@ -157,11 +175,10 @@ const CreateFlashcardSet = () => {
             }
             return flashcard;
         })
-
         setFlashcards(fl);
 
-        console.log("22222222222222222", flashcards);
-
+        console.log(fl);
+        
         for (let i = 0; i < fl.length; i++) {
             if (fl[i].isValidate) {
                 handleClickVariant('error', 'Vui lòng nhập đầy đủ thông tin cho các flashcard');
@@ -169,7 +186,14 @@ const CreateFlashcardSet = () => {
             }
         }
 
-        customFetch.post(`/api/v1/flashcards/create-flashcard-set`, {
+        console.log("flashcards", {
+            name: flashcardSet.name,
+            description: flashcardSet.description,
+            image: flashcardSet.image,
+            flashcards: flashcards
+        });
+
+        customFetch.post(`/api/v1/flashcards/update-flashcard-set/${flashcardSetId}`, {
             name: flashcardSet.name,
             description: flashcardSet.description,
             image: flashcardSet.image,
@@ -177,9 +201,9 @@ const CreateFlashcardSet = () => {
         }).then((response) => {
             console.log(response.data);
             if (response.status === 200) {
-                handleClickVariant('success', 'Tạo bộ flashcard thành công');
+                handleClickVariant('success', 'Cập nhật bộ flashcard thành công');
             } else {
-                handleClickVariant('error', 'Tạo bộ flashcard thất bại');
+                handleClickVariant('error', 'Cập nhật bộ flashcard thất bại');
             }
         }).catch((error) => {
             console.error(error);
@@ -192,15 +216,19 @@ const CreateFlashcardSet = () => {
             display: 'flex',
             flexDirection: 'column',
         }}>
-            <h1>Tạo Bộ Flashcard</h1>
+            <h1>Chỉnh sửa bộ Flashcard</h1>
             <div>
-                <TextField id="standard-basic" label="Tên Bộ Flashcard" variant="standard" onChange={(e) => setFlashcardSet({
+                <TextField id="standard-basic" label="Tên Bộ Flashcard" variant="standard" 
+                value={flashcardSet.name ? flashcardSet.name : ''}
+                onChange={(e) => setFlashcardSet({
                     ...flashcardSet,
                     name: e.target.value
                 })} />
             </div>
             <div>
-                <TextField id="standard-basic" label="Mô Tả" variant="standard" onChange={(e) => setFlashcardSet({
+                <TextField id="standard-basic" label="Mô Tả" variant="standard" 
+                value={flashcardSet.description ? flashcardSet.description : ''}
+                onChange={(e) => setFlashcardSet({
                     ...flashcardSet,
                     description: e.target.value
                 })} />
@@ -225,9 +253,9 @@ const CreateFlashcardSet = () => {
                 margin: '1rem 0',
             }}>
                 <Button variant="contained" color="primary" onClick={() => {
-                    setFlashcards([...flashcards, { word: '', meaning: '' }]);
+                    setFlashcards([...flashcards, {word: '', meaning: '', image: '', isValidate: false }]);
                 }}>Thêm Flashcard</Button>
-                <Button variant="contained" color="primary" onClick={handleSaveFlashcardSet}>Tạo bộ Flashcard</Button>
+                <Button variant="contained" color="primary" onClick={handleSaveFlashcardSet}>Cập nhật</Button>
 
                 <MyVerticallyCenteredModal
                     show={modalShow}
@@ -242,4 +270,4 @@ const CreateFlashcardSet = () => {
     )
 }
 
-export default CreateFlashcardSet
+export default EditFlashcardSet

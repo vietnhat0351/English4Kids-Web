@@ -27,6 +27,7 @@ import Practice from "./pages/practice/Practice";
 import Topic from "./pages/user/vocabulary/topic/Topic";
 
 import HomePage from "./pages/admin/home-page/HomePage";
+import EditFlashcardSet from "./pages/user/flashcard/edit-flashcard-set/EditFlashcardSet";
 import LessonManagement from "./pages/admin/lesson-management/LessonManagement";
 import VocabularyManagement from "./pages/admin/vocabulary-management/VocabularyManagement";
 import UserManagement from "./pages/admin/user-management/UserManagement";
@@ -67,6 +68,7 @@ const router = createBrowserRouter(
             <Route path="create" element={<CreateFlashcardSet />} />
             {/* <Route path="edit/:flashcardSetId" element={<CreateFlashcardSet />} /> */}
             <Route path=":flashcardSetId" element={<LearnFlashcard />} />
+            <Route path=":flashcardSetId/edit" element={<EditFlashcardSet />} />
           </Route>
           <Route path="vocabulary">
             <Route index element={<Vocabulary />} />

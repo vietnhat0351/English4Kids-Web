@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom';
+import { NavLink, useParams } from 'react-router-dom';
 import customFetch from '../../../utils/customFetch';
 import Flashcard from '../../../components/Flashcard';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -13,6 +13,7 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/scrollbar';
 import 'swiper/css/keyboard';
+import { Button } from '@mui/material';
 
 const LearnFlashcard = () => {
 
@@ -34,6 +35,9 @@ const LearnFlashcard = () => {
     return (
         <div>
             <h1>{flashcardSet?.name}</h1>
+            <NavLink to={`/flashcard/${flashcardSetId}/edit`}>
+                <Button variant="contained" color="primary">Sửa bộ flashcard</Button>
+            </NavLink>
             <div className="flashcard-container">
                 <Swiper
                     modules={[Navigation, Pagination, Scrollbar, A11y, Keyboard]}

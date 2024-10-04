@@ -42,8 +42,12 @@ function Flashcard({ flashcard }) {
     if (!audioUrl) {
       return;
     }
-    const audio = new Audio(audioUrl);
-    audio.play();
+    try {
+      const audio = new Audio(audioUrl);
+      await audio.play();
+    } catch (error) {
+      console.error("Error playing audio:", error);
+    }
   };
 
   return (

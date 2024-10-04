@@ -73,7 +73,7 @@ function MyVerticallyCenteredModal(props) {
             paddingBottom: '1rem',
           }}>
             <TextField id="outlined-basic" label="Từ Khóa" variant="outlined"
-              value={keyword}
+              value={keywordState}
               onChange={(event) => {
                 setKeywordState(event.target.value);
               }}
