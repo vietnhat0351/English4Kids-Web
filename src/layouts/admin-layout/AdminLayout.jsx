@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
-
+import LOGO from "../../assets/WebLogo.png";
 import "./styles.css";
 
 import { useDispatch, useSelector } from "react-redux";
@@ -136,7 +136,49 @@ const AdminLayout = () => {
         </div>
       </div>
       <div className="ad-right">
-        <div className="ad-header">header</div>
+        <div className="ad-header">
+          {" "}
+          <div
+            style={{
+              backgroundColor: "transparent",
+              border: "none",
+              cursor: "pointer",
+              outline: "none",
+              textAlign: "center",
+              padding: "0",
+              margin: "0",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+            }}
+            onClick={() => {
+              navigate("/admin");
+            }}
+          >
+            <img
+              src={LOGO}
+              style={{
+                maxHeight: "50px",
+              }}
+              alt=""
+            />
+          </div>
+          <div className="ad-header-right">
+            <button className="ad-header-button-avt">
+              <img
+                src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/notification-bell.png"
+                style={{ maxWidth: "30px", maxHeight: "30px" }}
+                alt=""
+              />
+            </button>
+            <button className="ad-header-botton-noti">
+              <Avatar
+                src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/avatar.jpg"
+                sx={{ width: 40, height: 40 }}
+              ></Avatar>
+            </button>
+          </div>
+        </div>
         <div className="ad-content">
           <Outlet />
         </div>

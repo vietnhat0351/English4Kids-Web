@@ -10,6 +10,7 @@ import imgFlashCardGif from "../../assets/books.gif";
 import imgFire from "../../assets/fire.gif";
 import imgSuccess from "../../assets/success.gif";
 
+import LOGO from "../../assets/WebLogo.png";
 import Learn from "../../pages/user/learn/Learn";
 import Flashcard from "../../pages/user/flashcard/Flashcard";
 import Vocabulary from "../../pages/user/vocabulary/Vocabulary";
@@ -42,19 +43,26 @@ const UserLayout = () => {
             cursor: "pointer",
             outline: "none",
             textAlign: "center",
-            padding: "0",
-            margin: "0",
+            margin: "10px",
             width: "100%",
             display: "flex",
             flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
+            justifyContent: "flex-start",
+            alignItems: "flex-start",
           }}
           onClick={() => {
             navigate("/");
           }}
         >
-          <h2 className="title-left">English4Kids</h2>
+          <img
+            src={LOGO}
+            alt=""
+            // width={122.5}
+            style={{
+              maxHeight: "70px",
+            }}
+            onDragStart={(e) => e.preventDefault()}
+          />
         </button>
         <button
           className={`button ${
@@ -86,7 +94,7 @@ const UserLayout = () => {
               style={{ width: "50px", height: "50px" }} // Thay đổi kích thước tại đây
               onDragStart={(e) => e.preventDefault()}
             />
-           
+
             <strong>TỪ VỰNG</strong>
           </div>
         </button>
@@ -116,8 +124,11 @@ const UserLayout = () => {
         >
           <div className="button-content">
             <img
-              src={selectedButton === 6 ? "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/dumbbell.png" 
-                : "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/dumbbell.gif"}
+              src={
+                selectedButton === 6
+                  ? "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/dumbbell.png"
+                  : "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/dumbbell.gif"
+              }
               alt="My GIF"
               style={{ width: "50px", height: "50px" }} // Thay đổi kích thước tại đây
               onDragStart={(e) => e.preventDefault()}
@@ -134,8 +145,11 @@ const UserLayout = () => {
         >
           <div className="button-content">
             <img
-              src={selectedButton === 5 ? "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/user.png" 
-                : "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/user.gif"}
+              src={
+                selectedButton === 5
+                  ? "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/user.png"
+                  : "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/user.gif"
+              }
               alt="My GIF"
               style={{ width: "50px", height: "50px" }} // Thay đổi kích thước tại đây
               onDragStart={(e) => e.preventDefault()}
@@ -143,9 +157,6 @@ const UserLayout = () => {
             <strong>HỒ SƠ</strong>
           </div>
         </button>
-
-       
-
       </div>
       <div className="centerContainer">
         <Outlet />
