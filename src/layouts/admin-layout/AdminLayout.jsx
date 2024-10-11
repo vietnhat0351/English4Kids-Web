@@ -53,12 +53,11 @@ const AdminLayout = () => {
         <div className="ad-menu">
           <NavLink
             className={`ad-menu-item ${
-              seletedContent === "lesson"
+              seletedContent.startsWith("lesson") 
                 ? "ad-menu-item-selected"
                 : "ad-menu-item-none"
             }`}
             to={"/admin/lesson"}
-            //set
           >
             <img
               src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/lesson.png"
