@@ -1,0 +1,109 @@
+.ad-p-container {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  flex-direction: column;
+}
+.ad-p-title {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  height: 5%;
+  background-color: white;
+
+  padding: 10px;
+  font-size: 20px;
+  font-weight: bold;
+  color: rgb(78, 78, 78);
+  border-bottom: 1px solid gray;
+}
+.ad-p-content {
+  display: flex;
+  width: 100%;
+  height: 95%;
+  flex-direction: row;
+  background-color: rgb(226, 225, 225);
+  gap: 10px;
+
+  padding: 30px 10px 10px 10px;
+}
+.ad-p-topic {
+  display: flex;
+  width: 35%;
+  height: 100%;
+  flex-direction: column;
+  /* background-color: white; */
+  /* border-right: 1px solid gray; */
+}
+.ad-p-vocabulary {
+  display: flex;
+  width: 65%;
+  height: 100vh;
+  flex-direction: column;
+  /* background-color: white; */
+}
+
+.a-t-add-topic {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  padding-bottom: 10px;
+  padding-top: 10px;
+  width: 80%;
+  border-bottom: 1px solid lightgray;
+  gap: 20px;
+}
+
+.a-t-add-button {
+  display: flex;
+  justify-content: center;
+  padding: 5px;
+  align-items: center;
+  background-color: lightgreen;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  border: 1px solid darkgreen;
+  border-radius: 5px;
+  box-shadow: 0 5px 5px #ccc;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.a-t-add-button:hover {
+  background-color: darkgreen;
+  color: white;
+}
+.a-t-add-button:active {
+  transform: scale(0.95);
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+.a-modal-add{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+   
+}
+.a-modal-img{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.a-modal-add-button-group{
+    border-top: 1px solid lightgray;
+    padding-top: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 10px;
+}
+.a-v-button-group{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 10px;
+}

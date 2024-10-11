@@ -1,0 +1,9 @@
+.a-l-container{
+    display: flex;
+    flex-direction: column;
+    
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    background-color: aqua;
+}

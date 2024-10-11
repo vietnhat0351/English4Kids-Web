@@ -33,14 +33,14 @@ import VocabularyManagement from "./pages/admin/vocabulary-management/Vocabulary
 import UserManagement from "./pages/admin/user-management/UserManagement";
 import TestManagement from "./pages/admin/test-management/TestManagement";
 import DataAnalysis from "./pages/admin/data-analysis/DataAnalysis";
+
+import Question from "./pages/admin/lesson-management/question/Question";
+
 import { useDispatch } from "react-redux";
 import axios from "axios";
 import { setUserProfile } from "./redux/slices/userSlice";
 
 const router = createBrowserRouter(
-
-
-
   createRoutesFromElements(
     <Route
       path="/"
@@ -51,7 +51,10 @@ const router = createBrowserRouter(
       <Route element={<AdminLayout />} path="/admin">
         <Route element={<ProtectedRoute roles={["ROLE_ADMIN"]} />}>
           <Route index element={<HomePage />} />
-          <Route path="lesson" element={<LessonManagement />} />
+          <Route path="lesson" element={<LessonManagement />}>
+            <Route path="question" element={<Question />} />
+          </Route>
+
           <Route path="vocabulary" element={<VocabularyManagement />} />
           <Route path="user" element={<UserManagement />} />
           <Route path="test" element={<TestManagement />} />
@@ -90,61 +93,88 @@ const router = createBrowserRouter(
 );
 
 function App() {
+  // const dispatch = useDispatch();
+  // useEffect(() => {
+  //   const handleAuthMessage = (event) => {
+  //     const allowedOrigins = ["http://localhost:8080", "http://localhost:3000"];
+  //     if (allowedOrigins.includes(event.origin)) {
+  //       const authResponse = event.data.authResponse;
+  //       if (authResponse) {
+  //         localStorage.setItem("accessToken", authResponse?.accessToken);
+  //         localStorage.setItem("refreshToken", authResponse?.refreshToken);
+
+  //         axios
+  //           .get(`${process.env.REACT_APP_API_URL}/api/v1/user/current`, {
+  //             headers: {
+  //               Authorization: `Bearer ${authResponse?.accessToken}`,
+  //             },
+  //           })
+  //           .then((response) => {
+  //             console.log(response.data);
+  //             dispatch(setUserProfile(response.data));
+  //             // window.location.href = "/";
+  //             if (response.data.role === "ADMIN") {
+  //               window.location.href = "/admin";
+  //             } else {
+  //               window.location.href = "/";
+  //             }
+  //           })
+  //           .catch((error) => {
+  //             console.error(error);
+  //           });
+
+  //         // Handle successful login, e.g., update UI or redirect
+  //         window.location.href = "/";
+  //       }
+  //       if (event.origin !== window.location.origin) {
+  //         return;
+  //       }
+  //     }
+  //   };
+
+  //   window.addEventListener("message", handleAuthMessage);
+
+  //   return () => {
+  //     window.removeEventListener("message", handleAuthMessage);
+  //   };
+  // }, []);
+
+  // return (
+  //   // border: 1px solid #e0e0e0; className="App"
+  //   <div
+  //     style={
+  //       {
+  //         // border: "5px solid black",
+  //       }
+  //     }
+  //   >
+  //     <RouterProvider router={router} />
+  //   </div>
+  // );
   const dispatch = useDispatch();
+
   useEffect(() => {
-    const handleAuthMessage = (event) => {
-      const allowedOrigins = ["http://localhost:8080", "http://localhost:3000"];
-      if (allowedOrigins.includes(event.origin)) {
-        const authResponse = event.data.authResponse;
-        if (authResponse) {
-          localStorage.setItem("accessToken", authResponse?.accessToken);
-          localStorage.setItem("refreshToken", authResponse?.refreshToken);
+    const token = localStorage.getItem("accessToken");
 
-          axios
-            .get(`${process.env.REACT_APP_API_URL}/api/v1/user/current`, {
-              headers: {
-                Authorization: `Bearer ${authResponse?.accessToken}`,
-              },
-            })
-            .then((response) => {
-              console.log(response.data);
-              dispatch(setUserProfile(response.data));
-              // window.location.href = "/";
-              if (response.data.role === "ADMIN") {
-                 window.location.href = "/admin";
-              } else {
-                  window.location.href = "/";
-              }
-            })
-            .catch((error) => {
-              console.error(error);
-            });
-
-          // Handle successful login, e.g., update UI or redirect
-          window.location.href = "/";
-        }
-        if (event.origin !== window.location.origin) {
-          return;
-        }
-      }
-    };
-
-    window.addEventListener("message", handleAuthMessage);
-
-    return () => {
-      window.removeEventListener("message", handleAuthMessage);
-    };
-  }, []);
+    if (token) {
+      axios
+        .get(`${process.env.REACT_APP_API_URL}/api/v1/user/current`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => {
+          // Dispatch user profile to Redux
+          dispatch(setUserProfile(response.data));
+        })
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
+        });
+    }
+  }, [dispatch]);
 
   return (
-    // border: 1px solid #e0e0e0; className="App"
-    <div
-      style={
-        {
-          // border: "5px solid black",
-        }
-      }
-    >
+    <div className="App">
       <RouterProvider router={router} />
     </div>
   );
