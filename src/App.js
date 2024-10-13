@@ -36,6 +36,7 @@ import DataAnalysis from "./pages/admin/data-analysis/DataAnalysis";
 import { useDispatch } from "react-redux";
 import axios from "axios";
 import { setUserProfile } from "./redux/slices/userSlice";
+import WorkShake from "./pages/game/WorkShake";
 
 const router = createBrowserRouter(
 
@@ -76,7 +77,8 @@ const router = createBrowserRouter(
           </Route>
           <Route path="profile" element={<Profile />} />
           <Route path="grammar" element={<Grammar />} />
-          <Route path="practice" element={<Practice />} />
+          {/* <Route path="practice" element={<Practice />} /> */}
+          <Route path="practice" element={<WorkShake />} />
         </Route>
       </Route>
       <Route element={<EmptyLayout />}>
