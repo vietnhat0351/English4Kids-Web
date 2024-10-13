@@ -16,6 +16,8 @@ import { FcGoogle } from "react-icons/fc";
 import { jwtDecode } from "jwt-decode";
 
 import imgHello from "../../assets/Hi.gif";
+import LOGO from "../../assets/WebLogo.png";
+
 import "./styles.css";
 import { useNavigate } from "react-router-dom";
 
@@ -106,27 +108,8 @@ const Login = () => {
   return (
     <div className="container">
       <div className="imgLogin">
-        <button
-          style={{
-            backgroundColor: "transparent",
-            border: "none",
-            cursor: "pointer",
-            outline: "none",
-            textAlign: "center",
-            padding: "0",
-            margin: "0",
-            width: "100%",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <h1 className="title">English4Kids</h1>
-        </button>
-
         <img
-          src={imgHello}
+          src={LOGO}
           alt="login"
           style={{ width: "100%", height: "100%" }}
         />
