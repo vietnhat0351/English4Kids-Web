@@ -15,11 +15,14 @@ function Profile() {
     <div>
       <h1>Profile</h1>
       <div >
-        <LocalizationProvider dateAdapter={AdapterDayjs} >
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
           <StaticTimePicker orientation="landscape" 
             value={value} 
             onChange={(newValue) => setValue(newValue)}
-            onAccept={(newValue) => console.log(newValue)}
+            onAccept={(newValue) => {
+              console.log(newValue.format('HH:mm'));
+              console.log("onAccept");
+            }}
           />
         </LocalizationProvider>
       </div>
