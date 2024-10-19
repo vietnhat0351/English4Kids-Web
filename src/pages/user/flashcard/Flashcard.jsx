@@ -330,20 +330,7 @@ export const Flashcard = () => {
         <Button variant="contained" color="primary">Tạo bộ Flashcard</Button>
       </NavLink>
       <div>
-        <h1>Text-to-Speech</h1>
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Enter text to synthesize"
-        />
-        <br />
-        <button onClick={handleOnClick}>Generate Speech</button>
-        <br />
-        {audioUrl && (
-          <>
-            <audio controls src={audioUrl}></audio>
-          </>
-        )}
+?
 
         <div>
           {isLoading ? <CircularProgress /> : (<Box sx={{ width: '100%' }}>

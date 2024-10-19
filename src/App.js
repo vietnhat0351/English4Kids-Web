@@ -39,6 +39,7 @@ import Question from "./pages/admin/lesson-management/question/Question";
 import { useDispatch } from "react-redux";
 import axios from "axios";
 import { setUserProfile } from "./redux/slices/userSlice";
+import WorkShake from "./pages/game/WorkShake";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -79,7 +80,8 @@ const router = createBrowserRouter(
           </Route>
           <Route path="profile" element={<Profile />} />
           <Route path="grammar" element={<Grammar />} />
-          <Route path="practice" element={<Practice />} />
+          {/* <Route path="practice" element={<Practice />} /> */}
+          <Route path="practice" element={<WorkShake />} />
         </Route>
       </Route>
       <Route element={<EmptyLayout />}>
