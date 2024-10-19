@@ -52,8 +52,9 @@ const router = createBrowserRouter(
       <Route element={<AdminLayout />} path="/admin">
         <Route element={<ProtectedRoute roles={["ROLE_ADMIN"]} />}>
           <Route index element={<HomePage />} />
-          <Route path="lesson" element={<LessonManagement />}>
-            <Route path="question" element={<Question />} />
+          <Route path="lesson" >
+            <Route index element={<LessonManagement />} />
+            <Route path=":lessonId" element={<Question />} />
           </Route>
 
           <Route path="vocabulary" element={<VocabularyManagement />} />
