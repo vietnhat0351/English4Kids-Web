@@ -1,0 +1,155 @@
+.App {
+    font-family: 'Arial', sans-serif;
+    background-color: #1f1c3a;
+    /* color: white; */
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    width: 80%;
+    margin-bottom: 20px;
+}
+
+.time {
+    font-size: 48px;
+    color: #fff;
+}
+
+.new-game-btn,
+.home-btn {
+    background-color: #5b5973;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.game-area {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    width: 80%;
+    gap: 2rem;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, 100px);
+    grid-template-rows: repeat(4, 100px);
+    gap: 10px;
+}
+
+.grid-cell, .grid-cell-clicked {
+    background-color: #26203d;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 50px;
+    border-radius: 10px;
+    cursor: pointer;
+    color: #ff007c;
+}
+
+/* grid-cell clicked */
+.grid-cell-clicked {
+    background-color: #ff007c;
+    color: #fff;
+}
+
+.grid-cell:hover {
+    background-color: #4a426f;
+}
+
+.controls {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-left: 20px;
+    gap: 0.5rem;
+}
+
+.cancel-btn,
+.enter-btn {
+    background-color: #ff0033;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 20px;
+    margin: 10px 0;
+    cursor: pointer;
+}
+
+.enter-btn {
+    background-color: #00ff66;
+    width: 70%;
+}
+
+.selected-word {
+    font-size: 1.5rem;
+    color: #ff5470;
+    margin-bottom: 10px;
+    /* background-color: #13111f; */
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    height: 50px;
+}
+
+.ws-table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #fff;
+}
+
+.ws-table th {
+    background-color: #26203d;
+    color: #ff007c;
+    padding: 10px;
+    text-align: left;
+    position: sticky;
+    top: 0;
+}
+
+.ws-table tbody tr:nth-of-type(even) {
+    background-color: #26203d;
+}
+
+.ws-table th, .ws-table td {
+    padding: 6px 8px;
+}
+
+.scrollable-table {
+    max-height: 300px;
+    overflow-y: auto;
+    scrollbar-width: thin; /* Dành cho Firefox */
+    scrollbar-color: #888 #f1f1f1; /* Màu thanh cuộn và màu nền */
+}
+
+/* Dành cho WebKit (Chrome, Safari, Edge) */
+.scrollable-table::-webkit-scrollbar {
+    width: 10px; /* Độ rộng của thanh cuộn */
+}
+
+.scrollable-table::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Màu nền của track (đường đi) */
+}
+
+.scrollable-table::-webkit-scrollbar-thumb {
+    background-color: #888; /* Màu thanh cuộn */
+    border-radius: 10px; /* Bo tròn thanh cuộn */
+    border: 2px solid #f1f1f1; /* Đường viền của thanh cuộn */
+}
+
+.scrollable-table::-webkit-scrollbar-thumb:hover {
+    background-color: #555; /* Màu khi hover trên thanh cuộn */
+}
