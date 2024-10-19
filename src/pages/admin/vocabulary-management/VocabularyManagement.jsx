@@ -1170,7 +1170,7 @@ const VocabularyManagement = () => {
   //================================================================================================
   return (
     <div className="ad-p-container">
-      <div className="ad-p-title">Topic Management</div>
+      <div className="ad-p-title">Quản lí từ vựng theo chủ đề</div>
       <div className="ad-p-content">
         <div className="ad-p-topic">
           <Box sx={{ width: "100%" }}>
