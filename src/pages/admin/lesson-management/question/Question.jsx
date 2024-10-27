@@ -101,10 +101,10 @@ const Question = () => {
   };
 
   const handleAddQuestion = async () => {
-    const dataQ = {
-      lessonPart: {
-        id: lessonCurrent.lessonParts[0].id,
-      },
+    let dataQ = {
+      // lessonPart: {
+      //   id: lessonCurrent.lessonParts[0].id,
+      // },
       vocabulary: {
         id: data.id,
       },
@@ -119,6 +119,30 @@ const Question = () => {
         { content: answerTD, correct: true },
       ],
     };
+    if (typeQuestion == "TRANSLATION") {
+      dataQ = {
+        ...dataQ,
+        lessonPart: {
+          id: lessonCurrent.lessonParts[0].id,
+        },
+      };
+    }
+    if (typeQuestion == "FILL_IN_BLANK") {
+      dataQ = {
+        ...dataQ,
+        lessonPart: {
+          id: lessonCurrent.lessonParts[1].id,
+        },
+      };
+    }
+    if (typeQuestion == "LISTENING") {
+      dataQ = {
+        ...dataQ,
+        lessonPart: {
+          id: lessonCurrent.lessonParts[2].id,
+        },
+      };
+    }
     try {
       await customFetch
         .post(`/api/v1/questions/create-question`, dataQ)
@@ -168,17 +192,21 @@ const Question = () => {
               <div key={question.id} className="a-q-question-list">
                 <div className="a-q-question-content">
                   <div className="a-q-question-content-content">
-                    Nội dung câu hỏi: {question.content}
+                    <h4>Nội dung câu hỏi:</h4> {question.content}
                   </div>
                   <div className="a-q-question-content-content">
-                    File audio:{" "}
+                    <h4>File audio: </h4>
                     {question.audioUrl != "" ? (
                       <div>
                         <AudioPlayer audioSrc={question.audioUrl} />
                       </div>
                     ) : (
-                      "Không có audio"
+                      <h4 style={{ paddingBottom: "6px" }}>"Không có audio"</h4>
                     )}
+                  </div>
+                  <div className="a-q-question-content-content">
+                    <h4>Loại câu hỏi: </h4>
+                    {question.questionType}
                   </div>
                 </div>
                 <div className="a-q-answer">
@@ -213,8 +241,8 @@ const Question = () => {
                 top: "50%",
                 left: "50%",
                 transform: "translate(-50%, -50%)",
-                width: "90%",
-                height: "90%",
+                width: "60%",
+                height: "80%",
                 bgcolor: "background.paper",
                 border: "2px solid #000",
                 boxShadow: 24,
@@ -289,10 +317,13 @@ const Question = () => {
                         value={audio}
                         onChange={(e) => setAudio(e.target.value)}
                       />
-                      <Button variant="contained" color="primary">
-                        <AudioPlayer audioSrc={audio} />
-                      </Button>
-                      <div>
+
+                      <AudioPlayer
+                        style={{ width: "100%", backgroundColor: "lightgray" }}
+                        audioSrc={audio}
+                      />
+
+                      {/* <div>
                         <Button
                           variant="contained"
                           color="primary"
@@ -302,7 +333,7 @@ const Question = () => {
                         >
                           Thêm từ vựng
                         </Button>
-                      </div>
+                      </div> */}
                     </Typography>
                   </div>
                 </div>
@@ -331,6 +362,7 @@ const Question = () => {
                             value={typeQuestion}
                             label="Loại câu hỏi"
                             onChange={handleChange}
+                            style={{ width: "50%" }}
                           >
                             <MenuItem value={"TRANSLATION"}>
                               Translation
@@ -348,8 +380,9 @@ const Question = () => {
                         variant="standard"
                         value={contentQuestion}
                         onChange={(e) => setContentQuestion(e.target.value)}
+                        style={{ width: "79%" }}
                       />
-                      <div>
+                      <div className="modal-audio-upload">
                         <TextField
                           id="standard-basic"
                           label="Audio câu hỏi"
@@ -357,13 +390,12 @@ const Question = () => {
                           value={audioQuestion}
                           onChange={(e) => setAudioQuestion(e.target.value)}
                         />
-                        <Button variant="contained" color="primary">
-                          <FileUploader
-                            handleChange={handleChangeAudio}
-                            name="file"
-                            types={fileTypes}
-                          />
-                        </Button>
+
+                        <FileUploader
+                          handleChange={handleChangeAudio}
+                          name="file"
+                          types={fileTypes}
+                        />
                       </div>
 
                       <TextField
@@ -372,6 +404,7 @@ const Question = () => {
                         variant="standard"
                         value={answerTD}
                         onChange={(e) => setAnswerTD(e.target.value)}
+                        style={{ width: "79%" }}
                       />
                       <TextField
                         id="standard-basic"
@@ -379,6 +412,7 @@ const Question = () => {
                         variant="standard"
                         value={answerTA}
                         onChange={(e) => setAnswerTA(e.target.value)}
+                        style={{ width: "79%" }}
                       />
                       <TextField
                         id="standard-basic"
@@ -386,6 +420,7 @@ const Question = () => {
                         variant="standard"
                         value={answerTB}
                         onChange={(e) => setAnswerTB(e.target.value)}
+                        style={{ width: "79%" }}
                       />
                       <TextField
                         id="standard-basic"
@@ -393,17 +428,20 @@ const Question = () => {
                         variant="standard"
                         value={answerTC}
                         onChange={(e) => setAnswerTC(e.target.value)}
+                        style={{ width: "79%" }}
                       />
                     </div>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => {
-                        handleAddQuestion();
-                      }}
-                    >
-                      Thêm câu hỏi
-                    </Button>
+                    <div className="modal-add-question">
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => {
+                          handleAddQuestion();
+                        }}
+                      >
+                        Thêm câu hỏi
+                      </Button>
+                    </div>
                   </Typography>
                 </div>
               </div>

@@ -1,0 +1,88 @@
+* {
+  font-family: Roboto, sans-serif;
+}
+.progress-bar {
+  width: 80%;
+  height: 20px;
+  background-color: #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 10px 0;
+  border: 1px solid black;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: #4caf50;
+  transition: width 0.3s ease;
+}
+.learn-session-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 50px;
+  background-color: white;
+}
+.learn-session-header{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+    gap: 10px;
+    width: 80%;
+}
+.progress-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 20px;
+}
+.learn-session-question {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  width: 80%;
+}
+.learn-session-question-content{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    justify-content: flex-start;
+    width: 80%;
+}
+.learn-session-question-content p{
+    margin: 0;
+    border: 0.5px solid lightgray;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 25px;
+    display: flex;
+    
+}
+
+.learn-session-answers {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Creates two equal-width columns */
+  gap: 10px; /* Adds space between buttons */
+}
+.answer-button {
+  width: 400px;
+  height: 100px;
+  margin: 5px;
+  padding: 10px;
+  background-color: lightgray;
+  font-size: 25px;
+  border: 1px solid #4caf50;
+  border-radius: 30px;
+  cursor: pointer;
+}
+
+.answer-button:hover {
+  background-color: rgb(121, 121, 121);
+}

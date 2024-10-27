@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import "./user-styles.css";
 import imgLearn from "../../assets/graduate.png";
@@ -17,9 +17,37 @@ import Vocabulary from "../../pages/user/vocabulary/Vocabulary";
 import Grammar from "../../pages/user/grammar/Grammar";
 import Profile from "../../pages/user/profile/Profile";
 import Practice from "../../pages/practice/Practice";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import { setUserProfile } from "../../redux/slices/userSlice";
 
 const UserLayout = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.profile);
+  const [seletedContent, setSelectedContent] = useState("");
+
+  const currentUrl = window.location.href;
+  const lastUrl = currentUrl.split("/").pop();
+
+  useEffect(() => {
+    setSelectedContent(lastUrl);
+    if (user === null) {
+      axios
+        .get(`${process.env.REACT_APP_API_URL}/api/v1/user/current`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        })
+        .then((response) => {
+          console.log(response.data);
+          dispatch(setUserProfile(response.data));
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+  }, [lastUrl]);
   const [centerContent, setCenterContent] = useState(<Learn />);
   const [selectedButton, setSelectedButton] = useState(1);
 
@@ -95,7 +123,7 @@ const UserLayout = () => {
               onDragStart={(e) => e.preventDefault()}
             />
 
-            <strong>TỪ VỰNG</strong>
+            <strong>HỌC TỪ VỰNG</strong>
           </div>
         </button>
 
@@ -112,7 +140,7 @@ const UserLayout = () => {
               style={{ width: "50px", height: "50px" }} // Thay đổi kích thước tại đây
               onDragStart={(e) => e.preventDefault()}
             />
-            <strong>THẺ GHI NHỚ</strong>
+            <strong>HỌC QUA THẺ GHI NHỚ</strong>
           </div>
         </button>
 
@@ -133,7 +161,7 @@ const UserLayout = () => {
               style={{ width: "50px", height: "50px" }} // Thay đổi kích thước tại đây
               onDragStart={(e) => e.preventDefault()}
             />
-            <strong>LUYỆN TẬP</strong>
+            <strong>CHƠI TRÒ CHƠI</strong>
           </div>
         </button>
 
@@ -154,7 +182,7 @@ const UserLayout = () => {
               style={{ width: "50px", height: "50px" }} // Thay đổi kích thước tại đây
               onDragStart={(e) => e.preventDefault()}
             />
-            <strong>HỒ SƠ</strong>
+            <strong>XEM HỒ SƠ</strong>
           </div>
         </button>
       </div>
@@ -169,7 +197,9 @@ const UserLayout = () => {
             style={{ width: "100px", height: "100px" }} // Thay đổi kích thước tại đây
             onDragStart={(e) => e.preventDefault()}
           />
-          <strong>Bạn đã học 0 ngày liên tục</strong>
+          <strong>
+            Bạn đã học {user && <strong>{user.streak} ngày liên tục</strong>}
+          </strong>
         </div>
         <div className="right-content">
           <img
