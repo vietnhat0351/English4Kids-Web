@@ -4,6 +4,7 @@ import toppicReducer from './slices/topicSlice'
 import topicSelectedReducer from './slices/topicSelected'
 import lessonSlice from './slices/lessonSlice'
 import clessonReducer from './slices/clessonSlice'
+import userProcessReducer from './slices/userProcess'
 
 
 export const store = configureStore({
@@ -12,7 +13,8 @@ export const store = configureStore({
     topics: toppicReducer,
     topicSelected: topicSelectedReducer,
     lessons: lessonSlice,
-    clesson: clessonReducer
+    clesson: clessonReducer,
+    userProcess: userProcessReducer
   },
 })
 

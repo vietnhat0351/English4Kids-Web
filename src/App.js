@@ -35,6 +35,7 @@ import TestManagement from "./pages/admin/test-management/TestManagement";
 import DataAnalysis from "./pages/admin/data-analysis/DataAnalysis";
 
 import Question from "./pages/admin/lesson-management/question/Question";
+import LearnSession from "./pages/user/learn/LearnSessin/LearnSession";
 
 import { useDispatch } from "react-redux";
 import axios from "axios";
@@ -90,7 +91,9 @@ const router = createBrowserRouter(
         <Route path="signup" element={<SignUp />} />
         <Route path="*" element={<h1>404 Not Found</h1>} />
         <Route path="unauthorized" element={<UnauthorizedPage />} />
+        <Route path="learn-session/:lessonId/part/:partId" element={<LearnSession />} />
       </Route>
+
     </Route>
   )
 );
