@@ -38,8 +38,12 @@ const LearnFlashcard = () => {
             <NavLink to={`/flashcard/${flashcardSetId}/edit`}>
                 <Button variant="contained" color="primary">Sửa bộ flashcard</Button>
             </NavLink>
+            <NavLink to={`/flashcard/${flashcardSetId}/card-matching`}>
+                <Button variant="contained" color="primary">Trò chơi với Flashcard</Button>
+            </NavLink>
             <div className="flashcard-container">
                 <Swiper
+                    
                     modules={[Navigation, Pagination, Scrollbar, A11y, Keyboard]}
                     spaceBetween={50}
                     slidesPerView={1}
@@ -58,6 +62,7 @@ const LearnFlashcard = () => {
                         width: '100%',
                         height: '500px',
                     }}
+                    
                 >
                     {flashcardSet?.flashcards.map((flashcard, index) => (
                         <SwiperSlide key={index} style={{

@@ -41,6 +41,7 @@ import { useDispatch } from "react-redux";
 import axios from "axios";
 import { setUserProfile } from "./redux/slices/userSlice";
 import WorkShake from "./pages/game/WorkShake";
+import CardMatchingGame from "./pages/user/flashcard/card-matching-game/CardMatchingGame";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -68,6 +69,8 @@ const router = createBrowserRouter(
       <Route element={<UserLayout />}>
         <Route element={<ProtectedRoute roles={["ROLE_USER"]} />}>
           <Route index element={<Home />} />
+
+
           <Route path="learn" element={<Learn />} />
           <Route path="flashcard">
             <Route index element={<Flashcard />} />
@@ -75,6 +78,7 @@ const router = createBrowserRouter(
             {/* <Route path="edit/:flashcardSetId" element={<CreateFlashcardSet />} /> */}
             <Route path=":flashcardSetId" element={<LearnFlashcard />} />
             <Route path=":flashcardSetId/edit" element={<EditFlashcardSet />} />
+            <Route path=":flashcardSetId/card-matching" element={<CardMatchingGame />} />
           </Route>
           <Route path="vocabulary">
             <Route index element={<Vocabulary />} />
@@ -86,6 +90,8 @@ const router = createBrowserRouter(
           <Route path="practice" element={<WorkShake />} />
         </Route>
       </Route>
+
+
       <Route element={<EmptyLayout />}>
         <Route path="login" element={<Login />} />
         <Route path="signup" element={<SignUp />} />
@@ -99,85 +105,53 @@ const router = createBrowserRouter(
 );
 
 function App() {
-  // const dispatch = useDispatch();
-  // useEffect(() => {
-  //   const handleAuthMessage = (event) => {
-  //     const allowedOrigins = ["http://localhost:8080", "http://localhost:3000"];
-  //     if (allowedOrigins.includes(event.origin)) {
-  //       const authResponse = event.data.authResponse;
-  //       if (authResponse) {
-  //         localStorage.setItem("accessToken", authResponse?.accessToken);
-  //         localStorage.setItem("refreshToken", authResponse?.refreshToken);
-
-  //         axios
-  //           .get(`${process.env.REACT_APP_API_URL}/api/v1/user/current`, {
-  //             headers: {
-  //               Authorization: `Bearer ${authResponse?.accessToken}`,
-  //             },
-  //           })
-  //           .then((response) => {
-  //             console.log(response.data);
-  //             dispatch(setUserProfile(response.data));
-  //             // window.location.href = "/";
-  //             if (response.data.role === "ADMIN") {
-  //               window.location.href = "/admin";
-  //             } else {
-  //               window.location.href = "/";
-  //             }
-  //           })
-  //           .catch((error) => {
-  //             console.error(error);
-  //           });
-
-  //         // Handle successful login, e.g., update UI or redirect
-  //         window.location.href = "/";
-  //       }
-  //       if (event.origin !== window.location.origin) {
-  //         return;
-  //       }
-  //     }
-  //   };
-
-  //   window.addEventListener("message", handleAuthMessage);
-
-  //   return () => {
-  //     window.removeEventListener("message", handleAuthMessage);
-  //   };
-  // }, []);
-
-  // return (
-  //   // border: 1px solid #e0e0e0; className="App"
-  //   <div
-  //     style={
-  //       {
-  //         // border: "5px solid black",
-  //       }
-  //     }
-  //   >
-  //     <RouterProvider router={router} />
-  //   </div>
-  // );
   const dispatch = useDispatch();
-
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
+    const handleAuthMessage = (event) => {
+      const allowedOrigins = ["http://localhost:8080", "http://localhost:3000"];
+      if (allowedOrigins.includes(event.origin)) {
+        const authResponse = event.data.authResponse;
+        if (authResponse) {
+          localStorage.setItem("accessToken", authResponse?.accessToken);
+          localStorage.setItem("refreshToken", authResponse?.refreshToken);
 
-    if (token) {
-      axios
-        .get(`${process.env.REACT_APP_API_URL}/api/v1/user/current`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((response) => {
-          // Dispatch user profile to Redux
-          dispatch(setUserProfile(response.data));
-        })
-        .catch((error) => {
-          console.error("Error fetching user data:", error);
-        });
-    }
-  }, [dispatch]);
+          axios
+            .get(`${process.env.REACT_APP_API_URL}/api/v1/user/current`, {
+              headers: {
+                Authorization: `Bearer ${authResponse?.accessToken}`,
+              },
+            })
+            .then((response) => {
+              console.log(response.data);
+              dispatch(setUserProfile(response.data));
+              // window.location.href = "/";
+              if (response.data.role === "ADMIN") {
+                window.location.href = "/admin";
+              } else {
+                window.location.href = "/";
+              }
+            })
+            .catch((error) => {
+              console.error(error);
+            });
+
+          // Handle successful login, e.g., update UI or redirect
+          window.location.href = "/";
+        }
+        if (event.origin !== window.location.origin) {
+          return;
+        }
+      }
+    };
+
+    window.addEventListener("message", handleAuthMessage);
+
+    return () => {
+      window.removeEventListener("message", handleAuthMessage);
+    };
+  }, []);
+
+
 
   return (
     <div className="App">
