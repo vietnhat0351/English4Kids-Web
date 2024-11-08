@@ -41,6 +41,8 @@ import { useDispatch } from "react-redux";
 import axios from "axios";
 import { setUserProfile } from "./redux/slices/userSlice";
 import WorkShake from "./pages/game/WorkShake";
+import CardMatchingGame from "./pages/user/flashcard/card-matching-game/CardMatchingGame";
+import ReviewFlashcard from "./pages/user/flashcard/review-flashcard/ReviewFlashcard";
 import Ranking from "./pages/user/ranking/Ranking";
 
 const router = createBrowserRouter(
@@ -69,6 +71,8 @@ const router = createBrowserRouter(
       <Route element={<UserLayout />}>
         <Route element={<ProtectedRoute roles={["ROLE_USER"]} />}>
           <Route index element={<Home />} />
+
+
           <Route path="learn" element={<Learn />} />
           <Route path="flashcard">
             <Route index element={<Flashcard />} />
@@ -76,6 +80,7 @@ const router = createBrowserRouter(
             {/* <Route path="edit/:flashcardSetId" element={<CreateFlashcardSet />} /> */}
             <Route path=":flashcardSetId" element={<LearnFlashcard />} />
             <Route path=":flashcardSetId/edit" element={<EditFlashcardSet />} />
+            <Route path=":flashcardSetId/card-matching" element={<CardMatchingGame />} />
           </Route>
           <Route path="vocabulary">
             <Route index element={<Vocabulary />} />
@@ -88,12 +93,15 @@ const router = createBrowserRouter(
           <Route path="ranking" element={<Ranking />} />
         </Route>
       </Route>
+
+
       <Route element={<EmptyLayout />}>
         <Route path="login" element={<Login />} />
         <Route path="signup" element={<SignUp />} />
         <Route path="*" element={<h1>404 Not Found</h1>} />
         <Route path="unauthorized" element={<UnauthorizedPage />} />
         <Route path="learn-session/:lessonId/part/:partId" element={<LearnSession />} />
+        <Route path="review-flashcard/:flashcardSetId" element={<ReviewFlashcard />} />
       </Route>
 
     </Route>
@@ -101,127 +109,51 @@ const router = createBrowserRouter(
 );
 
 function App() {
-  // const dispatch = useDispatch();
-  // useEffect(() => {
-  //   const handleAuthMessage = (event) => {
-  //     const allowedOrigins = ["http://localhost:8080", "http://localhost:3000"];
-  //     if (allowedOrigins.includes(event.origin)) {
-  //       const authResponse = event.data.authResponse;
-  //       if (authResponse) {
-  //         localStorage.setItem("accessToken", authResponse?.accessToken);
-  //         localStorage.setItem("refreshToken", authResponse?.refreshToken);
-
-  //         axios
-  //           .get(`${process.env.REACT_APP_API_URL}/api/v1/user/current`, {
-  //             headers: {
-  //               Authorization: `Bearer ${authResponse?.accessToken}`,
-  //             },
-  //           })
-  //           .then((response) => {
-  //             console.log(response.data);
-  //             dispatch(setUserProfile(response.data));
-  //             // window.location.href = "/";
-  //             if (response.data.role === "ADMIN") {
-  //               window.location.href = "/admin";
-  //             } else {
-  //               window.location.href = "/";
-  //             }
-  //           })
-  //           .catch((error) => {
-  //             console.error(error);
-  //           });
-
-  //         // Handle successful login, e.g., update UI or redirect
-  //         window.location.href = "/";
-  //       }
-  //       if (event.origin !== window.location.origin) {
-  //         return;
-  //       }
-  //     }
-  //   };
-
-  //   window.addEventListener("message", handleAuthMessage);
-
-  //   return () => {
-  //     window.removeEventListener("message", handleAuthMessage);
-  //   };
-  // }, []);
-
-  // return (
-  //   // border: 1px solid #e0e0e0; className="App"
-  //   <div
-  //     style={
-  //       {
-  //         // border: "5px solid black",
-  //       }
-  //     }
-  //   >
-  //     <RouterProvider router={router} />
-  //   </div>
-  // );
   const dispatch = useDispatch();
-
   useEffect(() => {
-    const token = localStorage.getItem("accessToken");
+    const handleAuthMessage = (event) => {
+      const allowedOrigins = ["http://localhost:8080", "http://localhost:3000"];
+      if (allowedOrigins.includes(event.origin)) {
+        const authResponse = event.data.authResponse;
+        if (authResponse) {
+          localStorage.setItem("accessToken", authResponse?.accessToken);
+          localStorage.setItem("refreshToken", authResponse?.refreshToken);
 
-    if (token) {
-      axios
-        .get(`${process.env.REACT_APP_API_URL}/api/v1/user/current`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((response) => {
-          const today = new Date();
-          const todayISO = today.toISOString().split("T")[0];
+          axios
+            .get(`${process.env.REACT_APP_API_URL}/api/v1/user/current`, {
+              headers: {
+                Authorization: `Bearer ${authResponse?.accessToken}`,
+              },
+            })
+            .then((response) => {
+              console.log(response.data);
+              dispatch(setUserProfile(response.data));
+              // window.location.href = "/";
+              if (response.data.role === "ADMIN") {
+                window.location.href = "/admin";
+              } else {
+                window.location.href = "/";
+              }
+            })
+            .catch((error) => {
+              console.error(error);
+            });
 
-          const yesterday = new Date(today);
-          yesterday.setDate(today.getDate() - 1);
-          const yesterdayISO = yesterday.toISOString().split("T")[0];
+          // Handle successful login, e.g., update UI or redirect
+          window.location.href = "/";
+        }
+        if (event.origin !== window.location.origin) {
+          return;
+        }
+      }
+    };
 
-          // Tìm ngày bắt đầu của tuần hiện tại (tuần bắt đầu từ Thứ Hai)
-          const dayOfWeek = today.getDay();
-          const startOfWeek = new Date(today);
-          startOfWeek.setDate(
-            today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1)
-          ); // Nếu là Chủ Nhật (0), lùi về Thứ Hai tuần trước
+    window.addEventListener("message", handleAuthMessage);
 
-          // Tìm ngày kết thúc của tuần hiện tại
-          const endOfWeek = new Date(startOfWeek);
-          endOfWeek.setDate(startOfWeek.getDate() + 6); // Ngày cuối tuần (Chủ Nhật)
-
-          // Chuyển đổi lastLearningDate sang định dạng ngày
-          const lastLearningDate = response.data.lastLearningDate.split("T")[0];
-          console.log(lastLearningDate === todayISO && response.data.dailyPoints > 0 );
-
-          if (lastLearningDate !== todayISO) {
-            response.data.dailyPoints = 0;
-          }
-
-         
-          if (
-            !lastLearningDate >= startOfWeek &&
-            !lastLearningDate <= endOfWeek
-          ) {
-            response.data.weeklyPoints = 0;
-          } 
-          // if (lastLearningDate !== yesterdayISO ) {
-          //   console.log("streak");
-          //   response.data.streak = 0;
-          // }
-          if (lastLearningDate === todayISO && response.data.dailyPoints > 0 )    {
-            response.data.streak = 1;
-          }
-
-
-          dispatch(setUserProfile(response.data));
-          // Dispatch user profile to Redux
-        })
-        .catch((error) => {
-          console.error("Error fetching user data:", error);
-        });
-    }
-  }, [dispatch]);
+    return () => {
+      window.removeEventListener("message", handleAuthMessage);
+    };
+  }, []);
 
   return (
     <div className="App">

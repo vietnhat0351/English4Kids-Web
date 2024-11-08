@@ -57,17 +57,16 @@ function Flashcard({ flashcard }) {
     >
       <div className="front">
         <h3>{flashcard?.word}</h3>
+        <button onClick={playAudio}
+        >🔊 Listen</button>
+      </div>
+      <div className="back">
         <div style={{
           height: "80%",
         }}>
           <img src={flashcard?.image} alt={flashcard.word} className="flashcard-image" />
         </div>
-        <button onClick={playAudio}
-        >🔊 Listen</button>
-      </div>
-      <div className="back">
-        <h3>{flashcard?.word}</h3>
-        <p>{flashcard?.meaning}</p>
+        <h3>{flashcard?.meaning}</h3>
       </div>
     </div>
   );
