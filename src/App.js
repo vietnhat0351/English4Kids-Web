@@ -41,6 +41,7 @@ import { useDispatch } from "react-redux";
 import axios from "axios";
 import { setUserProfile } from "./redux/slices/userSlice";
 import WorkShake from "./pages/game/WorkShake";
+import Ranking from "./pages/user/ranking/Ranking";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -84,6 +85,7 @@ const router = createBrowserRouter(
           <Route path="grammar" element={<Grammar />} />
           {/* <Route path="practice" element={<Practice />} /> */}
           <Route path="practice" element={<WorkShake />} />
+          <Route path="ranking" element={<Ranking />} />
         </Route>
       </Route>
       <Route element={<EmptyLayout />}>
@@ -170,8 +172,50 @@ function App() {
           },
         })
         .then((response) => {
-          // Dispatch user profile to Redux
+          const today = new Date();
+          const todayISO = today.toISOString().split("T")[0];
+
+          const yesterday = new Date(today);
+          yesterday.setDate(today.getDate() - 1);
+          const yesterdayISO = yesterday.toISOString().split("T")[0];
+
+          // Tìm ngày bắt đầu của tuần hiện tại (tuần bắt đầu từ Thứ Hai)
+          const dayOfWeek = today.getDay();
+          const startOfWeek = new Date(today);
+          startOfWeek.setDate(
+            today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1)
+          ); // Nếu là Chủ Nhật (0), lùi về Thứ Hai tuần trước
+
+          // Tìm ngày kết thúc của tuần hiện tại
+          const endOfWeek = new Date(startOfWeek);
+          endOfWeek.setDate(startOfWeek.getDate() + 6); // Ngày cuối tuần (Chủ Nhật)
+
+          // Chuyển đổi lastLearningDate sang định dạng ngày
+          const lastLearningDate = response.data.lastLearningDate.split("T")[0];
+          console.log(lastLearningDate === todayISO && response.data.dailyPoints > 0 );
+
+          if (lastLearningDate !== todayISO) {
+            response.data.dailyPoints = 0;
+          }
+
+         
+          if (
+            !lastLearningDate >= startOfWeek &&
+            !lastLearningDate <= endOfWeek
+          ) {
+            response.data.weeklyPoints = 0;
+          } 
+          // if (lastLearningDate !== yesterdayISO ) {
+          //   console.log("streak");
+          //   response.data.streak = 0;
+          // }
+          if (lastLearningDate === todayISO && response.data.dailyPoints > 0 )    {
+            response.data.streak = 1;
+          }
+
+
           dispatch(setUserProfile(response.data));
+          // Dispatch user profile to Redux
         })
         .catch((error) => {
           console.error("Error fetching user data:", error);

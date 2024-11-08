@@ -10,14 +10,14 @@
   justify-content: flex-start;
   align-items: center;
   width: 100%;
-  height: 5%;
+  height: 6%;
   background-color: white;
 
   padding: 10px;
-  font-size: 20px;
+  font-size: 30px;
   font-weight: bold;
   color: rgb(78, 78, 78);
-  border-bottom: 1px solid gray;
+  border-bottom: 0.5px solid lightgray;
 }
 .ad-p-content {
   display: flex;
@@ -48,31 +48,28 @@
 .a-t-add-topic {
   display: flex;
   flex-direction: row;
-  justify-content: flex-start;
+  justify-content: flex-end;
   align-items: center;
-  padding-bottom: 10px;
-  padding-top: 10px;
-  width: 80%;
-  border-bottom: 1px solid lightgray;
+  padding: 5px;
+  width: 100%;
+  border-bottom: 0.1px groove lightgray;
   gap: 20px;
 }
 
 .a-t-add-button {
   display: flex;
-  justify-content: center;
   padding: 5px;
-  align-items: center;
-  background-color: lightgreen;
-  font-size: 15px;
+  background-color: #1cbb9b;
+  font-size: 20px;
   font-weight: bold;
   cursor: pointer;
-  border: 1px solid darkgreen;
+  border: 1px solid #046955;
   border-radius: 5px;
   box-shadow: 0 5px 5px #ccc;
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 .a-t-add-button:hover {
-  background-color: darkgreen;
+  background-color: #9ee9da;
   color: white;
 }
 .a-t-add-button:active {
@@ -107,4 +104,14 @@
     flex-direction: row;
     justify-content: flex-start;
     gap: 10px;
+}
+.a-l-lesson-title{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    height: 40%;
+
 }

@@ -60,6 +60,7 @@ const ProtectedRoute = ({ roles }) => {
           })
           .then((response) => {
             // Dispatch user profile to Redux
+            console.log("Scatter");
             dispatch(setUserProfile(response.data));
           })
           .catch((error) => {

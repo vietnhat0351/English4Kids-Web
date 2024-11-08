@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import "./styles.css";
-import { useLocation } from "react-router-dom";
 import {
   Box,
   Button,
@@ -8,15 +7,34 @@ import {
   InputLabel,
   MenuItem,
   Modal,
+  Popover,
   Select,
   TextField,
+  Tooltip,
   Typography,
+  Alert,
+  Snackbar,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  CircularProgress,
 } from "@mui/material";
 import customFetch from "../../../../utils/customFetch";
 import AudioPlayer from "./AudioPlayer";
 import { FileUploader } from "react-drag-drop-files";
 import { useDispatch, useSelector } from "react-redux";
 import { setCLesson } from "../../../../redux/slices/clessonSlice";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
+import SearchIcon from "@mui/icons-material/Search";
+
+import FileInput from "../../../../utils/ReadExcelFile/FileInput";
+import ReadExcel from "../../../../utils/ReadExcelFile/ReadExcel";
+import ModalUpdateQuestion from "./ModalUpdateQuestion";
+import "./modal.css";
 
 const Question = () => {
   const currentUrl = window.location.href;
@@ -26,10 +44,68 @@ const Question = () => {
   const lessonCurrent = useSelector((state) => state.clesson);
 
   const [questions, setQuestions] = useState([]);
+  const resetFields = () => {
+    setWord("");
+    setVietnameseMeaning("");
+    setPronunciation("");
+    setAudio("");
+    setType("");
+    setTypeQuestion("");
+    setContentQuestion("");
+    setAudioQuestion("");
+    setAnswerTD("");
+    setAnswerTA("");
+    setAnswerTB("");
+    setAnswerTC("");
+    setData({});
+  };
+
+  const [loadingFile, setLoadingFile] = useState(false);
 
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const handleClose = () => {
+    setOpen(false);
+    resetFields();
+  };
+  const [age, setAge] = useState('');
+
+  const handleChangeSelect = async (event) => {
+    setAge(event.target.value);
+    // lọc theo loại câu hỏi
+     if (event.target.value == 1) {
+      setQuestions(
+        lessonCurrent.lessonParts
+          .map((part) => part.questions)
+          .flat()
+          .sort((a, b) => b.id - a.id)
+      );
+    }
+    if (event.target.value == 2) {
+      setQuestions(
+        lessonCurrent.lessonParts[0].questions
+        
+      );
+    }
+    if (event.target.value == 3) {
+      setQuestions(
+        lessonCurrent.lessonParts[1].questions
+
+      );
+    }
+  };
+
+  const [openDialog, setOpenDialog] = useState(false);
+
+  const handleClickOpenDialog = () => {
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
+  const [deleteId, setDeleteId] = useState(null);
 
   const [word, setWord] = useState("");
   const [vietnameseMeaning, setVietnameseMeaning] = useState("");
@@ -51,6 +127,105 @@ const Question = () => {
   const fileTypes = ["MP3", "WAV", "OGG"];
   const [file, setFile] = useState(null);
 
+  const [excelData, setExcelData] = useState([]);
+
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [modalData, setModalData] = useState(null);
+
+  const [openSnack, setOpenSnack] = useState(false);
+
+  const handleCloseSnack = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpenSnack(false);
+  };
+
+  const openModalWithData = (dataQuestion) => {
+    setModalData(dataQuestion); // Set the data for the modal
+    setModalVisible(true); // Open the modal
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setModalData(null); // Clear the data when closing the modal
+  };
+
+  const handleFileSelect = async (file) => {
+    try {
+      let listQuestion = [];
+      let questionNew = {};
+      const data = await ReadExcel(file);
+      setExcelData(data);
+      for (let i = 0; i < data.length; i++) {
+        if (audioQuestion == null) {
+          audioQuestion = "";
+        }
+        await customFetch
+          .get(`/api/v1/lessons/find-word/${data[i].word}`)
+          .then((res) => {
+            questionNew = {
+              ...questionNew,
+              vocabulary: {
+                id: res.data.id,
+              },
+              questionType: data[i].questionType,
+              content: data[i].content,
+              audioUrl: data[i].audioUrl,
+              answers: [
+                { content: data[i].contentA, correct: false },
+                { content: data[i].contentB, correct: false },
+                { content: data[i].contentC, correct: false },
+                { content: data[i].contentD, correct: true },
+              ],
+              typeQuestion: data[i].typeQuestion,
+            };
+            if (data[i].questionType == "TRANSLATION") {
+              questionNew = {
+                ...questionNew,
+                lessonPart: {
+                  id: lessonCurrent.lessonParts[0].id,
+                },
+              };
+            }
+            if (data[i].questionType == "FILL_IN_BLANK") {
+              questionNew = {
+                ...questionNew,
+                lessonPart: {
+                  id: lessonCurrent.lessonParts[1].id,
+                },
+              };
+            }
+            if (data[i].questionType == "LISTENING") {
+              questionNew = {
+                ...questionNew,
+                lessonPart: {
+                  id: lessonCurrent.lessonParts[2].id,
+                },
+              };
+            }
+          });
+        listQuestion.push(questionNew);
+      }
+
+      await customFetch
+        .post(`/api/v1/questions/create-questions`, listQuestion)
+        .then((res) => {
+          console.log(res.data);
+        });
+
+      await customFetch
+        .get(`/api/v1/lessons/find-lesson/${lessonCurrent.id}`)
+        .then((res) => {
+          dispatch(setCLesson(res.data));
+          console.log(res.data);
+        });
+    } catch (error) {
+      console.log(error + "???");
+    }
+  };
+
   useEffect(() => {
     const fetchLesson = async () => {
       await customFetch
@@ -67,20 +242,26 @@ const Question = () => {
       lessonCurrent.lessonParts &&
       lessonCurrent.lessonParts.length > 0
     ) {
-      setQuestions(lessonCurrent.lessonParts[0].questions || []); // Sử dụng || [] để tránh lỗi nếu questions undefined
+      // Set the questions from the combied lesson parts sorted by id descending
+      setQuestions(
+        lessonCurrent.lessonParts
+          .map((part) => part.questions)
+          .flat()
+          .sort((a, b) => b.id - a.id)
+      );
     }
   }, [lessonCurrent]);
   const handleChange = (event) => {
     setTypeQuestion(event.target.value);
   };
-  const handleChangeAudio = async (file) => {
-    setFile(file);
-    await handleUploadAudio();
+  const handleChangeAudio = async (selectedFile) => {
+    setFile(selectedFile);
+    await handleUploadAudio(selectedFile);
   };
-  const handleUploadAudio = async () => {
-    // event.preventDefault();
+  const handleUploadAudio = async (selectedFile) => {
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", selectedFile);
+
     try {
       const response = await customFetch.post(
         `/api/v1/storage/upload`,
@@ -101,6 +282,17 @@ const Question = () => {
   };
 
   const handleAddQuestion = async () => {
+    if (
+      word == "" ||
+      contentQuestion == "" ||
+      answerTA == "" ||
+      answerTB == "" ||
+      answerTC == "" ||
+      answerTD == ""
+    ) {
+      setOpenSnack(true);
+      return;
+    }
     let dataQ = {
       // lessonPart: {
       //   id: lessonCurrent.lessonParts[0].id,
@@ -143,6 +335,7 @@ const Question = () => {
         },
       };
     }
+    console.log(dataQ);
     try {
       await customFetch
         .post(`/api/v1/questions/create-question`, dataQ)
@@ -154,6 +347,8 @@ const Question = () => {
               console.log(res.data);
             });
         });
+      resetFields();
+      handleClose();
     } catch (error) {
       console.log(error);
     }
@@ -175,6 +370,23 @@ const Question = () => {
       console.log(error);
     }
   };
+  const handleDeleteQuestion = async () => {
+    try {
+      await customFetch
+        .post(`/api/v1/questions/delete-question/${deleteId}`)
+        .then((res) => {
+          customFetch
+            .get(`/api/v1/lessons/find-lesson/${lessonCurrent.id}`)
+            .then((res) => {
+              dispatch(setCLesson(res.data));
+              console.log(res.data);
+            });
+        });
+      setOpenDialog(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div className="a-q-container">
@@ -182,53 +394,102 @@ const Question = () => {
         <div className="a-q-header">
           <div className="a-q-title">
             <h3>{lessonCurrent.title}</h3>
-            <div>
-              <button onClick={handleOpen}>Thêm câu hỏi</button>
+            <div className="a-q-title-add">
+              <Box sx={{ minWidth: 150 }}>
+                <FormControl fullWidth>
+                  <InputLabel id="demo-simple-select-label">Loại câu hỏi</InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={age}
+                    label="Loại câu hỏi"
+                    onChange={handleChangeSelect}
+                  >
+                    <MenuItem value={1}>Tất cả</MenuItem>
+                    <MenuItem value={2}>Translation</MenuItem>
+                    <MenuItem value={3}>Fill in blank</MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
+              <button className="a-q-add-button" onClick={handleOpen}>
+                Thêm câu hỏi
+              </button>
+              <button className="a-q-add-button">
+                Nhập bằng file excel
+                <FileInput onFileSelect={handleFileSelect} />
+              </button>
             </div>
           </div>
-
-          <div className="questions-grid">
-            {questions.map((question) => (
-              <div key={question.id} className="a-q-question-list">
-                <div className="a-q-question-content">
-                  <div className="a-q-question-content-content">
-                    <h4>Nội dung câu hỏi:</h4> {question.content}
-                  </div>
-                  <div className="a-q-question-content-content">
-                    <h4>File audio: </h4>
-                    {question.audioUrl != "" ? (
+          <div className="questions-grid-container">
+            <div className="questions-grid">
+              {questions.map((question, key) => (
+                <div key={question.id} className="a-q-question-list">
+                  <div className="a-q-question-content">
+                    <div className="a-q-question-content-content">
+                      <div className="a-q-question-content-content-content">
+                        {question.content}
+                      </div>
                       <div>
-                        <AudioPlayer audioSrc={question.audioUrl} />
+                        <button
+                          onClick={() => openModalWithData(question)}
+                          className="a-q-question-content-button"
+                        >
+                          <EditIcon sx={{ fontSize: 15 }} />
+                        </button>
                       </div>
-                    ) : (
-                      <h4 style={{ paddingBottom: "6px" }}>"Không có audio"</h4>
-                    )}
-                  </div>
-                  <div className="a-q-question-content-content">
-                    <h4>Loại câu hỏi: </h4>
-                    {question.questionType}
-                  </div>
-                </div>
-                <div className="a-q-answer">
-                  <h4>Đáp án: </h4>
-                  <div className="answers-grid">
-                    {question.answers.map((answer) => (
-                      <div
-                        key={answer.id}
-                        className={`a-q-question-answer-item ${
-                          answer.correct ? "correct" : "incorrect"
-                        }`}
-                      >
-                        <div className="a-q-question-answer-content">
-                          - {answer.content} {answer.correct ? "-" : "-"}
+                      <div>
+                        <button
+                          className="a-q-question-content-button"
+                          onClick={() => {
+                            handleClickOpenDialog();
+                            setDeleteId(question.id);
+                          }}
+                        >
+                          <DeleteIcon sx={{ fontSize: 15 }} />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="a-q-question-content-content">
+                      <h4>File audio: </h4>
+                      {!question.audioUrl ? (
+                        <div>Không có file audio</div>
+                      ) : (
+                        <div>
+                          <AudioPlayer audioSrc={question.audioUrl} />
                         </div>
-                      </div>
-                    ))}
+                      )}
+                    </div>
+                    <div className="a-q-question-content-content">
+                      <h4>Loại câu hỏi: </h4>
+                      {question.questionType}
+                    </div>
+                  </div>
+                  <div className="a-q-answer">
+                    <h4>Đáp án: </h4>
+                    <div className="answers-grid">
+                      {question.answers.map((answer) => (
+                        <div
+                          key={answer.id}
+                          className={`a-q-question-answer-item ${
+                            answer.correct ? "correct" : "incorrect"
+                          }`}
+                        >
+                          <div className="a-q-question-answer-content">
+                            - {answer.content} {answer.correct ? "-" : "-"}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
+          <ModalUpdateQuestion
+            visible={isModalVisible}
+            closeModal={closeModal}
+            data={modalData}
+          />
           <Modal
             open={open}
             onClose={handleClose}
@@ -242,10 +503,11 @@ const Question = () => {
                 left: "50%",
                 transform: "translate(-50%, -50%)",
                 width: "60%",
-                height: "80%",
+                height: "85%",
                 bgcolor: "background.paper",
-                border: "2px solid #000",
+                border: "1px solid #000",
                 boxShadow: 24,
+                borderRadius: 4,
                 p: 4,
               }}
             >
@@ -279,7 +541,7 @@ const Question = () => {
                         handleFindWord(word);
                       }}
                     >
-                      Tìm từ vựng
+                      <SearchIcon />
                     </Button>
                   </div>
                   <div>
@@ -317,11 +579,15 @@ const Question = () => {
                         value={audio}
                         onChange={(e) => setAudio(e.target.value)}
                       />
-
-                      <AudioPlayer
-                        style={{ width: "100%", backgroundColor: "lightgray" }}
-                        audioSrc={audio}
-                      />
+                      {audio && (
+                        <AudioPlayer
+                          style={{
+                            width: "100%",
+                            backgroundColor: "lightgray",
+                          }}
+                          audioSrc={audio}
+                        />
+                      )}
 
                       {/* <div>
                         <Button
@@ -350,7 +616,17 @@ const Question = () => {
                         gap: "20px",
                       }}
                     >
-                      <h1>Từ được chọn: {data.word}</h1>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "rơw",
+                          gap: "10px",
+                        }}
+                      >
+                        <h1>Từ được chọn:</h1>
+                        <h1 style={{ color: "#1cbb9b" }}>{data.word}</h1>
+                      </div>
+
                       <Box sx={{ minWidth: 120 }}>
                         <FormControl fullWidth>
                           <InputLabel id="demo-simple-select-label">
@@ -396,6 +672,13 @@ const Question = () => {
                           name="file"
                           types={fileTypes}
                         />
+                        {loadingFile && (
+                          <CircularProgress
+                            size={24}
+                            style={{ marginLeft: 10 }}
+                            color="primary"
+                          />
+                        )}
                       </div>
 
                       <TextField
@@ -447,6 +730,41 @@ const Question = () => {
               </div>
             </Box>
           </Modal>
+          <Dialog
+            open={openDialog}
+            onClose={handleCloseDialog}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title">
+              {"Bạn có chắc chắn muốn xóa câu hỏi này không?"}
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                Câu hỏi này sẽ bị xóa vĩnh viễn khỏi hệ thống.
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleCloseDialog}>Hủy</Button>
+              <Button onClick={handleDeleteQuestion} autoFocus>
+                Xóa
+              </Button>
+            </DialogActions>
+          </Dialog>
+          <Snackbar
+            open={openSnack}
+            autoHideDuration={6000}
+            onClose={handleCloseSnack}
+          >
+            <Alert
+              onClose={handleCloseSnack}
+              severity="error"
+              variant="filled"
+              sx={{ width: "100%" }}
+            >
+              Vui lòng điền đầy đủ thông tin!{" "}
+            </Alert>
+          </Snackbar>
         </div>
       )}
 

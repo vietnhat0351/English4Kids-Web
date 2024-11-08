@@ -75,7 +75,7 @@ const LessonManagement = () => {
       <div className="ad-p-title">Quản lý bài học</div>
       <div className="a-t-add-topic">
         <button className="a-t-add-button" onClick={handleOpen}>
-          Thêm bài học mới
+          + Thêm bài học
         </button>
       </div>
       <div className="a-l-lesson-grid">
@@ -90,8 +90,9 @@ const LessonManagement = () => {
                 onClick={() => {
                   navigate(`/admin/lesson/${lesson.id}`,{state: {lesson: lesson}});
                 }}
+                className="a-l-button-question"
               >
-                Quản lý câu hỏi
+                Quản lý câu hỏi 
               </button>
             </div>
           </div>
@@ -109,7 +110,7 @@ const LessonManagement = () => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: 400,
+            width: 500,
             bgcolor: "background.paper",
             border: "2px solid #000",
             boxShadow: 24,
@@ -144,6 +145,7 @@ const LessonManagement = () => {
               onClick={async () => {
                 await handleAddLesson();
               }}
+              className="a-t-add-button-add"
             >
               Thêm
             </button>
@@ -152,6 +154,7 @@ const LessonManagement = () => {
                 setNewLesson("");
                 handleClose();
               }}
+              className="a-t-add-button-add-cancel"
             >
               Hủy
             </button>

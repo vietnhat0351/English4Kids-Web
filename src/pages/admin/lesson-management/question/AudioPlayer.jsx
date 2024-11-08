@@ -1,12 +1,24 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 
-const AudioPlayer = ({ audioSrc }) => {
+const AudioPlayer = ({ audioSrc, autoPlay, onFirstPlay }) => {
   const audioRef = useRef(null);
+
+  useEffect(() => {
+    if (autoPlay && audioRef.current) {
+      audioRef.current.play().catch((error) => {
+        console.log("Autoplay failed, user interaction required");
+      });
+    }
+  }, [audioSrc, autoPlay]);
 
   const handlePlay = () => {
     if (audioRef.current) {
-      audioRef.current.play();
+      audioRef.current.play().then(() => {
+        if (onFirstPlay) {
+          onFirstPlay(); // Set autoplay allowed after the first play
+        }
+      });
     }
   };
 
@@ -14,7 +26,7 @@ const AudioPlayer = ({ audioSrc }) => {
     <div>
       <button
         style={{
-          backgroundColor: "lightgray",
+          backgroundColor: "transparent",
           border: "none",
           color: "black",
           textDecoration: "none",
