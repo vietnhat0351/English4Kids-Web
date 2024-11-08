@@ -52,29 +52,7 @@ const CardMatchingGame = () => {
         }
     }, [matchedCards, cards.length]);
 
-    function shuffleCards() {
-        const cardFaces = [
-            'A', 'A', 'B', 'B', 'C', 'C', 'D', 'D',
-            'E', 'E', 'F', 'F', 'G', 'G', 'H', 'H'
-        ];
-        return cardFaces.sort(() => Math.random() - 0.5);
-    }
-
     function handleCardClick(cardId) {
-        // if (selectedCards.length === 2 || matchedCards.includes(index)) {
-        //     return;
-        // }
-
-        // const newSelectedCards = [...selectedCards, index];
-        // setSelectedCards(newSelectedCards);
-
-        // if (newSelectedCards.length === 2) {
-        //     const [firstIndex, secondIndex] = newSelectedCards;
-        //     if (cards[firstIndex] === cards[secondIndex]) {
-        //         setMatchedCards([...matchedCards, firstIndex, secondIndex]);
-        //     }
-        //     setTimeout(() => setSelectedCards([]), 1000);
-        // }
         if (selectedCards.length === 2 || matchedCards.includes(cardId)) {
             return;
         }
