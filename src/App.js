@@ -42,6 +42,7 @@ import axios from "axios";
 import { setUserProfile } from "./redux/slices/userSlice";
 import WorkShake from "./pages/game/WorkShake";
 import CardMatchingGame from "./pages/user/flashcard/card-matching-game/CardMatchingGame";
+import ReviewFlashcard from "./pages/user/flashcard/review-flashcard/ReviewFlashcard";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -98,6 +99,7 @@ const router = createBrowserRouter(
         <Route path="*" element={<h1>404 Not Found</h1>} />
         <Route path="unauthorized" element={<UnauthorizedPage />} />
         <Route path="learn-session/:lessonId/part/:partId" element={<LearnSession />} />
+        <Route path="review-flashcard/:flashcardSetId" element={<ReviewFlashcard />} />
       </Route>
 
     </Route>

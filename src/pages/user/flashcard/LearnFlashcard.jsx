@@ -41,6 +41,9 @@ const LearnFlashcard = () => {
             <NavLink to={`/flashcard/${flashcardSetId}/card-matching`}>
                 <Button variant="contained" color="primary">Trò chơi với Flashcard</Button>
             </NavLink>
+            <NavLink to={`/review-flashcard/${flashcardSetId}`}>
+                <Button variant="contained" color="primary">Luyện Tập</Button>
+            </NavLink>
             <div className="flashcard-container">
                 <Swiper
                     
