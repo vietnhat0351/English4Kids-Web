@@ -24,7 +24,6 @@ const Learn = () => {
           const data = await customFetch
             .get("/api/v1/user/process/" + user.profile.id)
             .then((res) => {
-   
               return res.data;
             });
 
@@ -86,10 +85,13 @@ const Learn = () => {
                   <button
                     key={part.id}
                     className={getProgressClass(part.time)}
-                    onClick={() => handlePartClick(lesson.id, part.partNumber, part.id)}
+                    onClick={() =>
+                      handlePartClick(lesson.id, part.partNumber, part.id)
+                    }
                   >
                     <p>
-                      Part {part.partNumber}: Time Spent {part.time}/3
+                      Part {part.partNumber}: Time Spent{" "}
+                      {part.time > 3 ? 3 : part.time}/3
                     </p>
                   </button>
                 ))}

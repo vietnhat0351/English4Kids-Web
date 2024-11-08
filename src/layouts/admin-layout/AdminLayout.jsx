@@ -44,7 +44,7 @@ const AdminLayout = () => {
         <div className="ad-avatar">
           <Avatar
             src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/avatar.jpg"
-            sx={{ width: 64, height: 64 }}
+            sx={{ width: 50, height: 50 }}
           ></Avatar>
           <div>
             {currentUser?.firstName} {currentUser?.lastName}

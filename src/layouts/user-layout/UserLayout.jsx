@@ -15,6 +15,7 @@ import Learn from "../../pages/user/learn/Learn";
 import Flashcard from "../../pages/user/flashcard/Flashcard";
 import Vocabulary from "../../pages/user/vocabulary/Vocabulary";
 import Grammar from "../../pages/user/grammar/Grammar";
+import Ranking from "../../pages/user/ranking/Ranking";
 import Profile from "../../pages/user/profile/Profile";
 import Practice from "../../pages/practice/Practice";
 import { useDispatch, useSelector } from "react-redux";
@@ -41,13 +42,55 @@ const UserLayout = () => {
         })
         .then((response) => {
           console.log(response.data);
+          const today = new Date();
+          const todayISO = today.toISOString().split("T")[0];
+
+          const yesterday = new Date(today);
+          yesterday.setDate(today.getDate() - 1);
+          const yesterdayISO = yesterday.toISOString().split("T")[0];
+
+          // Tìm ngày bắt đầu của tuần hiện tại (tuần bắt đầu từ Thứ Hai)
+          const dayOfWeek = today.getDay();
+          const startOfWeek = new Date(today);
+          startOfWeek.setDate(
+            today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1)
+          ); // Nếu là Chủ Nhật (0), lùi về Thứ Hai tuần trước
+
+          // Tìm ngày kết thúc của tuần hiện tại
+          const endOfWeek = new Date(startOfWeek);
+          endOfWeek.setDate(startOfWeek.getDate() + 6); // Ngày cuối tuần (Chủ Nhật)
+
+          // Chuyển đổi lastLearningDate sang định dạng ngày
+          const lastLearningDate = response.data.lastLearningDate.split("T")[0];
+          console.log(lastLearningDate !== yesterdayISO);
+
+          if (lastLearningDate !== todayISO) {
+            response.data.dailyPoints = 0;
+          }
+
+         
+          if (
+            !lastLearningDate >= startOfWeek &&
+            !lastLearningDate <= endOfWeek
+          ) {
+            response.data.weeklyPoints = 0;
+          } 
+          if (lastLearningDate !== yesterdayISO ) {
+            console.log("streak");
+            response.data.streak = 0;
+          }
+          if (lastLearningDate === todayISO && response.data.dailyPoints > 0 )    {
+            response.data.streak = 1;
+          }
+
+
           dispatch(setUserProfile(response.data));
         })
         .catch((error) => {
           console.error(error);
         });
     }
-  }, [lastUrl]);
+  }, [lastUrl, user, dispatch]);
   const [centerContent, setCenterContent] = useState(<Learn />);
   const [selectedButton, setSelectedButton] = useState(1);
 
@@ -60,6 +103,7 @@ const UserLayout = () => {
     if (buttonIndex === 4) navigate("/grammar");
     if (buttonIndex === 5) navigate("/profile");
     if (buttonIndex === 6) navigate("/practice");
+    if (buttonIndex === 7) navigate("/ranking");
   };
   return (
     <div className="container">
@@ -164,7 +208,26 @@ const UserLayout = () => {
             <strong>CHƠI TRÒ CHƠI</strong>
           </div>
         </button>
-
+        <button
+          className={`button ${
+            selectedButton === 7 ? "selected-button" : "bbton"
+          }`}
+          onClick={() => handleButtonClick(<Profile />, 7)}
+        >
+          <div className="button-content">
+            <img
+              src={
+                selectedButton === 7
+                  ? "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/ranking.png"
+                  : "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/ranking.gif"
+              }
+              alt="My GIF"
+              style={{ width: "50px", height: "50px" }} // Thay đổi kích thước tại đây
+              onDragStart={(e) => e.preventDefault()}
+            />
+            <strong>XEM BẢNG XẾP HẠNG</strong>
+          </div>
+        </button>
         <button
           className={`button ${
             selectedButton === 5 ? "selected-button" : "bbton"
@@ -197,9 +260,18 @@ const UserLayout = () => {
             style={{ width: "100px", height: "100px" }} // Thay đổi kích thước tại đây
             onDragStart={(e) => e.preventDefault()}
           />
-          <strong>
-            Bạn đã học {user && <strong>{user.streak} ngày liên tục</strong>}
-          </strong>
+          <div style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+            textAlign: "center",
+            fontSize: "20px",
+            gap : "10px",
+            padding: "10px",
+          }}>
+              Bạn đã học <h4>{user && user.streak}</h4> ngày liên tục
+          </div>
         </div>
         <div className="right-content">
           <img
@@ -209,9 +281,12 @@ const UserLayout = () => {
             onDragStart={(e) => e.preventDefault()}
           />
           <div>
-            <strong>Bạn đang ở hạng ...</strong>
+            <strong>Điểm kiếm được</strong>
             <div>
-              <p>Hãy tiếp tục phấn đấu !</p>
+              
+              <p>Điểm hôm nay: {user && user.dailyPoints}</p>
+              <p>Điểm tuần này: {user && user.weeklyPoints}</p>
+
             </div>
           </div>
         </div>

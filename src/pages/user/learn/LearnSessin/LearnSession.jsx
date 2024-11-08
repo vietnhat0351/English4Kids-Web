@@ -7,6 +7,7 @@ import "./styles.css";
 import { IconButton, Tooltip } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import AudioPlayer from "../../../admin/lesson-management/question/AudioPlayer";
+import { setUserProfile } from "../../../../redux/slices/userSlice";
 
 const LearnSession = () => {
   const user = useSelector((state) => state.user);
@@ -25,23 +26,54 @@ const LearnSession = () => {
   const [question, setQuestion] = useState(0);
   const [total, setTotal] = useState(0);
 
+  const [rightAnswers, setRightAnswers] = useState(0);
+
+  const [canClickAnswer, setCanClickAnswer] = useState(true);
+
   const progressPercent = total > 0 ? (question / total) * 100 : 0;
 
   const [shuffledAnswers, setShuffledAnswers] = useState([]);
+
+  const [result, setResult] = useState(false);
+  const [isCorrect, setIsCorrect] = useState(false);
+
+  const [isCorrectColor, setIsCorrectColor] = useState("l-result-correct");
+
+  const [answerButtonColor, setAnswerButtonColor] = useState(false);
+
+  const [isAutoplayAllowed, setIsAutoplayAllowed] = useState(false);
+
+  const [userResult, setUserResult] = useState({});
+
+  const handleFirstPlay = () => {
+    setIsAutoplayAllowed(true);
+  };
 
   // Hàm xáo trộn mảng
   const shuffleArray = (array) => {
     return array.sort(() => Math.random() - 0.5);
   };
 
-  const playSound = () => {
-    const audio = new Audio(
-      "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/Correct+Answer+sound+effect.mp3"
-    );
-    audio.play().catch((error) => console.log("Audio playback failed:", error));
-  };
+  // const playSound = () => {
+  //   if (isCorrect) {
+  //     const audio = new Audio(
+  //       "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/Correct+Answer+sound+effect.mp3"
+  //     );
+  //     audio
+  //       .play()
+  //       .catch((error) => console.log("Audio playback failed:", error));
+  //   } else {
+  //     const audio = new Audio(
+  //       "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/Incorrect+sound+effect.mp3"
+  //     );
+  //     audio
+  //       .play()
+  //       .catch((error) => console.log("Audio playback failed:", error));
+  //   }
+  // };
 
   const saveLessonProgress = async () => {
+    console.log(rightAnswers, total);
     const data = {
       user: {
         id: user.profile.id,
@@ -49,11 +81,43 @@ const LearnSession = () => {
       lessonPart: {
         id: clesson.lessonParts[partId].id,
       },
+      sessionDate: new Date().toISOString().split("T")[0],
+      questionsAttempted: total,
+      questionsCorrect: rightAnswers,
+      completed: true,
+      pointsEarned: Math.round(((rightAnswers + 1) / total) * 100),
     };
 
-    await customFetch
-      .post("/api/v1/user/process/add-user-process", data)
-      .then((res) => console.log(res.data));
+    setUserResult(data);
+    setRightAnswers(0);
+    if (data.pointsEarned > 50) {
+      try {
+        await customFetch
+          .post("/api/v1/user/process/add-user-process", data)
+          .then((res) => console.log(res.data));
+      } catch (error) {
+        console.error("Error saving lesson progress:", error);
+      }
+      let userUpdate = { ...user.profile };
+      userUpdate.dailyPoints += data.pointsEarned;
+      userUpdate.totalPoints += data.pointsEarned;
+      userUpdate.weeklyPoints += data.pointsEarned;
+      if (userUpdate.lastLearningDate !== data.sessionDate) {
+        userUpdate.streak += 1;
+      }
+      userUpdate.lastLearningDate = data.sessionDate;
+
+      dispatch(setUserProfile(userUpdate));
+
+      console.log(JSON.stringify(userUpdate));
+      try {
+        await customFetch
+          .post("/api/v1/user/update-user-point", userUpdate)
+          .then((res) => console.log(res.data));
+      } catch (error) {
+        console.error("Error saving lesson progress:", error);
+      }
+    }
   };
 
   useEffect(() => {
@@ -88,16 +152,31 @@ const LearnSession = () => {
     }
   }, [question, clesson, partId, dispatch]);
 
-  const handleAnswerSelection = (answer) => {
+  const handleAnswerSelection = async (question, answer) => {
+    //Tìm câu trả lời đúng
+    setCanClickAnswer(false);
+    setAnswerButtonColor(true);
+    setResult(true);
     if (answer.correct) {
-      playSound();
       console.log("Correct");
-      setQuestion((prev) => prev + 1);
-      if (question >= total - 1) {
-        saveLessonProgress();
-      }
+      setIsCorrect(true);
+      setIsCorrectColor("l-result-correct");
+      const audio = new Audio(
+        "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/Correct+Answer+sound+effect.mp3"
+      );
+      audio
+        .play()
+        .catch((error) => console.log("Audio playback failed:", error));
     } else {
-      console.log("Incorrect");
+      console.log(answer);
+      setIsCorrect(false);
+      setIsCorrectColor("l-result-incorrect");
+      const audio = new Audio(
+        "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/Incorrect+sound+effect.mp3"
+      );
+      audio
+        .play()
+        .catch((error) => console.log("Audio playback failed:", error));
     }
   };
 
@@ -111,12 +190,6 @@ const LearnSession = () => {
         <>
           <div className="learn-session-header">
             <div className="progress-header">
-              <div className="progress-bar">
-                <div
-                  className="progress-bar-fill"
-                  style={{ width: `${progressPercent}%` }}
-                ></div>
-              </div>
               <button>
                 <Tooltip title="Close">
                   <IconButton
@@ -128,6 +201,12 @@ const LearnSession = () => {
                   </IconButton>
                 </Tooltip>
               </button>
+              <div className="progress-bar">
+                <div
+                  className="progress-bar-fill"
+                  style={{ width: `${progressPercent}%` }}
+                ></div>
+              </div>
             </div>
             <p>
               Tiến trình: {question}/{total}
@@ -145,8 +224,11 @@ const LearnSession = () => {
                 audioSrc={
                   clesson.lessonParts[partId].questions[question].audioUrl
                 }
+                autoPlay={isAutoplayAllowed}
+                onFirstPlay={handleFirstPlay}
               />
             )}
+
             <div className="learn-session-question-content">
               <p>{clesson.lessonParts[partId].questions[question].content}</p>
             </div>
@@ -156,20 +238,95 @@ const LearnSession = () => {
             {shuffledAnswers.map((answer, index) => (
               <button
                 key={index}
-                onClick={() => handleAnswerSelection(answer)}
-                className="answer-button"
+                onClick={() => handleAnswerSelection(question, answer)}
+                className={
+                  answerButtonColor
+                    ? answer.correct
+                      ? "answer-button-correct"
+                      : "answer-button-incorrect"
+                    : "answer-button"
+                }
+                disabled={!canClickAnswer}
               >
                 {answer.content}
               </button>
             ))}
           </div>
+          {result ? (
+            <div className={isCorrectColor}>
+              {isCorrect ? (
+                <div className="l-result-bar">
+                  Câu trả lời chính xác
+                  <button>
+                    <Tooltip title="Close">
+                      <IconButton
+                        onClick={() => {
+                          setAnswerButtonColor(false);
+                          setCanClickAnswer(true);
+                          setQuestion((prev) => prev + 1);
+                          setRightAnswers((prev) => prev + 1);
+                          if (question >= total - 1) {
+                            saveLessonProgress();
+                          }
+                          setResult(false);
+                        }}
+                      >
+                        Tiếp tục
+                      </IconButton>
+                    </Tooltip>
+                  </button>
+                </div>
+              ) : (
+                <div className="l-result-bar">
+                  Câu trả lời không chính xác
+                  <button>
+                    <Tooltip title="Close">
+                      <IconButton
+                        onClick={() => {
+                          setAnswerButtonColor(false);
+                          setCanClickAnswer(true);
+                          setQuestion((prev) => prev + 1);
+                          if (question >= total - 1) {
+                            saveLessonProgress();
+                          }
+                          setResult(false);
+                        }}
+                      >
+                        Tiêp tục
+                      </IconButton>
+                    </Tooltip>
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div></div>
+          )}
         </>
       ) : (
-        <div>
+        <div className="l-bar-finish">
+          {/* <h1>Hoàn thành!</h1> */}
           <img
-            src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/success.gif"
+            src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/success.png"
             alt=""
+            width={400}
+            height={400}
           />
+          <div className="l-bar-finish-body">
+            <div className="l-bar-finish-body-1">
+              Tổng điểm KN:
+              <div className="l-bar-finish-body-3">
+                {userResult.pointsEarned} điểm
+              </div>
+            </div>
+            <div className="l-bar-finish-body-2">
+              Quyết tâm!
+              <div className="l-bar-finish-body-3">
+                {userResult.questionsCorrect+1}/{userResult.questionsAttempted}{" "}
+                câu đúng
+              </div>
+            </div>
+          </div>
           <button>
             <Tooltip title="Close">
               <IconButton

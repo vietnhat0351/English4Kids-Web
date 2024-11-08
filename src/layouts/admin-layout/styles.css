@@ -23,7 +23,7 @@
   width: 15%; /* Chiếm 20% chiều rộng màn hình */
   flex-direction: column;
   border-right: 2px solid lightgray;
-  background: linear-gradient(to bottom, darkGreen, white);
+  background: linear-gradient(to bottom, #a8ffee, white);
   position: fixed;
   left : 0;
   top: 0;
@@ -45,7 +45,7 @@
   align-items: center;
   padding: 10px;
   height: 7%; /* Chiếm 10% chiều cao của ad-right */
-  background: linear-gradient(to right, darkGreen, white); /* Chỉ để dễ nhìn, bạn có thể thay đổi */
+  background: linear-gradient(to right, #1cbb9b, white); /* Chỉ để dễ nhìn, bạn có thể thay đổi */
 }
 
 .ad-content {
@@ -55,12 +55,12 @@
 .ad-avatar {
   display: flex;
   flex-direction: row;
-  padding: 1rem;
+  padding: 10px;
   justify-content: flex-start;
   align-items: center;
   gap: 10px;
   border-bottom: 1px solid aquamarine;
-  background-color: rgb(0, 80, 0);
+  background-color:#1cbb9b;
 }
 .ad-menu {
   display: flex;
@@ -80,7 +80,7 @@
   transition: background-color 0.3s;
   text-decoration: none;
   color: black;
-  font-size: large;
+  font-size: medium;
 }
 .ad-menu-item-selected {
   border: solid 2px #228b22;
@@ -95,10 +95,10 @@
   cursor: pointer;
   transition: background-color 0.3s;
   text-decoration: none;
-  font-size: large;
+  font-size: medium;
 }
 .ad-menu-item-none:hover {
-  background-color: rgb(236, 235, 235);
+  background-color: rgb(255, 255, 255);
 }
 
 .ad-header-right {

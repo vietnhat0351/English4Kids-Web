@@ -43,6 +43,7 @@ import { setUserProfile } from "./redux/slices/userSlice";
 import WorkShake from "./pages/game/WorkShake";
 import CardMatchingGame from "./pages/user/flashcard/card-matching-game/CardMatchingGame";
 import ReviewFlashcard from "./pages/user/flashcard/review-flashcard/ReviewFlashcard";
+import Ranking from "./pages/user/ranking/Ranking";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -89,6 +90,7 @@ const router = createBrowserRouter(
           <Route path="grammar" element={<Grammar />} />
           {/* <Route path="practice" element={<Practice />} /> */}
           <Route path="practice" element={<WorkShake />} />
+          <Route path="ranking" element={<Ranking />} />
         </Route>
       </Route>
 
@@ -152,8 +154,6 @@ function App() {
       window.removeEventListener("message", handleAuthMessage);
     };
   }, []);
-
-
 
   return (
     <div className="App">
