@@ -70,39 +70,48 @@ const Learn = () => {
       <div className="l-title">
         <h1>HỌC THEO GIÁO TRÌNH</h1>
       </div>
+      <div style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        width: "100%",
+        height: "100%",
+      }}>
+        
+          {userProcess.lessonProcesses &&
+            userProcess.lessonProcesses.length > 0 ? (
+            userProcess.lessonProcesses.map((lesson, index) => (
+              <div className="lesson-container">
+              <div key={lesson.id} className="lesson-card">
+                <div className="lession-title">
+                  <h2>{lesson.title}</h2>
+                </div>
 
-      <div className="lesson-container">
-        {userProcess.lessonProcesses &&
-        userProcess.lessonProcesses.length > 0 ? (
-          userProcess.lessonProcesses.map((lesson, index) => (
-            <div key={lesson.id} className="lesson-card">
-              <div className="lession-title">
-                <h2>{lesson.title}</h2>
+                <div className="lesson-parts">
+                  {lesson.parts.map((part) => (
+                    <button
+                      key={part.id}
+                      className={getProgressClass(part.time)}
+                      onClick={() =>
+                        handlePartClick(lesson.id, part.partNumber, part.id)
+                      }
+                    >
+                      <p>
+                        Part {part.partNumber}: Time Spent{" "}
+                        {part.time > 3 ? 3 : part.time}/3
+                      </p>
+                    </button>
+                  ))}
+                </div>
               </div>
-
-              <div className="lesson-parts">
-                {lesson.parts.map((part) => (
-                  <button
-                    key={part.id}
-                    className={getProgressClass(part.time)}
-                    onClick={() =>
-                      handlePartClick(lesson.id, part.partNumber, part.id)
-                    }
-                  >
-                    <p>
-                      Part {part.partNumber}: Time Spent{" "}
-                      {part.time > 3 ? 3 : part.time}/3
-                    </p>
-                  </button>
-                ))}
               </div>
-            </div>
-          ))
-        ) : (
-          <p>No lessons available</p>
-        )}
+            ))
+          ) : (
+            <p>No lessons available</p>
+          )}
+        </div>
       </div>
-    </div>
   );
 };
 

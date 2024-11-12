@@ -12,14 +12,13 @@ import { MdOutlineVisibility, MdOutlineVisibilityOff } from "react-icons/md";
 import { useDispatch } from "react-redux";
 import { setUserProfile } from "../../redux/slices/userSlice";
 
-import { FcGoogle } from "react-icons/fc";
 import { jwtDecode } from "jwt-decode";
+import { FcGoogle } from "react-icons/fc";
 
-import imgHello from "../../assets/Hi.gif";
 import LOGO from "../../assets/WebLogo.png";
 
-import "./styles.css";
 import { useNavigate } from "react-router-dom";
+import "./styles.css";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -106,7 +105,15 @@ const Login = () => {
   };
 
   return (
-    <div className="container">
+    <div style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      height: "100vh",
+      flexDirection: "row",
+      overflow: "hidden",
+      scrollbarWidth: "none",
+    }}>
       <div className="imgLogin">
         <img
           src={LOGO}

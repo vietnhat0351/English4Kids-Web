@@ -47,12 +47,7 @@ import Ranking from "./pages/user/ranking/Ranking";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route
-      path="/"
-      style={{
-        border: "5px solid red",
-      }}
-    >
+    <Route path="/">
       <Route element={<AdminLayout />} path="/admin">
         <Route element={<ProtectedRoute roles={["ROLE_ADMIN"]} />}>
           <Route index element={<HomePage />} />
@@ -80,7 +75,7 @@ const router = createBrowserRouter(
             {/* <Route path="edit/:flashcardSetId" element={<CreateFlashcardSet />} /> */}
             <Route path=":flashcardSetId" element={<LearnFlashcard />} />
             <Route path=":flashcardSetId/edit" element={<EditFlashcardSet />} />
-            <Route path=":flashcardSetId/card-matching" element={<CardMatchingGame />} />
+            {/* <Route path=":flashcardSetId/card-matching" element={<CardMatchingGame />} /> */}
           </Route>
           <Route path="vocabulary">
             <Route index element={<Vocabulary />} />
@@ -89,7 +84,7 @@ const router = createBrowserRouter(
           <Route path="profile" element={<Profile />} />
           <Route path="grammar" element={<Grammar />} />
           {/* <Route path="practice" element={<Practice />} /> */}
-          <Route path="practice" element={<WorkShake />} />
+          
           <Route path="ranking" element={<Ranking />} />
         </Route>
       </Route>
@@ -102,6 +97,8 @@ const router = createBrowserRouter(
         <Route path="unauthorized" element={<UnauthorizedPage />} />
         <Route path="learn-session/:lessonId/part/:partId" element={<LearnSession />} />
         <Route path="review-flashcard/:flashcardSetId" element={<ReviewFlashcard />} />
+        <Route path="flashcard/:flashcardSetId/card-matching" element={<CardMatchingGame />} />
+        <Route path="practice" element={<WorkShake />} />
       </Route>
 
     </Route>
@@ -156,7 +153,7 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
+    <div>
       <RouterProvider router={router} />
     </div>
   );

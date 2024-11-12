@@ -13,44 +13,36 @@
     user-select: none; /* Ngăn chọn văn bản */
   }
   
-  .container {
+  .vip-container {
     display: flex;
+    flex-direction: row;
     width: 100%;
+    height: 100vh;
+    background-color: #ffffff;
   }
   
   .leftContainer {
-
-    flex: 0 0 20%;
-    background-color: #ffffff;
-    height: 100vh; 
-    padding: 10px; 
-    position: fixed;
+    flex: 3;
+    /* background-color: #ffffff; */
+    padding: 0.5rem;
     left: 0;
     top: 0;
   }
   .centerContainer {
-    /* margin-left: 200px; 
-    margin-right: 350px; 
-    padding: 20px;
-    
-    min-height: 100vh; 
-   
+    flex: 6;
     align-items: center;
-    justify-content: center; */
-    flex: 0 0 60%; 
-    background-color: #e0e0e0;
+    justify-content: center;
+    background-color: #906363;
     overflow-y: auto;
-    
+    /* overflow: hidden; */
+    scrollbar-width: thin;
+    /* padding: 0.5rem; */
   }
   
   .rightContainer {
-    flex: 0 0 20%; 
-    background-color: #ffffff;
-    height: 100vh; 
-    position: fixed; 
-    right: 0; 
-    top: 0;
-    
+    flex: 3;
+    padding: 0.5rem;
+    /* background-color: #ffffff; */
   }
   .right-header {
     display: flex;

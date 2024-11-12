@@ -21,6 +21,7 @@ import Practice from "../../pages/practice/Practice";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { setUserProfile } from "../../redux/slices/userSlice";
+import { Paper } from "@mui/material";
 
 const UserLayout = () => {
   const navigate = useNavigate();
@@ -106,8 +107,8 @@ const UserLayout = () => {
     if (buttonIndex === 7) navigate("/ranking");
   };
   return (
-    <div className="container">
-      <div className="leftContainer">
+    <div className="vip-container">
+      <Paper className="leftContainer">
         <button
           style={{
             backgroundColor: "transparent",
@@ -248,11 +249,11 @@ const UserLayout = () => {
             <strong>XEM HỒ SƠ</strong>
           </div>
         </button>
-      </div>
+      </Paper>
       <div className="centerContainer">
         <Outlet />
       </div>
-      <div className="rightContainer">
+      <Paper className="rightContainer">
         <div className="right-header">
           <img
             src={imgFire}
@@ -290,7 +291,7 @@ const UserLayout = () => {
             </div>
           </div>
         </div>
-      </div>
+      </Paper>
     </div>
   );
 };

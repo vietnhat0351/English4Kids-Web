@@ -23,8 +23,8 @@ export const formatDateTime = (dateTimeString) => {
     month = month.toString().padStart(2, '0');
 
     // Tạo chuỗi định dạng
-    let formattedDateTime = `${hours}:${minutes}:${seconds}, ${dayOfWeek} ${day}/${month}/${year}`;
-    
+    // let formattedDateTime = `${hours}:${minutes}:${seconds}, ${dayOfWeek} ${day}/${month}/${year}`;
+    let formattedDateTime = `${day}/${month}/${year}`;
     return formattedDateTime;
 }
 

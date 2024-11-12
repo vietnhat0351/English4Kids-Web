@@ -7,6 +7,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { formatDateTime } from '../../../utils/Utils';
 import customFetch from '../../../utils/customFetch';
+import { FaPlus } from 'react-icons/fa6';
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -53,7 +54,7 @@ const headCells = [
     id: 'quantity',
     numeric: false,
     disablePadding: false,
-    label: 'Số Lượng Flashcard',
+    label: 'Số Lượng',
   },
   {
     id: 'description',
@@ -61,7 +62,7 @@ const headCells = [
     disablePadding: false,
     label: 'Mô Tả',
   },
-    {
+  {
     id: 'createdAt',
     numeric: false,
     disablePadding: false,
@@ -97,7 +98,7 @@ function EnhancedTableHead(props) {
             align="center"
             // padding={headCell.disablePadding ? 'none' : 'normal'}
             sortDirection={orderBy === headCell.id ? order : false}
-            // style={{ width: headCell.id === 'name' ? 100 : 100 }}
+            style={{ width: headCell.id === 'name' ? 100 : 50 }}
           >
             <TableSortLabel
               active={orderBy === headCell.id}
@@ -323,14 +324,28 @@ export const Flashcard = () => {
   return (
     <div style={{
       padding: '1rem',
+      gap: '1rem',
+      display: 'flex',
+      flexDirection: 'column',
     }}>
-      <h1>Flashcard</h1>
-      {/* <Button variant="contained" color="primary">Tạo bộ Flashcard</Button> */}
-      <NavLink to="/flashcard/create">
-        <Button variant="contained" color="primary">Tạo bộ Flashcard</Button>
-      </NavLink>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        
+      }}>
+        <NavLink to="/flashcard/create">
+          <Button variant='contained' color="primary">
+          <FaPlus size='30'/>
+          </Button>
+        </NavLink>
+      </div>
       <div>
-        <div>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '1rem',
+          flexWrap: 'wrap',
+        }}>
           {isLoading ? <CircularProgress /> : (<Box sx={{ width: '100%' }}>
             <Paper sx={{ width: '100%', mb: 2 }}>
               <EnhancedTableToolbar selected={selected} setRows={setRows} rows={rows} />

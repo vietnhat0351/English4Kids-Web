@@ -34,19 +34,34 @@ const LearnFlashcard = () => {
 
     return (
         <div>
-            <h1>{flashcardSet?.name}</h1>
-            <NavLink to={`/flashcard/${flashcardSetId}/edit`}>
-                <Button variant="contained" color="primary">Sửa bộ flashcard</Button>
-            </NavLink>
-            <NavLink to={`/flashcard/${flashcardSetId}/card-matching`}>
-                <Button variant="contained" color="primary">Trò chơi với Flashcard</Button>
-            </NavLink>
-            <NavLink to={`/review-flashcard/${flashcardSetId}`}>
-                <Button variant="contained" color="primary">Luyện Tập</Button>
-            </NavLink>
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginBottom: '1rem',
+            }}>
+                <h1>{flashcardSet?.name}</h1>
+            </div>
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '1rem',
+                marginBottom: '1rem',
+            }}>
+                <NavLink to={`/flashcard/${flashcardSetId}/edit`}>
+                    <Button variant="contained" color="primary">Sửa bộ flashcard</Button>
+                </NavLink>
+                <NavLink to={`/flashcard/${flashcardSetId}/card-matching`}>
+                    <Button variant="contained" color="primary">Trò chơi với Flashcard</Button>
+                </NavLink>
+                <NavLink to={`/review-flashcard/${flashcardSetId}`}>
+                    <Button variant="contained" color="primary">Luyện Tập</Button>
+                </NavLink>
+            </div>
             <div className="flashcard-container">
                 <Swiper
-                    
+
                     modules={[Navigation, Pagination, Scrollbar, A11y, Keyboard]}
                     spaceBetween={50}
                     slidesPerView={1}
@@ -65,7 +80,7 @@ const LearnFlashcard = () => {
                         width: '100%',
                         height: '500px',
                     }}
-                    
+
                 >
                     {flashcardSet?.flashcards.map((flashcard, index) => (
                         <SwiperSlide key={index} style={{
@@ -73,7 +88,7 @@ const LearnFlashcard = () => {
                             justifyContent: 'center',
                             alignItems: 'center',
                             padding: '10px',
-                           height: '90%',
+                            height: '90%',
                         }}>
                             <div style={{
                                 margin: '1rem',
