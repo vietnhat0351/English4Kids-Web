@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import './WorkShake.css'
+// chọn card-matching-bg-image.webp từ assets
+import bgImage from '../../assets/card-matching-bg-image.webp'
 
 const WorkShake = () => {
 
@@ -27,46 +29,6 @@ const WorkShake = () => {
             handleNewGame();
         }
     }, [time]);
-
-    // Tạo mảng các chữ cái dựa trên tần suất xuất hiện của chúng
-    // const letterDistribution = [
-    //     'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E',
-    //     'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T', 'T',
-    //     'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A',
-    //     'O', 'O', 'O', 'O', 'O', 'O', 'O',
-    //     'I', 'I', 'I', 'I', 'I', 'I', 'I',
-    //     'N', 'N', 'N', 'N', 'N', 'N',
-    //     'S', 'S', 'S', 'S', 'S',
-    //     'H', 'H', 'H', 'H',
-    //     'R', 'R', 'R', 'R',
-    //     'D', 'D', 'D',
-    //     'L', 'L', 'L',
-    //     'C', 'C', 'C',
-    //     'U', 'U', 'U',
-    //     'M', 'M', 'M',
-    //     'W', 'W',
-    //     'F', 'F',
-    //     'G', 'G',
-    //     'Y', 'Y',
-    //     'P', 'P',
-    //     'B', 'B',
-    //     'V', 'V',
-    //     'K',
-    //     'J',
-    //     'X',
-    //     'Q',
-    //     'Z'
-    // ];
-
-    // Hàm sinh các chữ cái ngẫu nhiên theo tần suất thực tế
-    // const generateRandomLetters = () => {
-    //     const randomLetters = [];
-    //     for (let i = 0; i < 16; i++) {
-    //         const randomIndex = Math.floor(Math.random() * letterDistribution.length);
-    //         randomLetters.push(letterDistribution[randomIndex]);
-    //     }
-    //     return randomLetters;
-    // };
 
     const letterTables = new Map();
     // bảng 1: CPTIUOISTANCCORN
@@ -180,60 +142,86 @@ const WorkShake = () => {
     };
 
     return (
-        <div className="App">
-            <div className="header">
-                <div className="time">{formatTime(time)}</div>
-                <div className="new-game-btn" onClick={handleNewGame}>New game</div>
-                <div className="home-btn">Home</div>
-            </div>
-
+        <div className="ws-App" style={{
+            backgroundImage: `url(${bgImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: '100% 100%',
+        }}>
             <div className="game-area">
-                <div className="grid">
-                    {letters.map((letter, index) => (
-                        <div key={index}
-                            className={selectedCellIds.includes(index) ? 'grid-cell-clicked' : 'grid-cell'}
-                            onClick={() => handleCellClick(letter, index)}>
-                            {letter}
-                        </div>
-                    ))}
-                </div>
-
                 <div style={{
                     display: 'flex',
                     flexDirection: 'column',
-                    justifyContent: 'space-between',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: '1rem',
                     height: '100%',
-                    border: '1px solid #ccc',
                     width: '100%',
                 }}>
-                    <div className="scrollable-table">
-                        <table className='ws-table'>
-                            <thead>
-                                <tr>
-                                    <th>Word</th>
-                                    <th>Points</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {words.map((word, index) => (
-                                    <tr key={index}>
-                                        <td>{word}</td>
-                                        <td>{word.length}</td>
+                    <div className="time">{formatTime(time)}</div>
+                    <div className="grid">
+                        {letters.map((letter, index) => (
+                            <div key={index}
+                                className={selectedCellIds.includes(index) ? 'grid-cell-clicked' : 'grid-cell'}
+                                onClick={() => handleCellClick(letter, index)}>
+                                {letter}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%',
+                    width: '100%',
+                }}>
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        paddingBottom: '2rem',
+                        borderBottom: '1px solid #ccc',
+                    }}>
+                        <div className="new-game-btn" onClick={handleNewGame}>New game</div>
+                        <div className="home-btn">Home</div>
+                    </div>
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        height: '100%',
+                        border: '1px solid #ccc',
+                        width: '100%',
+                    }}>
+                        <div className="scrollable-table">
+                            <table className='ws-table'>
+                                <thead>
+                                    <tr>
+                                        <th>Word</th>
+                                        <th>Points</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                </thead>
+                                <tbody>
+                                    {words.map((word, index) => (
+                                        <tr key={index}>
+                                            <td>{word}</td>
+                                            <td>{word.length}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
 
-                    <div className="selected-word">
-                        {selectedWord.toUpperCase()}
-                    </div>
+                        <div className="selected-word">
+                            {selectedWord.toUpperCase()}
+                        </div>
 
-                    <div className="controls">
-                        <button className="cancel-btn" onClick={handleCancel}>Cancel</button>
-                        <button className="enter-btn" onClick={handleEnter}>Enter</button>
-                    </div>
+                        <div className="controls">
+                            <button className="cancel-btn" onClick={handleCancel}>Cancel</button>
+                            <button className="enter-btn" onClick={handleEnter}>Enter</button>
+                        </div>
 
+                    </div>
                 </div>
             </div>
 

@@ -3,14 +3,6 @@
   src: url(../../../public/NotoSansJP-VariableFont_wght.ttf);
 }
 
-.container {
-  display: "flex";
-  flex-direction: row;
-
-  justify-content: center;
-  align-items: center;
-  background-color: white;
-}
 .imgLogin {
   display: flex;
   flex: 0 0 50%;
