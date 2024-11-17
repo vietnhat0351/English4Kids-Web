@@ -57,50 +57,36 @@
     border-radius: 0 0 500px 500px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
-.r-content{
+.r-content {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
     width: 100%;
-    height: 70%;
-    background-color: rgb(255, 255, 255);
-    padding: 10px;
-    gap: 10px;
-}
-.r-content-title{
+  }
+  
+  .r-content-title, .r-content-body, .r-content-body-me {
     display: flex;
-    flex-direction: row;
     align-items: center;
-    justify-content: space-evenly;
-    width: 100%;
-    height: 50%;
+    justify-content: space-between;
     padding: 10px;
-    gap: 10px;
     font-weight: bold;
-}
-.r-content-body{
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-evenly;
-    width: 100%;
-    height: 50%;
-    padding: 10px;
-    gap: 10px;
-}
-.r-content-body-me{
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-evenly;
-    width: 100%;
-    height: 50%;
-    padding: 10px;
-    gap: 10px;
-    background-color: lightblue;
-    border : 1px solid lightblue;
-    border-radius: 10px;
-    font-weight: bold;
-
-}
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .r-content-title > div, .r-content-body > div, .r-content-body-me > div {
+    flex: 1;
+    text-align: center;
+  }
+  
+  .r-content-body-me {
+    background-color: #f0f8ff; /* Màu nền nổi bật cho người dùng hiện tại */
+  }
+  
+  .r-content-title {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+  .r-content-title > div:first-child, .r-content-body > div:first-child, .r-content-body-me > div:first-child {
+    flex: 0.5;
+  }
+  

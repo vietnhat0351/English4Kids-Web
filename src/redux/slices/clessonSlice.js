@@ -1,12 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const clessonSlice = createSlice({
-  name: "clesson",
+const lessonSelectedSlice = createSlice({
+  name: "lessonSelected",
   initialState: {},
   reducers: {
-    setCLesson: (state, action) => action.payload,
+    setLessonSelected: (state, action) => action.payload,
   },
 });
 
-export const { setCLesson } = clessonSlice.actions;
-export default clessonSlice.reducer;
+export const { setLessonSelected } = lessonSelectedSlice.actions;
+export default lessonSelectedSlice.reducer;

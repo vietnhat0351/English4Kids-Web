@@ -71,22 +71,31 @@ const Ranking = () => {
           </div>
         </div>
       )}
-      {ranking.length >0 && (
+      {ranking.length > 0 && (
         <div className="r-content">
           <div className="r-content-title">
-            <div>Hạng</div>
             <div>Hạng</div>
             <div>Tên</div>
             <div>Điểm</div>
           </div>
           {ranking.map((userA, index) => (
-            <div key={index} className={userA.id === user.profile.id ? "r-content-body-me" : "r-content-body"}>
-              <Avatar
-                src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/bronze-medal.png"
-                sx={{ width: 40, height: 40 }}
-              ></Avatar>
-              <div>{index + 4}</div>
-              <div>{userA.firstName +" "+ userA.lastName}</div>
+            <div
+              key={index}
+              className={
+                userA.id === user.profile.id
+                  ? "r-content-body-me"
+                  : "r-content-body"
+              }
+            >
+              <div>
+                {" "}
+                <Avatar
+                  src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/bronze-medal.png"
+                  sx={{ width: 40, height: 40 }}
+                />
+                {index + 4}
+              </div>
+              <div>{userA.firstName + " " + userA.lastName}</div>
               <div>{userA.weeklyPoints}</div>
             </div>
           ))}
