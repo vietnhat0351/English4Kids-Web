@@ -12,110 +12,168 @@
   font-family: Signika;
   src: url(../../../public/SignikaNegative-VariableFont_wght.ttf);
 }
+@font-face {
+  font-family: Sour;
+  src: url(../../../public/SourGummy-VariableFont_wdth\,wght.ttf);
+}
 
 .ad-container {
   display: flex;
-  width: 100%;
-  height: 100vh; /* Chiều cao toàn màn hình */
-}
-
-.ad-left {
-  width: 15%; /* Chiếm 20% chiều rộng màn hình */
   flex-direction: column;
-  border-right: 2px solid lightgray;
-  background: linear-gradient(to bottom, #a8ffee, white);
-  position: fixed;
-  left : 0;
-  top: 0;
-  height: 100vh;
+  width: 100%;
+  background-color: #f8f8f8;
+  min-height: 100vh;
+  overflow-y: auto;
 }
-
-.ad-right {
-  width: 85%; /* Chiếm 80% chiều rộng màn hình */
-  display: flex;
-  flex-direction: column; /* Sắp xếp theo chiều dọc */
-  position: fixed;
-  right: 0;
-  top: 0;
-}
-
 .ad-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  height: 7%; /* Chiếm 10% chiều cao của ad-right */
-  background: linear-gradient(to right, #1cbb9b, white); /* Chỉ để dễ nhìn, bạn có thể thay đổi */
-}
-
-.ad-content {
-  height: 93%; /* Chiếm phần còn lại (90% chiều cao của ad-right) */
-}
-
-.ad-avatar {
-  display: flex;
-  flex-direction: row;
-  padding: 10px;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 10px;
-  border-bottom: 1px solid aquamarine;
-  background-color:#1cbb9b;
-}
-.ad-menu {
-  display: flex;
   width: 100%;
-  flex-direction: column;
-  gap: 30px;
-  padding: 10px;
-}
-.ad-menu-item {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 20px;
   padding: 5px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  text-decoration: none;
-  color: black;
-  font-size: medium;
-}
-.ad-menu-item-selected {
-  border: solid 2px #228b22;
-  background-color: #d5f7e5;
-}
-.ad-menu-item-none {
-  display: flex;
   flex-direction: row;
-  gap: 20px;
+  background-color: white;
+  border-bottom: 1px solid lightgray;
+  height: 10%; 
+  box-shadow: 0 0 20px lightgray;
+  /* background: linear-gradient(to right, #1cbb9b, white); */
+}
+.ad-logo{
+  display: flex;
+  width: 10%;
+  justify-content: center;
+  align-items: center;
+}
+.ad-menu{
+  gap: 40px;
+  display: flex;
+  width: 70%;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+}
+.ad-menu-item{
+  display: flex;
+  justify-content: center;
+  align-items: center;
   padding: 5px;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: 0.3s;
+  gap: 10px;
   text-decoration: none;
-  font-size: medium;
+  font-weight: bold;
 }
-.ad-menu-item-none:hover {
-  background-color: rgb(255, 255, 255);
-}
-
-.ad-header-right {
+.ad-header-right{
   display: flex;
+  width: 20%;
+  justify-content: flex-end;
+  align-items: center;
   flex-direction: row;
-  gap: 20px;
-  background-color: transparent;
 }
 .ad-header-button-avt{
-  background-color: transparent;
-  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px;
   cursor: pointer;
-  outline: none;
-}
-.ad-header-botton-noti{
-  background-color: transparent;
+  gap: 10px;
   border: none;
-  cursor: pointer;
-  outline: none;
+  background-color: transparent;
+  font-weight: bold;
+  font-size: 18px;
+  
 }
+.ad-menu-item-none{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+  gap: 10px;
+  text-decoration: none;
+}
+.ad-menu-item-none:hover{
+  background-color: #f8f8f8;
+  color: #1cbb9b;
+}
+.ad-menu-item-selected{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+  gap: 10px;
+  text-decoration: none;
+  background-color: lightgray;
+  color: #5690f4;
+}
+.ad-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 92%;
+  background-color: lightskyblue;
+  overflow: hidden;
+  background: radial-gradient(circle at 20% 50%, #5690f4, #a1c4fd, #f6f9ff);
+  background-size: 150% 150%;
+  animation: gradientShift 10s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+.ad-content-content {
+  display: flex;
+  width: 97%;
+  height: 97%;
+  background-color: aliceblue;
+  overflow-y: auto;
+  padding: 5px; 
+  border-radius: 15px; 
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2), 
+              inset 0px 0px 10px rgba(0, 0, 0, 0.1); 
+  border: 1px solid #e0e0e0; 
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

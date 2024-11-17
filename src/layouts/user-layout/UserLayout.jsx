@@ -68,21 +68,19 @@ const UserLayout = () => {
             response.data.dailyPoints = 0;
           }
 
-         
           if (
             !lastLearningDate >= startOfWeek &&
             !lastLearningDate <= endOfWeek
           ) {
             response.data.weeklyPoints = 0;
-          } 
-          if (lastLearningDate !== yesterdayISO ) {
+          }
+          if (lastLearningDate !== yesterdayISO) {
             console.log("streak");
             response.data.streak = 0;
           }
-          if (lastLearningDate === todayISO && response.data.dailyPoints > 0 )    {
+          if (lastLearningDate === todayISO && response.data.dailyPoints > 0) {
             response.data.streak = 1;
           }
-
 
           dispatch(setUserProfile(response.data));
         })
@@ -91,6 +89,7 @@ const UserLayout = () => {
         });
     }
   }, [lastUrl, user, dispatch]);
+  
   const [centerContent, setCenterContent] = useState(<Learn />);
   const [selectedButton, setSelectedButton] = useState(1);
 
@@ -108,6 +107,7 @@ const UserLayout = () => {
   return (
     <div className="container">
       <div className="leftContainer">
+        
         <button
           style={{
             backgroundColor: "transparent",
@@ -115,8 +115,8 @@ const UserLayout = () => {
             cursor: "pointer",
             outline: "none",
             textAlign: "center",
-            margin: "10px",
-            width: "100%",
+            padding: "10px",
+            paddingBottom: "30px",
             display: "flex",
             flexDirection: "column",
             justifyContent: "flex-start",
@@ -144,33 +144,14 @@ const UserLayout = () => {
         >
           <div className="button-content">
             <img
-              src={selectedButton === 1 ? imgLearn : imgLearnGif}
+              src={selectedButton === 1 ? imgWord : imgWordGif}
               alt="My GIF"
-              style={{ width: "50px", height: "50px" }} // Thay đổi kích thước tại đây
+              style={{ width: "40px", height: "40px" }} // Thay đổi kích thước tại đây
               onDragStart={(e) => e.preventDefault()}
             />
-            <strong>HỌC</strong>
+            <strong>BÀI HỌC</strong>
           </div>
         </button>
-
-        <button
-          className={`button ${
-            selectedButton === 2 ? "selected-button" : "bbton"
-          }`}
-          onClick={() => handleButtonClick(<Vocabulary />, 2)}
-        >
-          <div className="button-content">
-            <img
-              src={selectedButton === 2 ? imgWord : imgWordGif}
-              alt="My GIF"
-              style={{ width: "50px", height: "50px" }} // Thay đổi kích thước tại đây
-              onDragStart={(e) => e.preventDefault()}
-            />
-
-            <strong>HỌC TỪ VỰNG</strong>
-          </div>
-        </button>
-
         <button
           className={`button ${
             selectedButton === 3 ? "selected-button" : "bbton"
@@ -181,10 +162,10 @@ const UserLayout = () => {
             <img
               src={selectedButton === 3 ? imgFlashCard : imgFlashCardGif}
               alt="My GIF"
-              style={{ width: "50px", height: "50px" }} // Thay đổi kích thước tại đây
+              style={{ width: "40px", height: "40px" }} // Thay đổi kích thước tại đây
               onDragStart={(e) => e.preventDefault()}
             />
-            <strong>HỌC QUA THẺ GHI NHỚ</strong>
+            <strong>THẺ GHI NHỚ</strong>
           </div>
         </button>
 
@@ -202,10 +183,10 @@ const UserLayout = () => {
                   : "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/dumbbell.gif"
               }
               alt="My GIF"
-              style={{ width: "50px", height: "50px" }} // Thay đổi kích thước tại đây
+              style={{ width: "40px", height: "40px" }} // Thay đổi kích thước tại đây
               onDragStart={(e) => e.preventDefault()}
             />
-            <strong>CHƠI TRÒ CHƠI</strong>
+            <strong>TRÒ CHƠI</strong>
           </div>
         </button>
         <button
@@ -222,10 +203,10 @@ const UserLayout = () => {
                   : "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/ranking.gif"
               }
               alt="My GIF"
-              style={{ width: "50px", height: "50px" }} // Thay đổi kích thước tại đây
+              style={{ width: "40px", height: "40px" }} // Thay đổi kích thước tại đây
               onDragStart={(e) => e.preventDefault()}
             />
-            <strong>XEM BẢNG XẾP HẠNG</strong>
+            <strong>BẢNG XẾP HẠNG</strong>
           </div>
         </button>
         <button
@@ -242,10 +223,10 @@ const UserLayout = () => {
                   : "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/user.gif"
               }
               alt="My GIF"
-              style={{ width: "50px", height: "50px" }} // Thay đổi kích thước tại đây
+              style={{ width: "40px", height: "40px" }} // Thay đổi kích thước tại đây
               onDragStart={(e) => e.preventDefault()}
             />
-            <strong>XEM HỒ SƠ</strong>
+            <strong>HỒ SƠ</strong>
           </div>
         </button>
       </div>
@@ -253,40 +234,44 @@ const UserLayout = () => {
         <Outlet />
       </div>
       <div className="rightContainer">
+       
         <div className="right-header">
+        
           <img
             src={imgFire}
             alt="My GIF"
-            style={{ width: "100px", height: "100px" }} // Thay đổi kích thước tại đây
+            style={{ width: "100px", height: "100px" }}
             onDragStart={(e) => e.preventDefault()}
           />
-          <div style={{
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
-            textAlign: "center",
-            fontSize: "20px",
-            gap : "10px",
-            padding: "10px",
-          }}>
-              Bạn đã học <h4>{user && user.streak}</h4> ngày liên tục
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
+              textAlign: "center",
+              fontSize: "20px",
+              gap: "10px",
+              padding: "10px",
+            }}
+          >
+           <h4>{user && user.streak}</h4>
           </div>
         </div>
+
+        
         <div className="right-content">
-          <img
+          {/* <img
             src={imgSuccess}
             alt="My GIF"
             style={{ width: "80px", height: "80px" }} // Thay đổi kích thước tại đây
             onDragStart={(e) => e.preventDefault()}
-          />
+          /> */}
           <div>
             <strong>Điểm kiếm được</strong>
             <div>
-              
               <p>Điểm hôm nay: {user && user.dailyPoints}</p>
               <p>Điểm tuần này: {user && user.weeklyPoints}</p>
-
             </div>
           </div>
         </div>

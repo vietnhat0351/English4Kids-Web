@@ -1,3 +1,4 @@
+// ReadExcel.js
 import * as XLSX from 'xlsx';
 
 const ReadExcel = (file) => {
@@ -7,15 +8,10 @@ const ReadExcel = (file) => {
 
     fileReader.onload = (e) => {
       const bufferArray = e.target.result;
-
       const wb = XLSX.read(bufferArray, { type: 'buffer' });
-
       const wsname = wb.SheetNames[0];
-
       const ws = wb.Sheets[wsname];
-
       const data = XLSX.utils.sheet_to_json(ws, { defval: null, raw: true });
-
       resolve(data);
     };
 
@@ -23,5 +19,6 @@ const ReadExcel = (file) => {
       reject(error);
     };
   });
-}
+};
+
 export default ReadExcel;

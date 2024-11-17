@@ -1,6 +1,4 @@
-* {
-    user-select: none; /* Ngăn chọn văn bản */
-  }
+
 .v-container {
   background-color: white;
   height: 100vh;

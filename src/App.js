@@ -44,6 +44,7 @@ import WorkShake from "./pages/game/WorkShake";
 import CardMatchingGame from "./pages/user/flashcard/card-matching-game/CardMatchingGame";
 import ReviewFlashcard from "./pages/user/flashcard/review-flashcard/ReviewFlashcard";
 import Ranking from "./pages/user/ranking/Ranking";
+import LearnQuestion from "./pages/user/learn/learnQuestion/LearnQuestion";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -56,9 +57,10 @@ const router = createBrowserRouter(
       <Route element={<AdminLayout />} path="/admin">
         <Route element={<ProtectedRoute roles={["ROLE_ADMIN"]} />}>
           <Route index element={<HomePage />} />
-          <Route path="lesson" >
+          <Route path="lesson">
             <Route index element={<LessonManagement />} />
             <Route path=":lessonId" element={<Question />} />
+            
           </Route>
 
           <Route path="vocabulary" element={<VocabularyManagement />} />
@@ -72,15 +74,22 @@ const router = createBrowserRouter(
         <Route element={<ProtectedRoute roles={["ROLE_USER"]} />}>
           <Route index element={<Home />} />
 
+          <Route path="learn">
+            <Route index element={<Learn />} />
+            <Route path=":lessonId" element={<LearnSession />} />
+            <Route path="question/:lessonId" element={<LearnQuestion />} />
+          </Route>
 
-          <Route path="learn" element={<Learn />} />
           <Route path="flashcard">
             <Route index element={<Flashcard />} />
             <Route path="create" element={<CreateFlashcardSet />} />
             {/* <Route path="edit/:flashcardSetId" element={<CreateFlashcardSet />} /> */}
             <Route path=":flashcardSetId" element={<LearnFlashcard />} />
             <Route path=":flashcardSetId/edit" element={<EditFlashcardSet />} />
-            <Route path=":flashcardSetId/card-matching" element={<CardMatchingGame />} />
+            <Route
+              path=":flashcardSetId/card-matching"
+              element={<CardMatchingGame />}
+            />
           </Route>
           <Route path="vocabulary">
             <Route index element={<Vocabulary />} />
@@ -94,16 +103,17 @@ const router = createBrowserRouter(
         </Route>
       </Route>
 
-
       <Route element={<EmptyLayout />}>
         <Route path="login" element={<Login />} />
         <Route path="signup" element={<SignUp />} />
         <Route path="*" element={<h1>404 Not Found</h1>} />
         <Route path="unauthorized" element={<UnauthorizedPage />} />
-        <Route path="learn-session/:lessonId/part/:partId" element={<LearnSession />} />
-        <Route path="review-flashcard/:flashcardSetId" element={<ReviewFlashcard />} />
-      </Route>
 
+        <Route
+          path="review-flashcard/:flashcardSetId"
+          element={<ReviewFlashcard />}
+        />
+      </Route>
     </Route>
   )
 );

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import LOGO from "../../assets/WebLogo.png";
 import "./styles.css";
@@ -8,18 +8,18 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { setUserProfile } from "../../redux/slices/userSlice";
 
-const AdminLayout = () => {
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+import { useLocation } from 'react-router-dom';
 
-  const [seletedContent, setSelectedContent] = useState("");
+const AdminLayout = () => {
+  const dispatch = useDispatch();
+  const location = useLocation();  // Hook to track the current route
+  const [selectedContent, setSelectedContent] = useState("");
   const currentUser = useSelector((state) => state.user.profile);
 
-  const currentUrl = window.location.href;
-  const lastUrl = currentUrl.split("/").pop();
-
   useEffect(() => {
+    const lastUrl = location.pathname.split("/").pop();
     setSelectedContent(lastUrl);
+
     if (currentUser === null) {
       axios
         .get(`${process.env.REACT_APP_API_URL}/api/v1/user/current`, {
@@ -35,150 +35,51 @@ const AdminLayout = () => {
           console.error(error);
         });
     }
-    // lấy ra url hiện tại
-  }, [lastUrl]);
+  }, [location.pathname, currentUser, dispatch]); // Dependency on the current route
 
   return (
     <div className="ad-container">
-      <div className="ad-left">
-        <div className="ad-avatar">
-          <Avatar
-            src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/avatar.jpg"
-            sx={{ width: 50, height: 50 }}
-          ></Avatar>
-          <div>
-            {currentUser?.firstName} {currentUser?.lastName}
-          </div>
+      <div className="ad-header">
+        <div className="ad-logo">
+          <img src={LOGO} alt="Logo" width={50} height={50} />
         </div>
+
         <div className="ad-menu">
           <NavLink
-            className={`ad-menu-item ${
-              seletedContent.startsWith("lesson") 
-                ? "ad-menu-item-selected"
-                : "ad-menu-item-none"
-            }`}
-            to={"/admin/lesson"}
+            className={`ad-menu-item ${selectedContent === "lesson" ? "ad-menu-item-selected" : "ad-menu-item-none"}`}
+            to="/admin/lesson"
           >
-            <img
-              src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/lesson.png"
-              width={40}
-              height={40}
-              alt="lesson"
-            />
-            Quản lý bài học
+            <img src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/book.png" width={30} height={30} alt="lesson" />
+            Bài học
           </NavLink>
 
           <NavLink
-            className={`ad-menu-item ${
-              seletedContent === "vocabulary"
-                ? "ad-menu-item-selected"
-                : "ad-menu-item-none"
-            }`}
-            to={"/admin/vocabulary"}
+            className={`ad-menu-item ${selectedContent === "vocabulary" ? "ad-menu-item-selected" : "ad-menu-item-none"}`}
+            to="/admin/vocabulary"
           >
-            <img
-              src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/dictionary.png"
-              width={40}
-              height={40}
-              alt="lesson"
-            />
-            Quản lý từ vựng
+            <img src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/book+(1).png" width={30} height={30} alt="vocabulary" />
+            Từ vựng
           </NavLink>
+          
           <NavLink
-            className={`ad-menu-item ${
-              seletedContent === "test"
-                ? "ad-menu-item-selected"
-                : "ad-menu-item-none"
-            }`}
-            to={"/admin/test"}
+            className={`ad-menu-item ${selectedContent === "user" ? "ad-menu-item-selected" : "ad-menu-item-none"}`}
+            to="/admin/user"
           >
-            <img
-              src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/test.png"
-              width={40}
-              height={40}
-              alt="lesson"
-            />
-            Quản lý bài kiểm tra
+            <img src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/management.png" width={30} height={30} alt="user" />
+            Người dùng
           </NavLink>
-          <NavLink
-            className={`ad-menu-item ${
-              seletedContent === "user"
-                ? "ad-menu-item-selected"
-                : "ad-menu-item-none"
-            }`}
-            to={"/admin/user"}
-          >
-            <img
-              src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/team-management.png"
-              width={40}
-              height={40}
-              alt="lesson"
-            />
-            Quản lý người dùng
-          </NavLink>
-          <NavLink
-            className={`ad-menu-item ${
-              seletedContent === "data"
-                ? "ad-menu-item-selected"
-                : "ad-menu-item-none"
-            }`}
-            to={"/admin/data"}
-          >
-            <img
-              src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/exploration.png"
-              width={40}
-              height={40}
-              alt="lesson"
-            />
-            Phân tích dữ liệu
-          </NavLink>
+        </div>
+
+        <div className="ad-header-right">
+          <button className="ad-header-button-avt">
+            <Avatar src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/avatar.jpg" sx={{ width: 50, height: 50 }} />
+            {currentUser?.firstName} {currentUser?.lastName}
+          </button>
         </div>
       </div>
-      <div className="ad-right">
-        <div className="ad-header">
-          {" "}
-          <div
-            style={{
-              backgroundColor: "transparent",
-              border: "none",
-              cursor: "pointer",
-              outline: "none",
-              textAlign: "center",
-              padding: "0",
-              margin: "0",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-            }}
-            onClick={() => {
-              navigate("/admin");
-            }}
-          >
-            <img
-              src={LOGO}
-              style={{
-                maxHeight: "50px",
-              }}
-              alt=""
-            />
-          </div>
-          <div className="ad-header-right">
-            <button className="ad-header-button-avt">
-              <img
-                src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/notification-bell.png"
-                style={{ maxWidth: "30px", maxHeight: "30px" }}
-                alt=""
-              />
-            </button>
-            <button className="ad-header-botton-noti">
-              <Avatar
-                src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/avatar.jpg"
-                sx={{ width: 40, height: 40 }}
-              ></Avatar>
-            </button>
-          </div>
-        </div>
-        <div className="ad-content">
+
+      <div className="ad-content">
+        <div className="ad-content-content">
           <Outlet />
         </div>
       </div>
@@ -187,3 +88,4 @@ const AdminLayout = () => {
 };
 
 export default AdminLayout;
+

@@ -1,774 +1,671 @@
-import React, { useEffect, useState } from "react";
-import "./styles.css";
 import {
   Box,
-  Button,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Modal,
-  Popover,
-  Select,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableRow,
   TextField,
-  Tooltip,
-  Typography,
-  Alert,
-  Snackbar,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  CircularProgress,
 } from "@mui/material";
-import customFetch from "../../../../utils/customFetch";
-import AudioPlayer from "./AudioPlayer";
-import { FileUploader } from "react-drag-drop-files";
-import { useDispatch, useSelector } from "react-redux";
-import { setCLesson } from "../../../../redux/slices/clessonSlice";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import AddIcon from "@mui/icons-material/Add";
-import SearchIcon from "@mui/icons-material/Search";
+
+import Accordion from "@mui/material/Accordion";
+import AccordionSummary from "@mui/material/AccordionSummary";
+import AccordionDetails from "@mui/material/AccordionDetails";
+import Typography from "@mui/material/Typography";
+
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+
+import Drawer from "@mui/material/Drawer";
+import Button from "@mui/material/Button";
+import List from "@mui/material/List";
+import Divider from "@mui/material/Divider";
+import ListItem from "@mui/material/ListItem";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText from "@mui/material/ListItemText";
+import InboxIcon from "@mui/icons-material/MoveToInbox";
+import MailIcon from "@mui/icons-material/Mail";
+
+import "./styles.css";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { FaSearch } from "react-icons/fa";
 
 import FileInput from "../../../../utils/ReadExcelFile/FileInput";
+import { MdEdit } from "react-icons/md";
+import { MdDelete } from "react-icons/md";
+import { IoMdAdd } from "react-icons/io";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ErrorIcon from "@mui/icons-material/Error";
+import RepeatIcon from "@mui/icons-material/Repeat";
+import { useDispatch, useSelector } from "react-redux";
+import EnhancedTableToolbar from "../../../../utils/enhancedTable/EnhancedTableToolbar";
+import EnhancedTableHead from "../../../../utils/enhancedTable/EnhancedTableHead";
+import AudioPlayer from "../../../../utils/AudioPlayer";
+import { useLocation } from "react-router-dom";
+import customFetch from "../../../../utils/customFetch";
+import { setLessonSelected } from "../../../../redux/slices/clessonSlice";
+import ModalAddQuestion from "./tool/ModalAddQuestion";
 import ReadExcel from "../../../../utils/ReadExcelFile/ReadExcel";
-import ModalUpdateQuestion from "./ModalUpdateQuestion";
-import "./modal.css";
+
+const ProgressInfo = ({ percent, passImport, lack, duplicate }) => {
+  return (
+    <div
+      style={{
+        padding: "15px",
+        borderRadius: "8px",
+        backgroundColor: "#f7f8fa",
+        color: "#333",
+        fontFamily: "Arial, sans-serif",
+        alignItems: "center",
+        justifyContent: "space-between",
+        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+        gap: "10px",
+        display: "flex",
+        width: "100%",
+      }}
+    >
+      <p
+        style={{
+          fontSize: "16px",
+          marginBottom: "10px",
+          color: "#555",
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+        }}
+      >
+        <span
+          style={{
+            fontWeight: "bold",
+            fontSize: "18px",
+            color: "#007bff",
+          }}
+        >
+          Tiến trình {percent}%
+        </span>
+      </p>
+      <div style={{ display: "flex", gap: "15px" }}>
+        <span
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "5px",
+            color: "#4caf50",
+          }}
+        >
+          <CheckCircleIcon /> Thành công: {passImport}
+        </span>
+        <span
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "5px",
+            color: "#f44336",
+          }}
+        >
+          <ErrorIcon /> Lỗi: {lack}
+        </span>
+        <span
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "5px",
+            color: "#ff9800",
+          }}
+        >
+          <RepeatIcon /> Trùng lặp: {duplicate}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+const ProgressBar = ({ percent, passImport, lack, duplicate }) => {
+  return (
+    <div
+      style={{
+        width: "40%",
+        marginBottom: "10px",
+        display: "flex",
+        gap: "10px",
+        flexDirection: "column",
+      }}
+    >
+      {/* Display progress text */}
+      <ProgressInfo
+        percent={percent}
+        passImport={passImport}
+        lack={lack}
+        duplicate={duplicate}
+      />
+      {/* Progress bar */}
+      <div
+        style={{
+          height: "10px",
+          width: "100%",
+          backgroundColor: "#e0e0df",
+          borderRadius: "8px",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            height: "100%",
+            width: `${percent}%`,
+            backgroundColor: percent === 100 ? "#4caf50" : "#3b82f6",
+            transition: "width 0.5s ease-in-out",
+          }}
+        ></div>
+      </div>
+    </div>
+  );
+};
 
 const Question = () => {
-  const currentUrl = window.location.href;
-  const lastUrl = currentUrl.split("/").pop();
-
+  const selectedLesson = useSelector((state) => state.lessonSelected);
+  const [lessonCurrent, setLessonCurrent] = useState({ questions: [] });
   const dispatch = useDispatch();
-  const lessonCurrent = useSelector((state) => state.clesson);
+  const rowRefs = useRef({});
+  const [loading, setLoading] = useState(true);
 
-  const [questions, setQuestions] = useState([]);
-  const resetFields = () => {
-    setWord("");
-    setVietnameseMeaning("");
-    setPronunciation("");
-    setAudio("");
-    setType("");
-    setTypeQuestion("");
-    setContentQuestion("");
-    setAudioQuestion("");
-    setAnswerTD("");
-    setAnswerTA("");
-    setAnswerTB("");
-    setAnswerTC("");
-    setData({});
-  };
+  const location = useLocation(); // Hook to track the current route
 
-  const [loadingFile, setLoadingFile] = useState(false);
+  useEffect(() => {
+    const lastUrl = location.pathname.split("/").pop();
+    console.log("lastUrl", lastUrl);
 
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => {
-    setOpen(false);
-    resetFields();
-  };
-  const [age, setAge] = useState('');
-
-  const handleChangeSelect = async (event) => {
-    setAge(event.target.value);
-    // lọc theo loại câu hỏi
-     if (event.target.value == 1) {
-      setQuestions(
-        lessonCurrent.lessonParts
-          .map((part) => part.questions)
-          .flat()
-          .sort((a, b) => b.id - a.id)
-      );
-    }
-    if (event.target.value == 2) {
-      setQuestions(
-        lessonCurrent.lessonParts[0].questions
-        
-      );
-    }
-    if (event.target.value == 3) {
-      setQuestions(
-        lessonCurrent.lessonParts[1].questions
-
-      );
-    }
-  };
-
-  const [openDialog, setOpenDialog] = useState(false);
-
-  const handleClickOpenDialog = () => {
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-  };
-
-  const [deleteId, setDeleteId] = useState(null);
-
-  const [word, setWord] = useState("");
-  const [vietnameseMeaning, setVietnameseMeaning] = useState("");
-  const [pronunciation, setPronunciation] = useState("");
-  const [audio, setAudio] = useState("");
-  const [type, setType] = useState("");
-
-  const [data, setData] = useState({});
-
-  const [typeQuestion, setTypeQuestion] = useState("TRANSLATION");
-
-  const [audioQuestion, setAudioQuestion] = useState("");
-  const [contentQuestion, setContentQuestion] = useState("");
-  const [answerTA, setAnswerTA] = useState("");
-  const [answerTB, setAnswerTB] = useState("");
-  const [answerTC, setAnswerTC] = useState("");
-  const [answerTD, setAnswerTD] = useState("");
-
-  const fileTypes = ["MP3", "WAV", "OGG"];
-  const [file, setFile] = useState(null);
-
-  const [excelData, setExcelData] = useState([]);
-
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [modalData, setModalData] = useState(null);
-
-  const [openSnack, setOpenSnack] = useState(false);
-
-  const handleCloseSnack = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setOpenSnack(false);
-  };
-
-  const openModalWithData = (dataQuestion) => {
-    setModalData(dataQuestion); // Set the data for the modal
-    setModalVisible(true); // Open the modal
-  };
-
-  const closeModal = () => {
-    setModalVisible(false);
-    setModalData(null); // Clear the data when closing the modal
-  };
-
-  const handleFileSelect = async (file) => {
-    try {
-      let listQuestion = [];
-      let questionNew = {};
-      const data = await ReadExcel(file);
-      setExcelData(data);
-      for (let i = 0; i < data.length; i++) {
-        if (audioQuestion == null) {
-          audioQuestion = "";
-        }
-        await customFetch
-          .get(`/api/v1/lessons/find-word/${data[i].word}`)
-          .then((res) => {
-            questionNew = {
-              ...questionNew,
-              vocabulary: {
-                id: res.data.id,
-              },
-              questionType: data[i].questionType,
-              content: data[i].content,
-              audioUrl: data[i].audioUrl,
-              answers: [
-                { content: data[i].contentA, correct: false },
-                { content: data[i].contentB, correct: false },
-                { content: data[i].contentC, correct: false },
-                { content: data[i].contentD, correct: true },
-              ],
-              typeQuestion: data[i].typeQuestion,
-            };
-            if (data[i].questionType == "TRANSLATION") {
-              questionNew = {
-                ...questionNew,
-                lessonPart: {
-                  id: lessonCurrent.lessonParts[0].id,
-                },
-              };
-            }
-            if (data[i].questionType == "FILL_IN_BLANK") {
-              questionNew = {
-                ...questionNew,
-                lessonPart: {
-                  id: lessonCurrent.lessonParts[1].id,
-                },
-              };
-            }
-            if (data[i].questionType == "LISTENING") {
-              questionNew = {
-                ...questionNew,
-                lessonPart: {
-                  id: lessonCurrent.lessonParts[2].id,
-                },
-              };
-            }
-          });
-        listQuestion.push(questionNew);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const response = await customFetch.get(`/api/v1/lessons/${lastUrl}`);
+        console.log("response", response.data);
+        dispatch(setLessonSelected(response.data));
+        setLessonCurrent(response.data || { questions: [] });
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
       }
-
-      await customFetch
-        .post(`/api/v1/questions/create-questions`, listQuestion)
-        .then((res) => {
-          console.log(res.data);
-        });
-
-      await customFetch
-        .get(`/api/v1/lessons/find-lesson/${lessonCurrent.id}`)
-        .then((res) => {
-          dispatch(setCLesson(res.data));
-          console.log(res.data);
-        });
-    } catch (error) {
-      console.log(error + "???");
-    }
-  };
-
-  useEffect(() => {
-    const fetchLesson = async () => {
-      await customFetch
-        .get(`/api/v1/lessons/find-lesson/${lastUrl}`) // Use the id from URL
-        .then((res) => {
-          dispatch(setCLesson(res.data));
-        });
     };
-    fetchLesson();
-  }, [lastUrl, dispatch]);
-  useEffect(() => {
-    if (
-      lessonCurrent &&
-      lessonCurrent.lessonParts &&
-      lessonCurrent.lessonParts.length > 0
-    ) {
-      // Set the questions from the combied lesson parts sorted by id descending
-      setQuestions(
-        lessonCurrent.lessonParts
-          .map((part) => part.questions)
-          .flat()
-          .sort((a, b) => b.id - a.id)
-      );
-    }
-  }, [lessonCurrent]);
-  const handleChange = (event) => {
-    setTypeQuestion(event.target.value);
-  };
-  const handleChangeAudio = async (selectedFile) => {
-    setFile(selectedFile);
-    await handleUploadAudio(selectedFile);
-  };
-  const handleUploadAudio = async (selectedFile) => {
-    const formData = new FormData();
-    formData.append("file", selectedFile);
+    fetchData();
+  }, [location.pathname, dispatch]); // Dependency on the current route
 
-    try {
-      const response = await customFetch.post(
-        `/api/v1/storage/upload`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      console.log("File uploaded successfully!", response.data);
-      setAudioQuestion(response.data);
-      return response.data;
-    } catch (error) {
-      console.error("There was an error uploading the file!", error);
-      return null;
-    }
+  const [order, setOrder] = React.useState("asc");
+  const [orderBy, setOrderBy] = React.useState("calories");
+  const [selected, setSelected] = React.useState([]);
+
+  const [percent, setPercent] = useState(0);
+  const [passImport, setPassImport] = useState(0);
+  const [lack, setLack] = useState(0);
+  const [duplicate, setDuplicate] = useState(0);
+
+  const [loadingImport, setLoadingImport] = useState(false);
+  const [disibleResult, setDisibleResult] = useState(true);
+
+  const [openModalAddQuestion, setOpenModalAddQuestion] = useState(false);
+
+  const handleOpenModalAddQuestion = () => setOpenModalAddQuestion(true);
+  const handleCloseModalAddQuestion = () => setOpenModalAddQuestion(false);
+
+  const headCells = [
+    { id: "id", numeric: true, disablePadding: true, label: "" },
+    { id: "content", numeric: false, disablePadding: false, label: "Nội dung" },
+    { id: "image", numeric: false, disablePadding: false, label: "Hình ảnh" },
+    { id: "audio", numeric: false, disablePadding: false, label: "Âm thanh" },
+    {
+      id: "type",
+      numeric: false,
+      disablePadding: false,
+      label: "Loại câu hỏi",
+    },
+    { id: "answers", numeric: false, disablePadding: false, label: "Đáp án" },
+    { id: "action", numeric: false, disablePadding: false, label: "Tùy chọn" },
+  ];
+
+  const handleRequestSort = (event, property) => {
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
   };
 
-  const handleAddQuestion = async () => {
+  const handleClick = (event, data) => {
+    if (selected.includes(data.id)) {
+      setSelected([]);
+    } else {
+      setSelected([data.id]);
+
+      // Scroll to the selected row
+      rowRefs.current[data.id]?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+
+    const selectedRow = lessonCurrent.questions.find(
+      (row) => row.id === data.id
+    );
+    console.log("Dòng đã chọn:", selectedRow);
+  };
+
+  function descendingComparator(a, b, orderBy) {
+    if (b[orderBy] < a[orderBy]) return -1;
+    if (b[orderBy] > a[orderBy]) return 1;
+    return 0;
+  }
+
+  function getComparator(order, orderBy) {
+    return order === "desc"
+      ? (a, b) => descendingComparator(a, b, orderBy)
+      : (a, b) => -descendingComparator(a, b, orderBy);
+  }
+
+  const visibleRows = useMemo(
+    () => [...lessonCurrent.questions].sort(getComparator(order, orderBy)),
+    [lessonCurrent.questions, order, orderBy]
+  );
+  const styles = {
+    answer: {
+      padding: "8px",
+      margin: "5px 0",
+      borderRadius: "5px",
+      backgroundColor: "#f6f9ff",
+    },
+    correctAnswer: {
+      backgroundColor: "#d1e7dd", // A light green to indicate correct answer
+      fontWeight: "bold",
+    },
+    answerText: {
+      color: "#333",
+    },
+  };
+  // =================================================================================================
+
+  const [state, setState] = React.useState({
+    right: false,
+  });
+
+  const toggleDrawer = (open) => (event) => {
     if (
-      word == "" ||
-      contentQuestion == "" ||
-      answerTA == "" ||
-      answerTB == "" ||
-      answerTC == "" ||
-      answerTD == ""
+      event.type === "keydown" &&
+      (event.key === "Tab" || event.key === "Shift")
     ) {
-      setOpenSnack(true);
       return;
     }
-    let dataQ = {
-      // lessonPart: {
-      //   id: lessonCurrent.lessonParts[0].id,
-      // },
-      vocabulary: {
-        id: data.id,
-      },
 
-      questionType: typeQuestion,
-      content: contentQuestion,
-      audioUrl: audioQuestion,
-      answers: [
-        { content: answerTA, correct: false },
-        { content: answerTB, correct: false },
-        { content: answerTC, correct: false },
-        { content: answerTD, correct: true },
-      ],
-    };
-    if (typeQuestion == "TRANSLATION") {
-      dataQ = {
-        ...dataQ,
-        lessonPart: {
-          id: lessonCurrent.lessonParts[0].id,
-        },
-      };
-    }
-    if (typeQuestion == "FILL_IN_BLANK") {
-      dataQ = {
-        ...dataQ,
-        lessonPart: {
-          id: lessonCurrent.lessonParts[1].id,
-        },
-      };
-    }
-    if (typeQuestion == "LISTENING") {
-      dataQ = {
-        ...dataQ,
-        lessonPart: {
-          id: lessonCurrent.lessonParts[2].id,
-        },
-      };
-    }
-    console.log(dataQ);
-    try {
-      await customFetch
-        .post(`/api/v1/questions/create-question`, dataQ)
-        .then((res) => {
-          customFetch
-            .get(`/api/v1/lessons/find-lesson/${lessonCurrent.id}`)
-            .then((res) => {
-              dispatch(setCLesson(res.data));
-              console.log(res.data);
-            });
-        });
-      resetFields();
-      handleClose();
-    } catch (error) {
-      console.log(error);
-    }
+    setState({ ...state, right: open });
   };
 
-  const handleFindWord = async (word) => {
+  const list = () => (
+    <Box
+      sx={{ width: 250 }}
+      role="presentation"
+      onClick={toggleDrawer(false)}
+      onKeyDown={toggleDrawer(false)}
+    >
+      <List>
+        {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
+          <ListItem key={text} disablePadding>
+            <ListItemButton>
+              <ListItemIcon>
+                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+              </ListItemIcon>
+              <ListItemText primary={text} />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+      <Divider />
+      <List>
+        {["All mail", "Trash", "Spam"].map((text, index) => (
+          <ListItem key={text} disablePadding>
+            <ListItemButton>
+              <ListItemIcon>
+                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+              </ListItemIcon>
+              <ListItemText primary={text} />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+    </Box>
+  );
+
+  // =================================================================================================
+  const handleFileSelect = async (file) => {
+    let count = 0;
+    setLoadingImport(true);
+    if (loadingImport) return;
     try {
-      const res = await customFetch
-        .get(`/api/v1/lessons/find-word/${word}`)
-        .then((res) => {
-          setVietnameseMeaning(res.data.vietnameseMeaning);
-          setPronunciation(res.data.pronunciation);
-          setAudio(res.data.audio);
-          setType(res.data.type);
-          console.log(res.data);
-          setData(res.data);
-        });
+      const data = await ReadExcel(file);
+      console.log("Excel Data:", data);
+      // duyệt qua từng dòng trong file excel
+
+      setDisibleResult(false);
+      setPassImport(0);
+      setLack(0);
+      setDuplicate(0);
+      setPercent(0);
+      for (let i = 0; i < data.length; i++) {
+        if (
+          !data[i].contentQuestion ||
+          !data[i].typeQuestion ||
+          !data[i].answerContent
+        ) {
+          setLack(lack + 1);
+          continue;
+        } else {
+          if (
+            !data[i].wrongAnswerContent1 &&
+            !data[i].wrongAnswerContent2 &&
+            !data[i].wrongAnswerContent3
+          ) {
+            setLack(lack + 1);
+            continue;
+          } else {
+            try {
+              const res = await customFetch.get(
+                `/api/v1/vocabulary/find-word-fast/${data[
+                  i
+                ].word.toLowerCase()}`
+              );
+              if (res.data.inDatabase) {
+                let dataQuestion = {
+                  content: data[i].contentQuestion,
+                  image: data[i].imageQuestion,
+                  audio: data[i].audioQuestion,
+                  type: data[i].typeQuestion,
+                  lesson: {
+                    id: lessonCurrent.id,
+                  },
+                  vocabulary: {
+                    id: res.data.id,
+                  },
+                };
+                let answers = [
+                  {
+                    content: data[i].answerContent,
+                    image: data[i].answerImage,
+                    audio: data[i].answerAudio,
+                    isCorrect: true,
+                  },
+                ];
+                if (data[i].wrongAnswerImage1) {
+                  answers.push({
+                    content: data[i].wrongAnswerContent1,
+                    image: data[i].wrongAnswerImage1,
+                    audio: data[i].wrongAnswerAudio1,
+                    isCorrect: false,
+                  });
+                }
+                if (data[i].wrongAnswerImage2) {
+                  answers.push({
+                    content: data[i].wrongAnswerContent2,
+                    image: data[i].wrongAnswerImage2,
+                    audio: data[i].wrongAnswerAudio2,
+                    isCorrect: false,
+                  });
+                }
+                if (data[i].wrongAnswerImage3) {
+                  answers.push({
+                    content: data[i].wrongAnswerContent3,
+                    image: data[i].wrongAnswerImage3,
+                    audio: data[i].wrongAnswerAudio3,
+                    isCorrect: false,
+                  });
+                }
+                dataQuestion = { ...dataQuestion, answers: answers };
+                console.log("dataQuestion", dataQuestion);
+                const response = await customFetch.post("/api/v1/questions/create", dataQuestion);
+                console.log("Question saved successfully!", response.data);
+              }
+            } catch (error) {
+              console.error("Lỗi tìm từ", error);
+            }
+          }
+        }
+      }
+      // Gọi data từ API tất cả từ vựng và cập nhật lại state
+
+      const lastUrl = location.pathname.split("/").pop();
+      console.log("lastUrl", lastUrl);
+
+      const fetchData = async () => {
+        try {
+          setLoading(true);
+          const response = await customFetch.get(`/api/v1/lessons/${lastUrl}`);
+          console.log("response", response.data);
+          dispatch(setLessonSelected(response.data));
+          setLessonCurrent(response.data || { questions: [] });
+        } catch (error) {
+          console.error(error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchData();
+
+      setLoadingImport(false);
     } catch (error) {
-      console.log(error);
-    }
-  };
-  const handleDeleteQuestion = async () => {
-    try {
-      await customFetch
-        .post(`/api/v1/questions/delete-question/${deleteId}`)
-        .then((res) => {
-          customFetch
-            .get(`/api/v1/lessons/find-lesson/${lessonCurrent.id}`)
-            .then((res) => {
-              dispatch(setCLesson(res.data));
-              console.log(res.data);
-            });
-        });
-      setOpenDialog(false);
-    } catch (error) {
-      console.log(error);
+      console.error("Error reading Excel file:", error);
+    } finally {
+      setLoadingImport(false);
     }
   };
 
   return (
     <div className="a-q-container">
-      {lessonCurrent && (
-        <div className="a-q-header">
-          <div className="a-q-title">
-            <h3>{lessonCurrent.title}</h3>
-            <div className="a-q-title-add">
-              <Box sx={{ minWidth: 150 }}>
-                <FormControl fullWidth>
-                  <InputLabel id="demo-simple-select-label">Loại câu hỏi</InputLabel>
-                  <Select
-                    labelId="demo-simple-select-label"
-                    id="demo-simple-select"
-                    value={age}
-                    label="Loại câu hỏi"
-                    onChange={handleChangeSelect}
-                  >
-                    <MenuItem value={1}>Tất cả</MenuItem>
-                    <MenuItem value={2}>Translation</MenuItem>
-                    <MenuItem value={3}>Fill in blank</MenuItem>
-                  </Select>
-                </FormControl>
-              </Box>
-              <button className="a-q-add-button" onClick={handleOpen}>
-                Thêm câu hỏi
-              </button>
-              <button className="a-q-add-button">
-                Nhập bằng file excel
-                <FileInput onFileSelect={handleFileSelect} />
-              </button>
-            </div>
-          </div>
-          <div className="questions-grid-container">
-            <div className="questions-grid">
-              {questions.map((question, key) => (
-                <div key={question.id} className="a-q-question-list">
-                  <div className="a-q-question-content">
-                    <div className="a-q-question-content-content">
-                      <div className="a-q-question-content-content-content">
-                        {question.content}
-                      </div>
-                      <div>
-                        <button
-                          onClick={() => openModalWithData(question)}
-                          className="a-q-question-content-button"
-                        >
-                          <EditIcon sx={{ fontSize: 15 }} />
-                        </button>
-                      </div>
-                      <div>
-                        <button
-                          className="a-q-question-content-button"
-                          onClick={() => {
-                            handleClickOpenDialog();
-                            setDeleteId(question.id);
-                          }}
-                        >
-                          <DeleteIcon sx={{ fontSize: 15 }} />
-                        </button>
-                      </div>
-                    </div>
-                    <div className="a-q-question-content-content">
-                      <h4>File audio: </h4>
-                      {!question.audioUrl ? (
-                        <div>Không có file audio</div>
-                      ) : (
-                        <div>
-                          <AudioPlayer audioSrc={question.audioUrl} />
-                        </div>
-                      )}
-                    </div>
-                    <div className="a-q-question-content-content">
-                      <h4>Loại câu hỏi: </h4>
-                      {question.questionType}
-                    </div>
-                  </div>
-                  <div className="a-q-answer">
-                    <h4>Đáp án: </h4>
-                    <div className="answers-grid">
-                      {question.answers.map((answer) => (
-                        <div
-                          key={answer.id}
-                          className={`a-q-question-answer-item ${
-                            answer.correct ? "correct" : "incorrect"
-                          }`}
-                        >
-                          <div className="a-q-question-answer-content">
-                            - {answer.content} {answer.correct ? "-" : "-"}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          <ModalUpdateQuestion
-            visible={isModalVisible}
-            closeModal={closeModal}
-            data={modalData}
-          />
-          <Modal
-            open={open}
-            onClose={handleClose}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
+      <div className="a-q-header">
+        <div className="ad-p-content-header">
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              gap: "50px",
+            }}
           >
-            <Box
-              sx={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                width: "60%",
-                height: "85%",
-                bgcolor: "background.paper",
-                border: "1px solid #000",
-                boxShadow: 24,
-                borderRadius: 4,
-                p: 4,
-              }}
+            <button className="a-l-button" onClick={handleOpenModalAddQuestion}>
+              <IoMdAdd />
+              Thêm câu hỏi
+            </button>
+            <Button onClick={toggleDrawer(true)}>Open right Drawer</Button>
+            <Drawer
+              anchor="right"
+              open={state.right}
+              onClose={toggleDrawer(false)}
             >
-              <Typography id="modal-modal-title" variant="h6" component="h2">
-                <h2>Thêm câu hỏi mới</h2>
-                <h5
-                  style={{
-                    color: "red",
-                    fontWeight: "lighter",
-                  }}
-                >
-                  * Mỗi câu hỏi sẽ phải liên quan tới 1 từ vựng
-                </h5>
-              </Typography>
-              <div className="modal-modal-content">
-                <div className="modal-modal-left">
-                  <h4>Chọn từ vựng</h4>
-                  <div className="modal-pick-word">
-                    <TextField
-                      id="outlined-basic"
-                      label="Từ vựng"
-                      variant="outlined"
-                      width="80%"
-                      value={word}
-                      onChange={(e) => setWord(e.target.value)}
-                    />
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => {
-                        handleFindWord(word);
-                      }}
-                    >
-                      <SearchIcon />
-                    </Button>
-                  </div>
-                  <div>
-                    <Typography
-                      id="modal-modal-description"
-                      sx={{ mt: 2 }}
-                      component="div"
-                      className="modal-content-word"
-                    >
-                      <TextField
-                        id="standard-basic"
-                        label="Nghĩa tiếng Việt"
-                        variant="standard"
-                        value={vietnameseMeaning}
-                        onChange={(e) => setVietnameseMeaning(e.target.value)}
-                      />
-                      <TextField
-                        id="standard-basic"
-                        label="Phát âm"
-                        variant="standard"
-                        value={pronunciation}
-                        onChange={(e) => setPronunciation(e.target.value)}
-                      />
-                      <TextField
-                        id="standard-basic"
-                        label="Loại từ"
-                        variant="standard"
-                        value={type}
-                        onChange={(e) => setType(e.target.value)}
-                      />
-                      <TextField
-                        id="standard-basic"
-                        label="Link audio"
-                        variant="standard"
-                        value={audio}
-                        onChange={(e) => setAudio(e.target.value)}
-                      />
-                      {audio && (
-                        <AudioPlayer
-                          style={{
-                            width: "100%",
-                            backgroundColor: "lightgray",
-                          }}
-                          audioSrc={audio}
-                        />
-                      )}
-
-                      {/* <div>
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          onClick={() => {
-                            // handleSaveWord();
-                          }}
-                        >
-                          Thêm từ vựng
-                        </Button>
-                      </div> */}
-                    </Typography>
-                  </div>
-                </div>
-                <div className="modal-modal-right">
-                  <Typography
-                    id="modal-modal-description"
-                    sx={{ mt: 2 }}
-                    component="div"
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "20px",
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "rơw",
-                          gap: "10px",
-                        }}
-                      >
-                        <h1>Từ được chọn:</h1>
-                        <h1 style={{ color: "#1cbb9b" }}>{data.word}</h1>
-                      </div>
-
-                      <Box sx={{ minWidth: 120 }}>
-                        <FormControl fullWidth>
-                          <InputLabel id="demo-simple-select-label">
-                            Loại câu hỏi
-                          </InputLabel>
-                          <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            value={typeQuestion}
-                            label="Loại câu hỏi"
-                            onChange={handleChange}
-                            style={{ width: "50%" }}
-                          >
-                            <MenuItem value={"TRANSLATION"}>
-                              Translation
-                            </MenuItem>
-                            <MenuItem value={"FILL_IN_BLANK"}>
-                              Fill in blank
-                            </MenuItem>
-                            <MenuItem value={"LISTENING"}>Listening</MenuItem>
-                          </Select>
-                        </FormControl>
-                      </Box>
-                      <TextField
-                        id="standard-basic"
-                        label="Nội dung câu hỏi"
-                        variant="standard"
-                        value={contentQuestion}
-                        onChange={(e) => setContentQuestion(e.target.value)}
-                        style={{ width: "79%" }}
-                      />
-                      <div className="modal-audio-upload">
-                        <TextField
-                          id="standard-basic"
-                          label="Audio câu hỏi"
-                          variant="standard"
-                          value={audioQuestion}
-                          onChange={(e) => setAudioQuestion(e.target.value)}
-                        />
-
-                        <FileUploader
-                          handleChange={handleChangeAudio}
-                          name="file"
-                          types={fileTypes}
-                        />
-                        {loadingFile && (
-                          <CircularProgress
-                            size={24}
-                            style={{ marginLeft: 10 }}
-                            color="primary"
-                          />
-                        )}
-                      </div>
-
-                      <TextField
-                        id="standard-basic"
-                        label="Đáp án đúng"
-                        variant="standard"
-                        value={answerTD}
-                        onChange={(e) => setAnswerTD(e.target.value)}
-                        style={{ width: "79%" }}
-                      />
-                      <TextField
-                        id="standard-basic"
-                        label="Đáp án sai 1"
-                        variant="standard"
-                        value={answerTA}
-                        onChange={(e) => setAnswerTA(e.target.value)}
-                        style={{ width: "79%" }}
-                      />
-                      <TextField
-                        id="standard-basic"
-                        label="Đáp án sai 2"
-                        variant="standard"
-                        value={answerTB}
-                        onChange={(e) => setAnswerTB(e.target.value)}
-                        style={{ width: "79%" }}
-                      />
-                      <TextField
-                        id="standard-basic"
-                        label="Đáp án sai 3"
-                        variant="standard"
-                        value={answerTC}
-                        onChange={(e) => setAnswerTC(e.target.value)}
-                        style={{ width: "79%" }}
-                      />
-                    </div>
-                    <div className="modal-add-question">
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => {
-                          handleAddQuestion();
-                        }}
-                      >
-                        Thêm câu hỏi
-                      </Button>
-                    </div>
-                  </Typography>
-                </div>
-              </div>
-            </Box>
-          </Modal>
-          <Dialog
-            open={openDialog}
-            onClose={handleCloseDialog}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-          >
-            <DialogTitle id="alert-dialog-title">
-              {"Bạn có chắc chắn muốn xóa câu hỏi này không?"}
-            </DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                Câu hỏi này sẽ bị xóa vĩnh viễn khỏi hệ thống.
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleCloseDialog}>Hủy</Button>
-              <Button onClick={handleDeleteQuestion} autoFocus>
-                Xóa
-              </Button>
-            </DialogActions>
-          </Dialog>
-          <Snackbar
-            open={openSnack}
-            autoHideDuration={6000}
-            onClose={handleCloseSnack}
-          >
-            <Alert
-              onClose={handleCloseSnack}
-              severity="error"
-              variant="filled"
-              sx={{ width: "100%" }}
+              {list()}
+            </Drawer>
+          </div>
+          <div>
+            {/* <button
+              "
+              onClick={() => document.getElementById("filexcel").click()}
             >
-              Vui lòng điền đầy đủ thông tin!{" "}
-            </Alert>
-          </Snackbar>
+              <CiImport /> */}
+            {/* Nhập từ vựng (excel) */}
+            <FileInput
+              handleFileSelect={handleFileSelect}
+              content={loadingImport ? "Đang tải dữ liệu" : "Nhập file (Excel)"}
+            />
+            {/* 
+            </button> */}
+          </div>
+          {!disibleResult && (
+            <ProgressBar
+              percent={percent}
+              passImport={passImport}
+              lack={lack}
+              duplicate={duplicate}
+            />
+          )}
         </div>
-      )}
+      </div>
+      <div className="a-q-body">
+        {!loading ? (
+          <div className="a-p-content-left">
+            <Box sx={{ width: "100%" }}>
+              <Paper sx={{ width: "100%", overflow: "hidden" }}>
+                <EnhancedTableToolbar titleLesson="Quản lí câu hỏi" />
+                <TableContainer sx={{ maxHeight: 600, overflowY: "auto" }}>
+                  <Table stickyHeader aria-label="sticky table">
+                    <EnhancedTableHead
+                      headCells={headCells}
+                      numSelected={selected.length}
+                      order={order}
+                      orderBy={orderBy}
+                      onRequestSort={handleRequestSort}
+                      rowCount={lessonCurrent.questions.length}
+                    />
+                    <TableBody>
+                      {visibleRows.map((row, index) => {
+                        const isItemSelected = selected.includes(row.id);
+                        const labelId = `enhanced-table-checkbox-${index}`;
 
-      <div className="a-q-content"></div>
+                        return (
+                          <TableRow
+                            hover
+                            onClick={(event) => handleClick(event, row)}
+                            role="checkbox"
+                            aria-checked={isItemSelected}
+                            tabIndex={-1}
+                            key={row.id}
+                            selected={isItemSelected}
+                            sx={{ cursor: "pointer" }}
+                            // Assign ref to the row
+                            ref={(el) => (rowRefs.current[row.id] = el)}
+                          >
+                            <TableCell
+                              component="th"
+                              id={labelId}
+                              scope="row"
+                              padding="none"
+                              align="right"
+                            ></TableCell>
+                            <TableCell align="left">{row.content}</TableCell>
+                            <TableCell align="left">
+                              <img
+                                src={row.image}
+                                width={50}
+                                height={50}
+                                alt=""
+                              />
+                            </TableCell>
+                            <TableCell align="left">
+                              <AudioPlayer audioSrc={row.audio} />
+                            </TableCell>
+                            <TableCell align="left">
+                              {
+                                // 3 sự lựa chọn
+
+                                row.type === "WORD_MEANING"
+                                  ? "Từ vựng - Ý nghĩa"
+                                  : row.type === "MEANING_WORD"
+                                  ? "Ý nghĩa - Từ vựng"
+                                  : row.type === "WORD_SPELLING"
+                                  ? "Từ vựng - Âm thanh"
+                                  : row.type === "SPELLING_WORD"
+                                  ? "Âm thanh - Từ vựng"
+                                  : "Không xác định"
+                              }
+                            </TableCell>
+                            <TableCell
+                              align="left"
+                              sx={{
+                                maxWidth: "200px",
+                              }}
+                            >
+                              <Accordion>
+                                <AccordionSummary
+                                  expandIcon={<ArrowDropDownIcon />}
+                                  aria-controls="panel2-content"
+                                  id="panel2-header"
+                                >
+                                  <Typography>Chi tiết đáp án</Typography>
+                                </AccordionSummary>
+                                <AccordionDetails>
+                                  <Typography>
+                                    {row.answers.map((answer, index) => (
+                                      <div
+                                        key={index}
+                                        style={{
+                                          ...styles.answer,
+                                          ...(index === 0
+                                            ? styles.correctAnswer
+                                            : {}),
+                                        }}
+                                      >
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "space-between",
+                                            gap: "10px",
+                                            flexDirection: "row",
+                                            padding: "5px",
+                                          }}
+                                        >
+                                          <p style={styles.answerText}>
+                                            <strong>
+                                              {" "}
+                                              {String.fromCharCode(65 + index)}:
+                                            </strong>{" "}
+                                            {answer.content}
+                                          </p>
+
+                                          <img
+                                            src={answer.image}
+                                            alt=""
+                                            width={60}
+                                            height={60}
+                                          />
+                                          <AudioPlayer
+                                            audioSrc={answer.audio}
+                                          />
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </Typography>
+                                </AccordionDetails>
+                              </Accordion>
+                            </TableCell>
+
+                            <TableCell align="left">
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "10px",
+                                }}
+                              >
+                                <button
+                                  className="a-l-button-action-update"
+                                  // onClick={handleOpenModalUpdateVocabulary}
+                                >
+                                  <MdEdit />
+                                </button>
+                                <button className="a-l-button-action-delete">
+                                  <MdDelete />
+                                </button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Paper>
+            </Box>
+          </div>
+        ) : (
+          <div>Loading...</div>
+        )}
+      </div>
+      <ModalAddQuestion
+        open={openModalAddQuestion}
+        handleClose={handleCloseModalAddQuestion}
+      />
     </div>
   );
 };

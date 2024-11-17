@@ -1,0 +1,256 @@
+
+
+.lq-question-container {
+  background-image: url("https://english-for-kids.s3.ap-southeast-1.amazonaws.com/5418aa07d5330b9a0c0f21ff947a5f3b779cff018a48c3e4659b90e4beba03c0.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 20px;
+  padding-top: 50px;
+}
+.lq-question-lesson {
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
+  height: 20%;
+}
+.lq-question-lesson-title {
+  background-color: lightblue;
+  padding: 10px;
+  border-radius: 50px;
+  font-size: 22px;
+  font-weight: bold;
+  border: 1px solid lightblue;
+  width: 30%;
+}
+.lq-question-title {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.lq-question-image {
+  max-width: 100%;
+  height: auto;
+  margin-top: 10px;
+  border-radius: 10px;
+  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
+  border: 2px solid lightblue;
+}
+
+.lq-answer-button {
+  background-color: whitesmoke;
+  margin: 5px;
+  padding: 10px;
+  border: 1px solid lightskyblue;
+  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 250px;
+  height: 250px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.lq-answer-button:hover {
+  background-color: lightblue;
+  scale: 1.05;
+}
+
+.lq-answer-button.correct {
+  background-color: lightgreen;
+  color: white;
+  border: 2px solid green;
+}
+
+.lq-answer-button.incorrect {
+  background-color: lightcoral;
+  color: white;
+  border: 2px solid red;
+}
+
+.lq-next-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: green;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.lq-answer-button.selected {
+  background-color: lightskyblue;
+  color: white;
+  border: 2px solid #4884f4;
+}
+
+.lq-next-button {
+  background-color: green;
+}
+
+.lq-check-button {
+  background-color: orange;
+}
+.lq-question-lesson-progress {
+  align-items: center;
+  display: flex;
+  width: 100%;
+  height: 10px;
+  background-color: #ddd;
+  border-radius: 10px;
+  margin-top: 10px;
+  height: 21px;
+}
+
+.lq-progress-bar {
+  height: 20px;
+  background-color: green; /* Màu của thanh tiến trình */
+  /*màu radiant*/
+  background-image: linear-gradient(to right, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff);
+  border-radius: 10px;
+  transition: width 0.3s ease-in-out; /* Hiệu ứng mượt mà khi thay đổi tiến độ */
+}
+.lq-queston-content-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 20px;
+  height: 80%;
+  align-items: center;
+}
+.lq-next-button-disabled {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-weight: bold;
+  background-color: #ddd;
+  color: #aaa;
+  cursor: not-allowed;
+}
+.lq-next-question-footer{
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  background-color: #4884f4;
+  height: 100px;
+}
+.lq-question-content{
+  font-size: 1.8rem;
+}
+.lq-question-content-audio{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  background-color: whitesmoke;
+  padding: 10px;
+  border-radius: 10px;
+
+  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+.lq-question-image {
+  transition: transform 0.3s ease-in-out; /* Thêm hiệu ứng mượt mà khi hover */
+}
+
+.lq-question-image:hover {
+  transform: scale(1.5); /* Phóng to hình ảnh khi hover */
+}
+.lq-answer-image{
+  border-radius: 10px;
+}
+.correct-answer {
+  background-color: lightgreen;
+  border: 2px solid green;
+}
+.l-bar-finish {
+  width: 100%;
+  padding: 10px;
+  font-size: 25px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  border-radius: 5px;
+  gap: 30px;
+}
+.l-bar-finish-body {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+}
+.l-bar-finish-body-1 {
+  width: 35%;
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  background-color: #ffc800;
+  border: 1px solid #ffc800;
+  border-radius: 20px;
+  padding: 1px;
+  padding-top: 10px;
+  font-size: large;
+  font-weight: bold;
+  ;
+}
+.l-bar-finish-body-2 {
+  width: 35%;
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  background-color: #4caf50;
+  border: 1px solid #4caf50;
+  border-radius: 20px;
+  padding: 1px;
+  padding-top: 10px;
+  font-size: large;
+  font-weight: bold;
+}
+.l-bar-finish-body-3 {
+  height: 100px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background-color: white;
+  border: 1px solid white;
+  border-radius: 20px;
+  font-size: large;
+}
+
+.l-bar-button-close{
+  background-color: lightskyblue;
+  padding: 10px;
+  border: 5px solid #4884f4;
+  font-size: 30px;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+.l-bar-button-close:hover{
+  scale: 1.1;
+}
+
+
