@@ -1,72 +1,107 @@
-.lesson-page-container{
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    padding: 20px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    background-image: url('https://english-for-kids.s3.ap-southeast-1.amazonaws.com/2ecfee2c89491f71b156accd878b6e8e25df3e13207752152fbad2a6f106708b.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    height: 100vh;
+.lesson-page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  background-image: url("https://english-for-kids.s3.ap-southeast-1.amazonaws.com/2ecfee2c89491f71b156accd878b6e8e25df3e13207752152fbad2a6f106708b.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100vh;
 }
 /* Phần hiển thị thông tin bài học */
 .slesson-info {
-    gap: 20px;
-    margin-top: 20px;
-    background-color: white;
-    width: 60%;
-    display: flex;
-    flex-direction: row;
-    padding: 10px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-  
-  .slesson-image {
-    width: 80%;
-    max-width: 200px;
-    max-height: 200px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-  }
-  
-  .slesson-title {
-    font-size: 38px;
-    font-weight: bold;
-    color: #228b22;
-    margin-top: 10px;
-  }
-  
-  .slesson-description {
-    font-size: 16px;
-    color: #555;
-    max-width: 800px;
-    margin: 0 auto;
-    line-height: 1.6;
-  }
-  .sbutton-container{
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    gap: 20px;
-    margin-top: 20px;
-  }
-  .saction-button{
-    padding: 10px 20px;
-    background-color: #228b22;
-    color: white;
-    font-size: 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: 0.2s;
+  gap: 20px;
+  margin-top: 20px;
+  background-color: lightskyblue;
+  width: 60%;
+  display: flex;
+  flex-direction: row;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.slesson-info-complete {
+  gap: 20px;
+  margin-top: 20px;
+  background-color: #ffd41c;
+  width: 60%;
+  display: flex;
+  flex-direction: row;
+  padding: 10px;
+  border-radius: 10px;
+  border: 5px solid #b89708;
+  box-shadow: 0 4px 10px #b89708;
+}
+.slesson-image {
+  width: 80%;
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  background-color: white;
+  padding: 10px;
+}
 
-  }
-  .saction-button:hover{
-    background-color: #1a6e1a;
-    scale: 1.05;
+.slesson-title {
+  font-size: 45px;
+  font-weight: bold;
+  margin-top: 10px;
+}
 
-  }
+.slesson-description {
+  font-size: 16px;
+  color: #555;
+}
+.sbutton-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  gap: 40px;
+  margin-top: 20px;
+}
+.saction-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 10px 20px;
+  background-color: lightskyblue;
+  font-weight: bold;
+  font-size: 40px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.2s;
+  border: 1px solid lightblue;
+  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
+  gap: 20px;
+}
+.saction-button:hover {
+  background-color: #4884f4;
+  scale: 1.05;
+}
+
+.saction-button-complete {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 10px 20px;
+  background-color: #ffd41c;
+  font-weight: bold;
+  font-size: 40px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.2s;
+  border: 1px solid #ffd41c;
+  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
+  gap: 20px;
+}
+.saction-button-complete:hover {
+  background-color: #ffd41c;
+  scale: 1.05;
+}

@@ -23,6 +23,7 @@ import Learn from "./pages/user/learn/Learn";
 import Profile from "./pages/user/profile/Profile";
 import Vocabulary from "./pages/user/vocabulary/Vocabulary";
 import Topic from "./pages/user/vocabulary/topic/Topic";
+import Practice from "./pages/practice/Practice";
 
 import DataAnalysis from "./pages/admin/data-analysis/DataAnalysis";
 import HomePage from "./pages/admin/home-page/HomePage";
@@ -73,6 +74,7 @@ const router = createBrowserRouter(
             <Route index element={<Learn />} />
             <Route path=":lessonId" element={<LearnSession />} />
             <Route path="question/:lessonId" element={<LearnQuestion />} />
+            <Route path="vocabulary/:lessonId" element={<Vocabulary />} />
           </Route>
 
           <Route path="flashcard">
@@ -80,10 +82,10 @@ const router = createBrowserRouter(
             <Route path="create" element={<CreateFlashcardSet />} />
             <Route path=":flashcardSetId" element={<LearnFlashcard />} />
             <Route path=":flashcardSetId/edit" element={<EditFlashcardSet />} />
-          </Route>
-          <Route path="vocabulary">
-            <Route index element={<Vocabulary />} />
-            <Route path=":topicId" element={<Topic />} />
+            <Route
+              path=":flashcardSetId/card-matching"
+              element={<CardMatchingGame />}
+            />
           </Route>
           <Route path="profile" element={<Profile />} />
           <Route path="grammar" element={<Grammar />} />

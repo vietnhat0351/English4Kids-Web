@@ -60,12 +60,14 @@ const ModalAddQuestion = ({ open, handleClose }) => {
   const [checkAudio, setCheckAudio] = useState(false);
   const [loadingAudio, setLoadingAudio] = useState(false);
 
-  const [wordFind, setWordFind] = useState({});
+  const [wordFind, setWordFind] = useState(null);
   const [checkWordFind, setCheckWordFind] = useState("");
 
   const [result, setResult] = useState("");
 
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackBarContent, setSnackBarContent] = useState("");
+  const [snackBarType, setSnackBarType] = useState("error");
 
   // UseEffect to reset the form when the modal is closed
   React.useEffect(() => {
@@ -83,11 +85,13 @@ const ModalAddQuestion = ({ open, handleClose }) => {
       setCheckImage(false);
       setCheckAudio(false);
       setCheckWordFind("");
-      setWordFind({});
+      setWordFind(null);
     }
   }, [open]);
 
-  const handleClickSnack = () => {
+  const handleClickSnack = (content, status) => {
+    setSnackBarType(status);
+    setSnackBarContent(content);
     setOpenSnackbar(true);
   };
 
@@ -161,6 +165,17 @@ const ModalAddQuestion = ({ open, handleClose }) => {
   };
 
   const handleSaveWord = async () => {
+    try {
+      const res = await customFetch.get(
+        `/api/v1/vocabulary/find-word-fast/${word.toLowerCase()}`
+      );
+      if (res.data.inDatabase) {
+        return;
+      }
+    } catch (error) {
+      console.error("Error when finding word", error);
+    }
+
     if (word === "") {
       setCheckWord(true);
       setCheckWordFind("");
@@ -186,12 +201,6 @@ const ModalAddQuestion = ({ open, handleClose }) => {
       setCheckType(false);
     }
 
-    if (!image || image === "") {
-      setCheckImage(true);
-    } else {
-      setCheckImage(false);
-    }
-
     if (audio === "") {
       setCheckAudio(true);
     } else {
@@ -203,12 +212,11 @@ const ModalAddQuestion = ({ open, handleClose }) => {
       meaning === "" ||
       pronunciation === "" ||
       type === "" ||
-      image === "" ||
       image === null ||
       audio === "" ||
       audio === null
     ) {
-      handleClickSnack();
+      handleClickSnack("Cần điền đầy đủ thông tin từ vựng!.", "error");
       return;
     }
     let dataSave = {
@@ -233,12 +241,12 @@ const ModalAddQuestion = ({ open, handleClose }) => {
         .then((response) => {
           console.log("Word saved successfully!", response.data);
         });
-      handleClose();
       await customFetch
         .get(`/api/v1/vocabulary/vocabularies`)
         .then((response) => {
           dispatch(setVocabularies(response.data));
         });
+      handleClickSnack("Thành công", "success");
     } catch (error) {
       console.error("Error when saving word", error);
     }
@@ -359,6 +367,42 @@ const ModalAddQuestion = ({ open, handleClose }) => {
 
   const [loadingA3Image, setLoadingA3Image] = useState(false);
   const [loadingA3Audio, setLoadingA3Audio] = useState(false);
+
+  const [openSnackbarQuestion, setOpenSnackbarQuestion] = useState(false);
+
+  const [questionErrorContent, setQuestionErrorContent] = useState("");
+
+  React.useEffect(() => {
+    setQuestionContent("");
+    setQuestionImage("");
+    setQuestionAudio("");
+    setQuestionType("");
+    setAnswerContent("");
+    setAnswerImage("");
+    setAnswerAudio("");
+    setWrongAnswer1("");
+    setWrongAnswer1Image("");
+    setWrongAnswer1Audio("");
+    setWrongAnswer2("");
+    setWrongAnswer2Image("");
+    setWrongAnswer2Audio("");
+    setWrongAnswer3("");
+    setWrongAnswer3Image("");
+    setWrongAnswer3Audio("");
+  }, [open]);
+
+  const handleClickSnackQuestion = (content) => {
+    setQuestionErrorContent(content);
+    setOpenSnackbarQuestion(true);
+  };
+
+  const handleCloseSnackQuestion = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setOpenSnackbarQuestion(false);
+  };
 
   // Usage for image change
   const handleChangeImageQ = (selectedFile) => {
@@ -535,86 +579,136 @@ const ModalAddQuestion = ({ open, handleClose }) => {
       setLoading(false);
     }
   };
+  ///================================================================================================
 
   const handleSaveQuestion = async () => {
-    if (
-      questionContent === "" ||
-      questionContent === null ||
-      questionType === "" ||
-      questionType === null ||
-      answerContent === "" ||
-      answerContent === null ||
-      !wordFind
-    ) {
-      console.log("Thiếu thông tin câu hỏi");
+    if (!questionContent || !questionType || !wordFind) {
+      handleClickSnackQuestion("Cần điền đầy đủ thông tin câu hỏi");
       return;
     } else {
-      if (wrongAnswer1 === "" && wrongAnswer2 === "" && wrongAnswer3 === "") {
-        console.log("Thiếu thông tin câu trả lời");
-        return;
-      } else {
-        console.log("Có đủ thông tin câu hỏi và câu trả lời");
-        console.log("lesson", lessonCurrent);
-        let dataSave = {
-          content: questionContent,
-          type: questionType,
-          image: questionImage,
-          audio: questionAudio,
-          lesson: {
-            id: lessonCurrent.id,
-          },
-          vocabulary: {
-            id: wordFind.id,
-          },
-        };
-        let dataAnswer = [];
-        if (answerContent) {
-          dataAnswer.push({
-            content: answerContent,
-            image: answerImage,
-            audio: answerAudio,
-            isCorrect: true,
-          });
+      //================================================================================================
+      if (questionType === "WORD_MEANING" || questionType === "MEANING_WORD") {
+        if (!answerContent) {
+          handleClickSnackQuestion("Thiếu thông tin câu trả lời");
+          return;
+        } else {
+          if (!wrongAnswer1 && !wrongAnswer2 && !wrongAnswer3) {
+            handleClickSnackQuestion("Thiếu thông tin câu trả lời sai");
+            return;
+          }
         }
-        if (wrongAnswer1) {
-          dataAnswer.push({
-            content: wrongAnswer1,
-            image: wrongAnswer1Image,
-            audio: wrongAnswer1Audio,
-            isCorrect: false,
-          });
-        }
-        if (wrongAnswer2) {
-          dataAnswer.push({
-            content: wrongAnswer2,
-            image: wrongAnswer2Image,
-            audio: wrongAnswer2Audio,
-            isCorrect: false,
-          });
-        }
-        if (wrongAnswer3) {
-          dataAnswer.push({
-            content: wrongAnswer3,
-            image: wrongAnswer3Image,
-            audio: wrongAnswer3Audio,
-            isCorrect: false,
-          });
-        }
-        dataSave = {
-          ...dataSave,
-          answers: dataAnswer,
-        };
-        try{
-          const response = await customFetch.post("/api/v1/questions/create", dataSave);
-          console.log("Question saved successfully!", response.data);
-          
-          handleClose();
-        } catch (error) {
-          console.error("Error when saving question", error);
-        }
-       
-
       }
+      //================================================================================================
+      if (questionType === "WORD_SPELLING") {
+        if (!answerAudio) {
+          handleClickSnackQuestion("Thiếu thông tin câu trả lời");
+          return;
+        } else {
+          if (!wrongAnswer1Audio && !wrongAnswer2Audio && !wrongAnswer3Audio) {
+            handleClickSnackQuestion("Thiếu audio câu trả lời sai");
+            return;
+          }
+        }
+      }
+      //================================================================================================
+      if (questionType === "SPELLING_WORD") {
+        if (!questionAudio) {
+          handleClickSnackQuestion("Thiếu audio câu hỏi");
+          return;
+        } else {
+          if (!answerContent) {
+            handleClickSnackQuestion("Thiếu thông tin câu trả lời");
+            return;
+          }
+          if (!wrongAnswer1 && !wrongAnswer2 && !wrongAnswer3) {
+            handleClickSnackQuestion("Thiếu thông tin câu trả lời sai");
+            return;
+          }
+        }
+      }
+      //================================================================================================
+      if (questionType === "FILL_IN_FLANK") {
+        if (!answerContent) {
+          handleClickSnackQuestion("Thiếu thông tin câu trả lời");
+          return;
+        } else {
+          if (!wrongAnswer1 && !wrongAnswer2 && !wrongAnswer3) {
+            handleClickSnackQuestion("Câu hỏi không cần câu trả lời sai");
+            return;
+          }
+        }
+      }
+      //================================================================================================
+      if (questionType === "WORD_ORDER") {
+        //Nêu câu hỏi có ít hơn 2 từ thì lỗi
+        if (questionContent.split(" ").length < 2) {
+          handleClickSnackQuestion("Câu hỏi phải có ít nhất 2 từ");
+          return
+        }
+      }
+      //================================================================================================
+      console.log("lesson", lessonCurrent);
+      let dataSave = {
+        content: questionContent,
+        type: questionType,
+        image: questionImage,
+        audio: questionAudio,
+        lesson: {
+          id: lessonCurrent.id,
+        },
+        vocabulary: {
+          id: wordFind.id,
+        },
+      };
+      let dataAnswer = [];
+      if (answerContent) {
+        dataAnswer.push({
+          content: answerContent,
+          image: answerImage,
+          audio: answerAudio,
+          isCorrect: true,
+        });
+      }
+      if (wrongAnswer1) {
+        dataAnswer.push({
+          content: wrongAnswer1,
+          image: wrongAnswer1Image,
+          audio: wrongAnswer1Audio,
+          isCorrect: false,
+        });
+      }
+      if (wrongAnswer2) {
+        dataAnswer.push({
+          content: wrongAnswer2,
+          image: wrongAnswer2Image,
+          audio: wrongAnswer2Audio,
+          isCorrect: false,
+        });
+      }
+      if (wrongAnswer3) {
+        dataAnswer.push({
+          content: wrongAnswer3,
+          image: wrongAnswer3Image,
+          audio: wrongAnswer3Audio,
+          isCorrect: false,
+        });
+      }
+      dataSave = {
+        ...dataSave,
+        answers: dataAnswer,
+      };
+      try {
+        const response = await customFetch.post(
+          "/api/v1/questions/create",
+          dataSave
+        );
+        console.log("Question saved successfully!", response.data);
+
+        handleClose();
+      } catch (error) {
+        console.error("Error when saving question", error);
+      }
+      //================================================================================================
     }
   };
 
@@ -775,12 +869,14 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                 </div>
               </div>
               <div className="m-add-voca-content-footer">
-                <button
-                  className="m-add-voca-content-footer-add"
-                  onClick={handleSaveWord}
-                >
-                  {wordFind.inDatabase ? "Cập nhật từ vựng" : "Thêm từ vựng"}
-                </button>
+                {wordFind && (
+                  <button
+                    className="m-add-voca-content-footer-add"
+                    onClick={handleSaveWord}
+                  >
+                    {wordFind.inDatabase ? "Cập nhật từ vựng" : "Thêm từ vựng"}
+                  </button>
+                )}
               </div>
             </div>
             <Snackbar
@@ -790,11 +886,11 @@ const ModalAddQuestion = ({ open, handleClose }) => {
             >
               <Alert
                 onClose={handleCloseSnack}
-                severity="error"
+                severity={snackBarType}
                 variant="filled"
-                sx={{ width: "70%" }}
+                sx={{ width: "100%" }}
               >
-                Cần điền đầy đủ thông tin từ vựng!.
+                {snackBarContent}
               </Alert>
             </Snackbar>
           </div>
@@ -832,14 +928,19 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                 >
                   <MenuItem value={"WORD_MEANING"}>Từ vừng - Ý nghĩa</MenuItem>
                   <MenuItem value={"MEANING_WORD"}>Ý nghĩa - Từ vựng</MenuItem>
-                  <MenuItem value={"WORD_SPELLING"}>Từ vựng - Âm thanh</MenuItem>
-                  <MenuItem value={"SPELLING_WORD"}>Âm thanh - Từ vựng</MenuItem>
-                  <MenuItem value={"FILL_IN_FLANK"}>Điền vào chổ trống</MenuItem>
-                  <MenuItem value={"WORD_ORDER"}>Sắp xếp các từ</MenuItem>
+                  <MenuItem value={"WORD_SPELLING"}>
+                    Từ vựng - Âm thanh
+                  </MenuItem>
+                  <MenuItem value={"SPELLING_WORD"}>
+                    Âm thanh - Từ vựng
+                  </MenuItem>
+                  <MenuItem value={"FILL_IN_FLANK"}>
+                    Điền vào chổ trống
+                  </MenuItem>
+                  <MenuItem value={"WORD_ORDER"}>Sắp xếp từ</MenuItem>
                 </Select>
               </FormControl>
             </div>
-
             <div
               style={{
                 display: "flex",
@@ -938,638 +1039,667 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                 )}
               </div>
             </div>
-
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "10px",
-                backgroundColor: "#f5f5f5",
-                padding: "10px",
-                borderRadius: "10px",
-              }}
-            >
-              <Typography id="modal-modal-title" variant="h5" component="h2">
-                Câu trả lời
-              </Typography>
+            {questionType === "WORD_ORDER" ? (
               <div
                 style={{
-                  display: "flex",
-                  gap: "10px",
-                  flexDirection: "row",
-                  width: "100%",
+                  color: "green",
+                  fontStyle: "italic",
                 }}
               >
-                <div className="m-add-answer-corect">
-                  <TextField
-                    id="demo-helper-text-misaligned"
-                    label="Nội dung câu trả lời"
-                    value={answerContent}
-                    sx={{ width: "100%" }}
-                    onChange={(e) => {
-                      setAnswerContent(e.target.value);
-                    }}
-                  />
+                {/* *Loại câu hỏi này chỉ cần nôi dung câu hỏi */}
+              </div>
+            ) : (
+              <>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "10px",
+                    backgroundColor: "#f5f5f5",
+                    padding: "10px",
+                    borderRadius: "10px",
+                  }}
+                >
+                  <Typography
+                    id="modal-modal-title"
+                    variant="h5"
+                    component="h2"
+                  >
+                    Câu trả lời
+                  </Typography>
                   <div
                     style={{
                       display: "flex",
                       gap: "10px",
-                      justifyContent: "flex-start",
-                      alignItems: "flex-start",
+                      flexDirection: "row",
+                      width: "100%",
                     }}
                   >
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "10px",
-                        width: "50%",
-                      }}
-                    >
-                      <button
-                        className="m-add-answer-button"
-                        onClick={() =>
-                          document.getElementById("answerImageInput").click()
-                        }
-                      >
-                        {loadingAnswerImage ? "Đang tải..." : "Chọn file ảnh"}
-                      </button>
-
-                      <input
-                        id="answerImageInput"
-                        type="file"
-                        style={{ display: "none" }}
-                        onChange={(e) => handleChangeImageA(e.target.files[0])}
-                        accept="image/png, image/jpeg"
+                    <div className="m-add-answer-corect">
+                      <TextField
+                        id="demo-helper-text-misaligned"
+                        label="Nội dung câu trả lời"
+                        value={answerContent}
+                        sx={{ width: "100%" }}
+                        onChange={(e) => {
+                          setAnswerContent(e.target.value);
+                        }}
                       />
-
-                      {/* Display uploaded image if available */}
-                      {answerImage && (
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "10px",
+                          justifyContent: "flex-start",
+                          alignItems: "flex-start",
+                        }}
+                      >
                         <div
                           style={{
                             display: "flex",
                             flexDirection: "column",
                             gap: "10px",
-                            justifyContent: "flex-start",
-                            alignItems: "flex-start",
+                            width: "50%",
                           }}
                         >
-                          {" "}
-                          <img
-                            src={answerImage}
-                            alt="Uploaded"
-                            width={70}
-                            height={70}
-                          />
                           <button
-                            className="m-q-clear-image-answer"
-                            onClick={() => {
-                              setAnswerImage("");
-                            }}
+                            className="m-add-answer-button"
+                            onClick={() =>
+                              document
+                                .getElementById("answerImageInput")
+                                .click()
+                            }
                           >
-                            <MdDelete />
+                            {loadingAnswerImage
+                              ? "Đang tải..."
+                              : "Chọn file ảnh"}
                           </button>
+
+                          <input
+                            id="answerImageInput"
+                            type="file"
+                            style={{ display: "none" }}
+                            onChange={(e) =>
+                              handleChangeImageA(e.target.files[0])
+                            }
+                            accept="image/png, image/jpeg"
+                          />
+
+                          {/* Display uploaded image if available */}
+                          {answerImage && (
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "10px",
+                                justifyContent: "flex-start",
+                                alignItems: "flex-start",
+                              }}
+                            >
+                              {" "}
+                              <img
+                                src={answerImage}
+                                alt="Uploaded"
+                                width={70}
+                                height={70}
+                              />
+                              <button
+                                className="m-q-clear-image-answer"
+                                onClick={() => {
+                                  setAnswerImage("");
+                                }}
+                              >
+                                <MdDelete />
+                              </button>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "10px",
-                        width: "50%",
-                      }}
-                    >
-                      <button
-                        className="m-add-answer-button"
-                        onClick={() =>
-                          document.getElementById("answerAudioInput").click()
-                        }
-                      >
-                        {loadingAnswerAudio ? "Đang tải..." : "Chọn âm thanh"}
-                      </button>
-
-                      <input
-                        id="answerAudioInput"
-                        type="file"
-                        style={{ display: "none" }}
-                        onChange={(e) => handleChangeAudioA(e.target.files[0])}
-                        accept="audio/mp3"
-                      />
-
-                      {/* Display uploaded image if available */}
-                      {answerAudio && (
                         <div
                           style={{
                             display: "flex",
                             flexDirection: "column",
                             gap: "10px",
+                            width: "50%",
+                          }}
+                        >
+                          <button
+                            className="m-add-answer-button"
+                            onClick={() =>
+                              document
+                                .getElementById("answerAudioInput")
+                                .click()
+                            }
+                          >
+                            {loadingAnswerAudio
+                              ? "Đang tải..."
+                              : "Chọn âm thanh"}
+                          </button>
+
+                          <input
+                            id="answerAudioInput"
+                            type="file"
+                            style={{ display: "none" }}
+                            onChange={(e) =>
+                              handleChangeAudioA(e.target.files[0])
+                            }
+                            accept="audio/mp3"
+                          />
+
+                          {/* Display uploaded image if available */}
+                          {answerAudio && (
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "10px",
+                                justifyContent: "flex-start",
+                                alignItems: "flex-start",
+                              }}
+                            >
+                              {" "}
+                              <AudioPlayer
+                                audioSrc={answerAudio}
+                                fontSize={"large"}
+                              />
+                              <button
+                                className="m-q-clear-image-answer"
+                                onClick={() => {
+                                  setAnswerAudio("");
+                                }}
+                              >
+                                <MdDelete />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {!wrongAnswer1Disiable ? (
+                      <div className="m-add-answer-wrong">
+                        <TextField
+                          id="demo-helper-text-misaligned"
+                          label="Nội dung câu trả lời"
+                          value={wrongAnswer1}
+                          sx={{ width: "100%" }}
+                          onChange={(e) => {
+                            setWrongAnswer1(e.target.value);
+                          }}
+                        />
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "10px",
                             justifyContent: "flex-start",
                             alignItems: "flex-start",
                           }}
                         >
-                          {" "}
-                          <AudioPlayer
-                            audioSrc={answerAudio}
-                            fontSize={"large"}
-                          />
-                          <button
-                            className="m-q-clear-image-answer"
-                            onClick={() => {
-                              setAnswerAudio("");
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "10px",
+                              width: "50%",
                             }}
                           >
-                            <MdDelete />
-                          </button>
+                            <button
+                              className="m-add-answer-button"
+                              onClick={() =>
+                                document
+                                  .getElementById("wrongAnswer1ImageInput")
+                                  .click()
+                              }
+                            >
+                              {loadingWrongAnswer1Image
+                                ? "Đang tải..."
+                                : "Chọn file ảnh"}
+                            </button>
+
+                            <input
+                              id="wrongAnswer1ImageInput"
+                              type="file"
+                              style={{ display: "none" }}
+                              onChange={(e) =>
+                                handleChangeImageA1(e.target.files[0])
+                              }
+                              accept="image/png, image/jpeg"
+                            />
+                            {wrongAnswer1Image && (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: "10px",
+                                  justifyContent: "flex-start",
+                                  alignItems: "flex-start",
+                                }}
+                              >
+                                {" "}
+                                <img
+                                  src={wrongAnswer1Image}
+                                  alt="Uploaded"
+                                  width={70}
+                                  height={70}
+                                />
+                                <button
+                                  className="m-q-clear-image-answer"
+                                  onClick={() => {
+                                    setWrongAnswer1Image("");
+                                  }}
+                                >
+                                  <MdDelete />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "10px",
+                              width: "50%",
+                            }}
+                          >
+                            <button
+                              className="m-add-answer-button"
+                              onClick={() =>
+                                document
+                                  .getElementById("wrongAnswer1AudioInput")
+                                  .click()
+                              }
+                            >
+                              {loadingWrongAnswer1Audio
+                                ? "Đang tải..."
+                                : "Chọn âm thanh"}
+                            </button>
+
+                            <input
+                              id="wrongAnswer1AudioInput"
+                              type="file"
+                              style={{ display: "none" }}
+                              onChange={(e) =>
+                                handleChangeAudioA1(e.target.files[0])
+                              }
+                              accept="audio/mp3"
+                            />
+
+                            {/* Display uploaded image if available */}
+                            {wrongAnswer1Audio && (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: "10px",
+                                  justifyContent: "flex-start",
+                                  alignItems: "flex-start",
+                                }}
+                              >
+                                <AudioPlayer
+                                  audioSrc={wrongAnswer1Audio}
+                                  fontSize={"large"}
+                                />
+                                <button
+                                  className="m-q-clear-image-answer"
+                                  onClick={() => {
+                                    setWrongAnswer1Audio("");
+                                  }}
+                                >
+                                  <MdDelete />
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      )}
-                    </div>
+                        <button
+                          className="m-add-answer-button-add-answer-close"
+                          onClick={() => {
+                            setWrongAnswer1Disiable(true);
+                          }}
+                        >
+                          Xóa câu trả lời
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="m-add-answer-none">
+                        <button
+                          className="m-add-answer-button-add-answer"
+                          onClick={() => {
+                            setWrongAnswer1Disiable(false);
+                            setWrongAnswer1Image("");
+                            setWrongAnswer1Audio("");
+                            setWrongAnswer1("");
+                          }}
+                        >
+                          <IoMdAdd />
+                        </button>
+                      </div>
+                    )}
+
+                    {!wrongAnswer2Disiable ? (
+                      <div className="m-add-answer-wrong">
+                        <TextField
+                          id="demo-helper-text-misaligned"
+                          label="Nội dung câu trả lời"
+                          value={wrongAnswer2}
+                          sx={{ width: "100%" }}
+                          onChange={(e) => {
+                            setWrongAnswer2(e.target.value);
+                          }}
+                        />
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "10px",
+                            justifyContent: "flex-start",
+                            alignItems: "flex-start",
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "10px",
+                              width: "50%",
+                            }}
+                          >
+                            <button
+                              className="m-add-answer-button"
+                              onClick={() =>
+                                document
+                                  .getElementById("wrongAnswer2ImageInput")
+                                  .click()
+                              }
+                            >
+                              {loadingWrongAnswer2Image
+                                ? "Đang tải..."
+                                : "Chọn file ảnh"}
+                            </button>
+
+                            <input
+                              id="wrongAnswer2ImageInput"
+                              type="file"
+                              style={{ display: "none" }}
+                              onChange={(e) =>
+                                handleChangeImageA2(e.target.files[0])
+                              }
+                              accept="image/png, image/jpeg"
+                            />
+
+                            {/* Display uploaded image if available */}
+                            {wrongAnswer2Image && (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: "10px",
+                                  justifyContent: "flex-start",
+                                  alignItems: "flex-start",
+                                }}
+                              >
+                                <img
+                                  src={wrongAnswer2Image}
+                                  alt="Uploaded"
+                                  width={70}
+                                  height={70}
+                                />
+                                <button
+                                  className="m-q-clear-image-answer"
+                                  onClick={() => {
+                                    setWrongAnswer2Image("");
+                                  }}
+                                >
+                                  <MdDelete />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "10px",
+                              width: "50%",
+                            }}
+                          >
+                            <button
+                              className="m-add-answer-button"
+                              onClick={() =>
+                                document
+                                  .getElementById("wrongAnswer2AudioInput")
+                                  .click()
+                              }
+                            >
+                              {loadingWrongAnswer2Audio
+                                ? "Đang tải..."
+                                : "Chọn âm thanh"}
+                            </button>
+
+                            <input
+                              id="wrongAnswer2AudioInput"
+                              type="file"
+                              style={{ display: "none" }}
+                              onChange={(e) =>
+                                handleChangeAudioA2(e.target.files[0])
+                              }
+                              accept="audio/mp3"
+                            />
+
+                            {/* Display uploaded image if available */}
+                            {wrongAnswer2Audio && (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: "10px",
+                                  justifyContent: "flex-start",
+                                  alignItems: "flex-start",
+                                }}
+                              >
+                                <AudioPlayer
+                                  audioSrc={wrongAnswer2Audio}
+                                  fontSize={"large"}
+                                />
+                                <button
+                                  className="m-q-clear-image-answer"
+                                  onClick={() => {
+                                    setWrongAnswer2Audio("");
+                                  }}
+                                >
+                                  <MdDelete />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <button
+                          className="m-add-answer-button-add-answer-close"
+                          onClick={() => {
+                            setWrongAnswer2Disiable(true);
+                          }}
+                        >
+                          Xóa câu trả lời
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="m-add-answer-none">
+                        <button
+                          className="m-add-answer-button-add-answer"
+                          onClick={() => {
+                            setWrongAnswer2Disiable(false);
+                            setWrongAnswer2Image("");
+                            setWrongAnswer2Audio("");
+                            setWrongAnswer2("");
+                          }}
+                        >
+                          <IoMdAdd />
+                        </button>
+                      </div>
+                    )}
+
+                    {!wrongAnswer3Disiable ? (
+                      <div className="m-add-answer-wrong">
+                        <TextField
+                          id="demo-helper-text-misaligned"
+                          label="Nội dung câu trả lời"
+                          value={wrongAnswer3}
+                          sx={{ width: "100%" }}
+                          onChange={(e) => {
+                            setWrongAnswer3(e.target.value);
+                          }}
+                        />
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "10px",
+                            justifyContent: "flex-start",
+                            alignItems: "flex-start",
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "10px",
+                              width: "50%",
+                            }}
+                          >
+                            <button
+                              className="m-add-answer-button"
+                              onClick={() =>
+                                document
+                                  .getElementById("wrongAnswer3ImageInput")
+                                  .click()
+                              }
+                            >
+                              {loadingWrongAnswer3Image
+                                ? "Đang tải..."
+                                : "Chọn file ảnh"}
+                            </button>
+
+                            <input
+                              id="wrongAnswer3ImageInput"
+                              type="file"
+                              style={{ display: "none" }}
+                              onChange={(e) =>
+                                handleChangeImageA3(e.target.files[0])
+                              }
+                              accept="image/png, image/jpeg"
+                            />
+
+                            {/* Display uploaded image if available */}
+                            {wrongAnswer3Image && (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: "10px",
+                                  justifyContent: "flex-start",
+                                  alignItems: "flex-start",
+                                }}
+                              >
+                                <img
+                                  src={wrongAnswer3Image}
+                                  alt="Uploaded"
+                                  width={70}
+                                  height={70}
+                                />
+                                <button
+                                  className="m-q-clear-image-answer"
+                                  onClick={() => {
+                                    setWrongAnswer3Image("");
+                                  }}
+                                >
+                                  <MdDelete />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: "10px",
+                              width: "50%",
+                            }}
+                          >
+                            <button
+                              className="m-add-answer-button"
+                              onClick={() =>
+                                document
+                                  .getElementById("wrongAnswer3AudioInput")
+                                  .click()
+                              }
+                            >
+                              {loadingWrongAnswer3Audio
+                                ? "Đang tải..."
+                                : "Chọn âm thanh"}
+                            </button>
+
+                            <input
+                              id="wrongAnswer3AudioInput"
+                              type="file"
+                              style={{ display: "none" }}
+                              onChange={(e) =>
+                                handleChangeAudioA3(e.target.files[0])
+                              }
+                              accept="audio/mp3"
+                            />
+
+                            {/* Display uploaded image if available */}
+                            {wrongAnswer3Audio && (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  gap: "10px",
+                                  justifyContent: "flex-start",
+                                  alignItems: "flex-start",
+                                }}
+                              >
+                                <AudioPlayer
+                                  audioSrc={wrongAnswer3Audio}
+                                  fontSize={"large"}
+                                />
+                                <button
+                                  className="m-q-clear-image-answer"
+                                  onClick={() => {
+                                    setWrongAnswer3Audio("");
+                                  }}
+                                >
+                                  <MdDelete />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <button
+                          className="m-add-answer-button-add-answer-close"
+                          onClick={() => {
+                            setWrongAnswer3Disiable(true);
+                          }}
+                        >
+                          Xóa câu trả lời
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="m-add-answer-none">
+                        <button
+                          className="m-add-answer-button-add-answer"
+                          onClick={() => {
+                            setWrongAnswer3Disiable(false);
+                            setWrongAnswer3Image("");
+                            setWrongAnswer3Audio("");
+                            setWrongAnswer3("");
+                          }}
+                        >
+                          <IoMdAdd />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
+              </>
+            )}
 
-                {!wrongAnswer1Disiable ? (
-                  <div className="m-add-answer-wrong">
-                    <TextField
-                      id="demo-helper-text-misaligned"
-                      label="Nội dung câu trả lời"
-                      value={wrongAnswer1}
-                      sx={{ width: "100%" }}
-                      onChange={(e) => {
-                        setWrongAnswer1(e.target.value);
-                      }}
-                    />
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: "10px",
-                        justifyContent: "flex-start",
-                        alignItems: "flex-start",
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "10px",
-                          width: "50%",
-                        }}
-                      >
-                        <button
-                          className="m-add-answer-button"
-                          onClick={() =>
-                            document
-                              .getElementById("wrongAnswer1ImageInput")
-                              .click()
-                          }
-                        >
-                          {loadingWrongAnswer1Image
-                            ? "Đang tải..."
-                            : "Chọn file ảnh"}
-                        </button>
-
-                        <input
-                          id="wrongAnswer1ImageInput"
-                          type="file"
-                          style={{ display: "none" }}
-                          onChange={(e) =>
-                            handleChangeImageA1(e.target.files[0])
-                          }
-                          accept="image/png, image/jpeg"
-                        />
-                        {wrongAnswer1Image && (
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: "10px",
-                              justifyContent: "flex-start",
-                              alignItems: "flex-start",
-                            }}
-                          >
-                            {" "}
-                            <img
-                              src={wrongAnswer1Image}
-                              alt="Uploaded"
-                              width={70}
-                              height={70}
-                            />
-                            <button
-                              className="m-q-clear-image-answer"
-                              onClick={() => {
-                                setWrongAnswer1Image("");
-                              }}
-                            >
-                              <MdDelete />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "10px",
-                          width: "50%",
-                        }}
-                      >
-                        <button
-                          className="m-add-answer-button"
-                          onClick={() =>
-                            document
-                              .getElementById("wrongAnswer1AudioInput")
-                              .click()
-                          }
-                        >
-                          {loadingWrongAnswer1Audio
-                            ? "Đang tải..."
-                            : "Chọn âm thanh"}
-                        </button>
-
-                        <input
-                          id="wrongAnswer1AudioInput"
-                          type="file"
-                          style={{ display: "none" }}
-                          onChange={(e) =>
-                            handleChangeAudioA1(e.target.files[0])
-                          }
-                          accept="audio/mp3"
-                        />
-
-                        {/* Display uploaded image if available */}
-                        {wrongAnswer1Audio && (
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: "10px",
-                              justifyContent: "flex-start",
-                              alignItems: "flex-start",
-                            }}
-                          >
-                            <AudioPlayer
-                              audioSrc={wrongAnswer1Audio}
-                              fontSize={"large"}
-                            />
-                            <button
-                              className="m-q-clear-image-answer"
-                              onClick={() => {
-                                setWrongAnswer1Audio("");
-                              }}
-                            >
-                              <MdDelete />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <button
-                      className="m-add-answer-button-add-answer-close"
-                      onClick={() => {
-                        setWrongAnswer1Disiable(true);
-                      }}
-                    >
-                      Xóa câu trả lời
-                    </button>
-                  </div>
-                ) : (
-                  <div className="m-add-answer-none">
-                    <button
-                      className="m-add-answer-button-add-answer"
-                      onClick={() => {
-                        setWrongAnswer1Disiable(false);
-                        setWrongAnswer1Image("");
-                        setWrongAnswer1Audio("");
-                        setWrongAnswer1("");
-                      }}
-                    >
-                      <IoMdAdd />
-                    </button>
-                  </div>
-                )}
-
-                {!wrongAnswer2Disiable ? (
-                  <div className="m-add-answer-wrong">
-                    <TextField
-                      id="demo-helper-text-misaligned"
-                      label="Nội dung câu trả lời"
-                      value={wrongAnswer2}
-                      sx={{ width: "100%" }}
-                      onChange={(e) => {
-                        setWrongAnswer2(e.target.value);
-                      }}
-                    />
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: "10px",
-                        justifyContent: "flex-start",
-                        alignItems: "flex-start",
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "10px",
-                          width: "50%",
-                        }}
-                      >
-                        <button
-                          className="m-add-answer-button"
-                          onClick={() =>
-                            document
-                              .getElementById("wrongAnswer2ImageInput")
-                              .click()
-                          }
-                        >
-                          {loadingWrongAnswer2Image
-                            ? "Đang tải..."
-                            : "Chọn file ảnh"}
-                        </button>
-
-                        <input
-                          id="wrongAnswer2ImageInput"
-                          type="file"
-                          style={{ display: "none" }}
-                          onChange={(e) =>
-                            handleChangeImageA2(e.target.files[0])
-                          }
-                          accept="image/png, image/jpeg"
-                        />
-
-                        {/* Display uploaded image if available */}
-                        {wrongAnswer2Image && (
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: "10px",
-                              justifyContent: "flex-start",
-                              alignItems: "flex-start",
-                            }}
-                          >
-                            <img
-                              src={wrongAnswer2Image}
-                              alt="Uploaded"
-                              width={70}
-                              height={70}
-                            />
-                            <button
-                              className="m-q-clear-image-answer"
-                              onClick={() => {
-                                setWrongAnswer2Image("");
-                              }}
-                            >
-                              <MdDelete />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "10px",
-                          width: "50%",
-                        }}
-                      >
-                        <button
-                          className="m-add-answer-button"
-                          onClick={() =>
-                            document
-                              .getElementById("wrongAnswer2AudioInput")
-                              .click()
-                          }
-                        >
-                          {loadingWrongAnswer2Audio
-                            ? "Đang tải..."
-                            : "Chọn âm thanh"}
-                        </button>
-
-                        <input
-                          id="wrongAnswer2AudioInput"
-                          type="file"
-                          style={{ display: "none" }}
-                          onChange={(e) =>
-                            handleChangeAudioA2(e.target.files[0])
-                          }
-                          accept="audio/mp3"
-                        />
-
-                        {/* Display uploaded image if available */}
-                        {wrongAnswer2Audio && (
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: "10px",
-                              justifyContent: "flex-start",
-                              alignItems: "flex-start",
-                            }}
-                          >
-                            <AudioPlayer
-                              audioSrc={wrongAnswer2Audio}
-                              fontSize={"large"}
-                            />
-                            <button
-                              className="m-q-clear-image-answer"
-                              onClick={() => {
-                                setWrongAnswer2Audio("");
-                              }}
-                            >
-                              <MdDelete />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <button
-                      className="m-add-answer-button-add-answer-close"
-                      onClick={() => {
-                        setWrongAnswer2Disiable(true);
-                      }}
-                    >
-                      Xóa câu trả lời
-                    </button>
-                  </div>
-                ) : (
-                  <div className="m-add-answer-none">
-                    <button
-                      className="m-add-answer-button-add-answer"
-                      onClick={() => {
-                        setWrongAnswer2Disiable(false);
-                        setWrongAnswer2Image("");
-                        setWrongAnswer2Audio("");
-                        setWrongAnswer2("");
-                      }}
-                    >
-                      <IoMdAdd />
-                    </button>
-                  </div>
-                )}
-
-                {!wrongAnswer3Disiable ? (
-                  <div className="m-add-answer-wrong">
-                    <TextField
-                      id="demo-helper-text-misaligned"
-                      label="Nội dung câu trả lời"
-                      value={wrongAnswer3}
-                      sx={{ width: "100%" }}
-                      onChange={(e) => {
-                        setWrongAnswer3(e.target.value);
-                      }}
-                    />
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: "10px",
-                        justifyContent: "flex-start",
-                        alignItems: "flex-start",
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "10px",
-                          width: "50%",
-                        }}
-                      >
-                        <button
-                          className="m-add-answer-button"
-                          onClick={() =>
-                            document
-                              .getElementById("wrongAnswer3ImageInput")
-                              .click()
-                          }
-                        >
-                          {loadingWrongAnswer3Image
-                            ? "Đang tải..."
-                            : "Chọn file ảnh"}
-                        </button>
-
-                        <input
-                          id="wrongAnswer3ImageInput"
-                          type="file"
-                          style={{ display: "none" }}
-                          onChange={(e) =>
-                            handleChangeImageA3(e.target.files[0])
-                          }
-                          accept="image/png, image/jpeg"
-                        />
-
-                        {/* Display uploaded image if available */}
-                        {wrongAnswer3Image && (
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: "10px",
-                              justifyContent: "flex-start",
-                              alignItems: "flex-start",
-                            }}
-                          >
-                            <img
-                              src={wrongAnswer3Image}
-                              alt="Uploaded"
-                              width={70}
-                              height={70}
-                            />
-                            <button
-                              className="m-q-clear-image-answer"
-                              onClick={() => {
-                                setWrongAnswer3Image("");
-                              }}
-                            >
-                              <MdDelete />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "10px",
-                          width: "50%",
-                        }}
-                      >
-                        <button
-                          className="m-add-answer-button"
-                          onClick={() =>
-                            document
-                              .getElementById("wrongAnswer3AudioInput")
-                              .click()
-                          }
-                        >
-                          {loadingWrongAnswer3Audio
-                            ? "Đang tải..."
-                            : "Chọn âm thanh"}
-                        </button>
-
-                        <input
-                          id="wrongAnswer3AudioInput"
-                          type="file"
-                          style={{ display: "none" }}
-                          onChange={(e) =>
-                            handleChangeAudioA3(e.target.files[0])
-                          }
-                          accept="audio/mp3"
-                        />
-
-                        {/* Display uploaded image if available */}
-                        {wrongAnswer3Audio && (
-                          <div
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: "10px",
-                              justifyContent: "flex-start",
-                              alignItems: "flex-start",
-                            }}
-                          >
-                            <AudioPlayer
-                              audioSrc={wrongAnswer3Audio}
-                              fontSize={"large"}
-                            />
-                            <button
-                              className="m-q-clear-image-answer"
-                              onClick={() => {
-                                setWrongAnswer3Audio("");
-                              }}
-                            >
-                              <MdDelete />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <button
-                      className="m-add-answer-button-add-answer-close"
-                      onClick={() => {
-                        setWrongAnswer3Disiable(true);
-                      }}
-                    >
-                      Xóa câu trả lời
-                    </button>
-                  </div>
-                ) : (
-                  <div className="m-add-answer-none">
-                    <button
-                      className="m-add-answer-button-add-answer"
-                      onClick={() => {
-                        setWrongAnswer3Disiable(false);
-                        setWrongAnswer3Image("");
-                        setWrongAnswer3Audio("");
-                        setWrongAnswer3("");
-                      }}
-                    >
-                      <IoMdAdd />
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
             <div className="m-add-question-footer">
               <button
                 className="m-add-question-button"
@@ -1582,6 +1712,21 @@ const ModalAddQuestion = ({ open, handleClose }) => {
             </div>
           </div>
         </div>
+        <Snackbar
+          open={openSnackbarQuestion}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackQuestion}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        >
+          <Alert
+            onClose={handleCloseSnackQuestion}
+            severity="error"
+            variant="filled"
+            sx={{ width: "70%" }}
+          >
+            {questionErrorContent}
+          </Alert>
+        </Snackbar>
       </Box>
     </Modal>
   );

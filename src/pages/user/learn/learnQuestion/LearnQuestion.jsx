@@ -7,6 +7,8 @@ import "./styles.css";
 
 import AudioPlayer from "../../../../utils/AudioPlayer";
 import ModalResult from "./ModalResult";
+import { setUserProfile } from "../../../../redux/slices/userSlice";
+import { IoMdArrowRoundBack } from "react-icons/io";
 
 const LearnQuestion = () => {
   const selectedLesson = useSelector((state) => state.lessonSelected);
@@ -45,18 +47,21 @@ const LearnQuestion = () => {
 
   const [openModal, setOpenModal] = useState(false);
 
+  const [imageMeow, setImageMeow] = useState(
+    "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/thinking.png"
+  );
+
   const handleOpenModal = () => {
     setOpenModal(true);
   };
 
   const handleCloseModal = () => {
+    navigate(`/learn/${lastUrl}`);
     setOpenModal(false);
   };
 
   const progress =
-    totalQuestions > 0
-      ? ((currentQuestionIndex + 1) / totalQuestions) * 100
-      : 0;
+    totalQuestions > 0 ? (currentQuestionIndex / totalQuestions) * 100 : 0;
   const [isChecking, setIsChecking] = useState(false);
 
   const shuffleArray = (array) => {
@@ -103,6 +108,30 @@ const LearnQuestion = () => {
   const question =
     lessonQuestions.length > 0 ? lessonQuestions[currentQuestionIndex] : null;
 
+  const [listWords, setListWords] = useState([]);
+  const [listWordsAnswer, setListWordsAnswer] = useState([]);
+  const [originalWords, setOriginalWords] = useState([]);
+
+  useEffect(() => {
+    if (!question) return;
+    const splitWords = question.content.split(" ") || [];
+    setListWordsAnswer(splitWords);
+    setOriginalWords(splitWords);
+    setListWords([]);
+    console.log(listWords);
+    if (question && question.audio) {
+      const audio = new Audio(question.audio);
+      audio.play().catch((error) => {
+        console.error("Không thể phát audio:", error);
+      });
+
+      return () => {
+        audio.pause();
+        audio.currentTime = 0;
+      };
+    }
+  }, [question]);
+
   const handleAnswerClick = (answer) => {
     setSelectedAnswer(answer.id);
     setAnswerStatus(null);
@@ -122,28 +151,73 @@ const LearnQuestion = () => {
 
   const handleNextOrCheck = async () => {
     if (!isChecking) {
-      const isCorrect =
-        selectedAnswer &&
-        question.answers.find((a) => a.id === selectedAnswer)?.correct;
-      setAnswerStatus(isCorrect ? "correct" : "incorrect");
-      setCorrectAnswer(question.answers.find((a) => a.correct).id);
-      setCorrectAnswerStatus("correct");
+      let isCorrect = false;
+      if (question.type === "WORD_ORDER") {
+        const isEqual = (listWords, originalWords) => {
+          if (listWords.length !== originalWords.length) return false;
+          for (let i = 0; i < listWords.length; i++) {
+            if (listWords[i] !== originalWords[i]) {
+              return false; // Nếu có sự khác biệt, trả về false
+            }
+          }
+          return true; // Nếu không có sự khác biệt, trả về true
+        };
+
+        isCorrect = isEqual(listWords, originalWords);
+        setAnswerStatus(isCorrect ? "correct" : "incorrect");
+      } else {
+        isCorrect =
+          selectedAnswer &&
+          question.answers.find((a) => a.id === selectedAnswer)?.correct;
+        setAnswerStatus(isCorrect ? "correct" : "incorrect");
+        setCorrectAnswer(question.answers.find((a) => a.correct).id);
+        setCorrectAnswerStatus("correct");
+      }
 
       if (isCorrect) {
+        const audio = new Audio(
+          "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/am-thanh-tra-loi-dung-chinh-xac-www.tiengdong.com.mp3"
+        );
+        audio.play().catch((error) => {
+          console.error("Không thể phát audio:", error);
+        });
+        setImageMeow(
+          "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/love.png"
+        );
         if (countCorrectFag) {
           setCountCorrect((prev) => prev + 1);
         }
         setAnsweredQuestions([...answeredQuestions, question.id]);
+
+        const vi = question.vocabulary.id;
+
+        console.log(vi);
+        await customFetch.post(`/api/v1/user/update-user-vocabulary`, {
+          vocabularyId: vi,
+        });
       } else {
+        const audio = new Audio(
+          "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/Incorrect+sound+effect.mp3"
+        );
+        audio.play().catch((error) => {
+          console.error("Không thể phát audio:", error);
+        });
+        setImageMeow(
+          "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/tired.png"
+        );
         setIncorrectAnswers([...incorrectAnswers, question.id]);
         setQuestionIncorrect([...questionIncorrect, question]);
       }
       setIsChecking(true);
     } else {
+      setImageMeow(
+        "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/thinking.png"
+      );
       if (currentQuestionIndex < lessonQuestions.length - 1) {
         setCurrentQuestionIndex(currentQuestionIndex + 1);
       } else {
         setCountCorrectFag(false);
+
         if (questionIncorrect.length > 0) {
           setLessonQuestions(questionIncorrect);
           setQuestionIncorrect([]);
@@ -153,15 +227,50 @@ const LearnQuestion = () => {
             const dataSave = {
               userId: user.id,
               lessonId: selectedLesson.id,
-              score: countCorrect*100/totalQuestions,
-            }
+              // Làm tròn điểm số
+              score: Math.round(countCorrect * 10),
+            };
             console.log(dataSave);
+            if (!selectedLesson.completed) {
+              await customFetch.post(
+                "/api/v1/lessons/add-user-lesson",
+                dataSave
+              );
+            }
+            const today = new Date();
+            const todayISO = today.toISOString().split("T")[0];
+            let userUpdate = {
+              ...user,
+              dailyPoints: user.dailyPoints + dataSave.score,
+              weeklyPoints: user.weeklyPoints + dataSave.score,
+              totalPoints: user.totalPoints + dataSave.score,
+              lastLearningDate: todayISO,
+            };
+
+            if (user.lastLearningDate !== todayISO) {
+              userUpdate = {
+                ...userUpdate,
+                streak: user.streak + 1,
+              };
+            }
             await customFetch.post(
-              "/api/v1/lessons/add-user-lesson",
-              dataSave
+              `/api/v1/user/update-user-point`,
+              userUpdate
             );
+            dispatch(setUserProfile(userUpdate));
 
             handleOpenModal();
+            const audio = new Audio(
+              "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/piglevelwin2mp3-14800.mp3"
+            );
+            audio.play().catch((error) => {
+              console.error("Không thể phát audio:", error);
+            });
+
+            // return () => {
+            //   audio.pause();
+            //   audio.currentTime = 0;
+            // };
           } catch (error) {}
         }
       }
@@ -186,9 +295,20 @@ const LearnQuestion = () => {
   return (
     <div className="lq-question-container">
       <div className="lq-question-lesson">
-        <button className="lq-question-lesson-title">
-          {selectedLesson.title}
-        </button>
+        <div
+          style={{
+            display: "flex",
+            gap: 10,
+          }}
+        >
+          <button className="back-btn" onClick={() => navigate(-1)}>
+            <IoMdArrowRoundBack size={{}} />
+          </button>
+          <button className="lq-question-lesson-title">
+            {selectedLesson.title}
+          </button>
+        </div>
+
         <div className="lq-question-lesson-progress">
           <div
             className="lq-progress-bar"
@@ -198,29 +318,98 @@ const LearnQuestion = () => {
       </div>
 
       <div className="lq-queston-content-container">
-        <h2 className="lq-question-title">
-          {{
-            WORD_MEANING: "Hãy chọn nghĩa tiếng Việt",
-            MEANING_WORD: "Hãy chọn từ tiếng Anh",
-            WORD_SPELLING: "Nghe và chọn từ đúng",
-            FILL_IN_FLANK: "Điền vào chỗ trống",
-            WORD_ORDER: "Sắp xếp từ thành câu",
-          }[question.type] || "Hãy chọn đáp án"}
-        </h2>
-        <div className="lq-question-content-audio">
-          {question.audio && <AudioPlayer audioSrc={question.audio} />}
-          <p className="lq-question-content">{question.content}</p>
+        <div className="lq-question-title-container">
+          <div>
+            {!countCorrectFag && (
+              <div
+                style={{
+                  display: "flex",
+                  color: "red",
+                  fontSize: 20,
+                  fontWeight: "bold",
+                  color: "red",
+                  padding: "10px",
+                }}
+              >
+                Làm lại câu sai
+              </div>
+            )}
+            <h2 className="lq-question-title">
+              {{
+                WORD_MEANING: "Hãy chọn nghĩa tiếng Việt",
+                MEANING_WORD: "Hãy chọn từ tiếng Anh",
+                WORD_SPELLING: "Nghe và chọn từ đúng",
+                FILL_IN_FLANK: "Điền vào chỗ trống",
+                WORD_ORDER: "Sắp xếp từ thành câu",
+              }[question.type] || "Hãy chọn đáp án"}
+            </h2>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              gap: 10,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <img src={imageMeow} alt="" width={200} height={200} />{" "}
+            <div className="lq-question-content-audio">
+              {question.audio && <AudioPlayer audioSrc={question.audio} />}
+
+              {question?.type === "WORD_ORDER" ? (
+                <div
+                  style={{
+                    display: "flex",
+                    gap: 10,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: "100%",
+                    borderBottom: "1px solid gray",
+                    padding: "10px",
+                  }}
+                >
+                  {listWords.map((word, index) => {
+                    return (
+                      <button
+                        key={index}
+                        className="lq-word-button"
+                        onClick={() => {
+                          // Thêm từ vào listWordsAnswer
+                          setListWordsAnswer((prev) => {
+                            const newListWordsAnswer = [...prev];
+                            newListWordsAnswer.push(word); // Thêm từ vào listWordsAnswer
+                            return newListWordsAnswer;
+                          });
+
+                          // Xóa từ khỏi listWords
+                          setListWords((prev) => {
+                            const newListWords = [...prev];
+                            newListWords[index] = ""; // Xóa từ khỏi listWords
+                            return newListWords.filter(Boolean); // Loại bỏ các phần tử rỗng
+                          });
+                        }}
+                      >
+                        {word}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="lq-question-content">{question?.content}</p>
+              )}
+            </div>
+            {question.image && (
+              <img
+                className="lq-question-image"
+                src={question.image}
+                alt="Question"
+                width={150}
+                height={150}
+              />
+            )}
+          </div>
         </div>
 
-        {question.image && (
-          <img
-            className="lq-question-image"
-            src={question.image}
-            alt="Question"
-            width={150}
-            height={150}
-          />
-        )}
         <div
           style={{
             display: "flex",
@@ -230,37 +419,77 @@ const LearnQuestion = () => {
             width: "100%",
           }}
         >
-          {question.answers.map((answer) => (
-            <button
-              key={answer.id}
-              disabled={isChecking}
-              onClick={() => handleAnswerClick(answer)}
-              className={`lq-answer-button ${
-                selectedAnswer === answer.id
-                  ? isChecking
-                    ? answerStatus
-                    : "selected"
-                  : incorrectAnswers.includes(answer.id)
-                  ? "incorrect"
-                  : ""
-              } ${
-                correctAnswer === answer.id && answerStatus === "incorrect"
-                  ? "correct-answer"
-                  : ""
-              }`}
+          {question?.type === "WORD_ORDER" ? (
+            <div
+              style={{
+                display: "flex",
+                gap: 10,
+                alignItems: "center",
+                justifyContent: "center",
+                flexDirection: "row",
+              }}
             >
-              {answer.content}
-              {answer.image && (
-                <img
-                  className="lq-answer-image"
-                  src={answer.image}
-                  alt="Answer"
-                  width={150}
-                  height={150}
-                />
-              )}
-            </button>
-          ))}
+              {listWordsAnswer.map((word, index) => {
+                return (
+                  <button
+                    key={index}
+                    className="lq-word-button"
+                    onClick={() => {
+                      // Thêm từ vào listWords
+                      setListWords((prev) => {
+                        const newListWords = [...prev];
+                        newListWords.push(word); // Thêm từ vào listWords
+                        return newListWords;
+                      });
+
+                      // Xóa từ khỏi listWordsAnswer
+                      setListWordsAnswer((prev) => {
+                        const newListWordsAnswer = [...prev];
+                        newListWordsAnswer.splice(index, 1); // Xóa từ khỏi listWordsAnswer
+                        return newListWordsAnswer;
+                      });
+                    }}
+                  >
+                    {word}
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <>
+              {question.answers.map((answer) => (
+                <button
+                  key={answer.id}
+                  disabled={isChecking}
+                  onClick={() => handleAnswerClick(answer)}
+                  className={`lq-answer-button ${
+                    selectedAnswer === answer.id
+                      ? isChecking
+                        ? answerStatus
+                        : "selected"
+                      : incorrectAnswers.includes(answer.id)
+                      ? "incorrect"
+                      : ""
+                  } ${
+                    correctAnswer === answer.id && answerStatus === "incorrect"
+                      ? "correct-answer"
+                      : ""
+                  }`}
+                >
+                  {answer.content}
+                  {answer.image && (
+                    <img
+                      className="lq-answer-image"
+                      src={answer.image}
+                      alt="Answer"
+                      width={150}
+                      height={150}
+                    />
+                  )}
+                </button>
+              ))}
+            </>
+          )}
         </div>
         <div
           className="lq-next-question-container"
@@ -273,21 +502,73 @@ const LearnQuestion = () => {
                 ? "tomato"
                 : "transparent",
             display: "flex",
-            justifyContent: "center",
+            justifyContent: "flex-end",
             alignItems: "center",
-            padding: "20px 0",
+            padding: "20px",
             borderRadius: 10,
+            justifyContent: "space-between",
           }}
         >
-          <button
-            onClick={handleNextOrCheck}
-            className={`lq-next-button ${
-              !isChecking ? "lq-check-button" : "lq-next-button"
-            }`}
-            disabled={!selectedAnswer}
-          >
-            {!isChecking ? "Kiểm tra" : "Câu hỏi tiếp theo"}
-          </button>
+          {" "}
+          {question?.type === "WORD_ORDER" ? (
+            <>
+              {question && answerStatus === "incorrect" ? (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                  }}
+                >
+                  Đáp án đúng: " " +{originalWords.map((a) => a + " ")}
+                </div>
+              ) : question && answerStatus === "correct" ? (
+                <div>Đúng rồi!</div>
+              ) : (
+                <div></div>
+              )}
+              <button
+                onClick={handleNextOrCheck}
+                className={`lq-next-button ${
+                  !isChecking ? "lq-check-button" : "lq-next-button"
+                }`}
+                disabled={listWords.length === 0}
+              >
+                {!isChecking ? "Kiểm tra" : "Tiếp tục"}
+              </button>
+            </>
+          ) : (
+            <>
+              {question && correctAnswer && answerStatus === "incorrect" ? (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                  }}
+                >
+                  Đáp án đúng:
+                  {" " +
+                    question.answers.find((a) => a.id === correctAnswer)
+                      .content}
+                </div>
+              ) : question && correctAnswer && answerStatus === "correct" ? (
+                <div>Đúng rồi!</div>
+              ) : (
+                <div></div>
+              )}
+
+              <button
+                onClick={handleNextOrCheck}
+                className={`lq-next-button ${
+                  !isChecking ? "lq-check-button" : "lq-next-button"
+                }`}
+                disabled={!selectedAnswer}
+              >
+                {!isChecking ? "Kiểm tra" : "Tiếp tục"}
+              </button>
+            </>
+          )}
         </div>
       </div>
       <ModalResult

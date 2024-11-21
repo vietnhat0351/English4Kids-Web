@@ -21,12 +21,12 @@
 }
 
 .leftContainer {
-  width: 14%;
+  width: 15%;
   position: fixed;
   top: 0;
   height: 100vh;
   overflow-y: auto;
-  background-color: #f8f9fa; /* Màu nền nhạt để dịu mắt */
+  background-color: whitesmoke;
   padding-top: 20px;
 }
 .rightContainer {
@@ -48,14 +48,12 @@
 
 .rightContainer {
   right: 0;
-  border-left: 1px solid #e0e0e0;
 }
 
 .centerContainer {
   width: 72%; /* Chiếm phần còn lại của trang */
-  margin-left: 14%;
+  margin-left: 15%;
   margin-right: 14%;
-  overflow-y: auto;
   background-color: #ffffff; /* Nền trắng */
 }
 
@@ -65,10 +63,6 @@
   justify-content: center;
   align-items: center;
   padding: 10px;
-  background-color: #ffffff;
-  border-bottom: 1px solid #e0e0e0;
-  font-family: GBS;
-  font-weight: bold;
 }
 
 /* Nội dung bên phải */
@@ -136,4 +130,50 @@
   color: #228b22;
   font-weight: bolder;
   margin-bottom: 20px;
+}
+.points-container {
+  width: 100%;
+  max-width: 300px;
+  margin: 20px auto;
+  padding: 20px;
+  border: 2px solid #ffd41c;
+  border-radius: 8px;
+  background-color: #f9fff9;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.points-title {
+  font-size: 20px;
+  color: gray;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.points-content {
+  font-size: 16px;
+  color: gray;
+}
+
+.points-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.points-item:last-child {
+  border-bottom: none;
+}
+
+.points-label {
+  font-weight: bold;
+  color: gray;
+}
+
+.points-value {
+  color: #000;
+  font-weight: bold;
 }

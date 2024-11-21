@@ -32,8 +32,27 @@
   transition: transform 0.2s;
   cursor: pointer;
 }
+.lesson-card-complete {
+  /* background-image: url('https://english-for-kids.s3.ap-southeast-1.amazonaws.com/5418aa07d5330b9a0c0f21ff947a5f3b779cff018a48c3e4659b90e4beba03c0.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat; */
+  background-color: #ffd41c;
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 250px;
+  padding: 20px;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s;
+  cursor: pointer;
+}
 
 .lesson-card:hover {
+  transform: scale(1.05);
+}
+.lesson-card-complete:hover {
   transform: scale(1.05);
 }
 

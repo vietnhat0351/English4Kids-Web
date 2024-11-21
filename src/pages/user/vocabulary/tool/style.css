@@ -1,0 +1,60 @@
+.custom-swiper {
+  background-color: transparent !important; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+  position: relative;
+
+ 
+}
+
+.custom-swiper-slide {
+  background-color: transparent !important; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+.custom-swiper .swiper-button-next,
+.custom-swiper .swiper-button-prev {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  color: black;
+}
+.custom-swiper .swiper-pagination-fraction {
+  color: black;  /* Màu của số tiến trình (1/10) */
+  font-weight: bold;  /* Làm đậm văn bản nếu muốn */
+}
+
+.custom-swiper .swiper-pagination-fraction .swiper-pagination-current {
+  color: black;  /* Màu của số hiện tại (ví dụ 1) */
+}
+
+.custom-swiper .swiper-pagination-fraction .swiper-pagination-total {
+  color: black;  /* Màu của tổng số (ví dụ 10) */
+}
+
+.custom-swiper .swiper-button-next {
+  right: 10px; 
+}
+
+.custom-swiper .swiper-button-prev {
+  left: 10px; 
+}
+
+.flashcard-container-2 {
+  background-color: transparent !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 94vh;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  position: relative;
+  /* Màu nền */
+  border-radius: 10px;
+}

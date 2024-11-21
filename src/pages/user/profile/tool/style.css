@@ -1,0 +1,81 @@
+.modal-update-user-container{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    gap: 20px;
+}
+.modal-update-user-content{
+    display: flex;
+    flex-direction: row;
+
+    width: 100%;    
+    gap: 20px;
+    padding: 20px;
+
+}
+.modal-update-user-avatar{
+    display: flex;
+    gap: 20px;
+    cursor: pointer;
+   
+}
+.modal-update-user-avatar img:hover{
+    border: 1px solid lightgray;
+    scale: 1.1;
+    border: none;
+   
+}
+.modal-update-user-avatar-list{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background-color: whitesmoke;
+    padding: 10px;
+    border-radius: 20px;
+    border: 0.2px solid lightgray;
+
+}
+.modal-update-user-avatar-list-list{
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+.modal-update-user-footer{
+    display: flex;
+    justify-content: flex-end;
+    gap: 20px;
+    padding: 20px;
+}
+.modal-update-user-footer-btn-save{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    border-radius: 10px;
+    border: 0.2px solid gray;
+    box-shadow: 3px 3px 3px 0px darkgrey;
+    cursor: pointer;
+    background-color: lightskyblue;
+    transition: transform 0.3s;
+}
+.modal-update-user-footer-btn-save:hover{
+    background-color: lightblue;
+    scale: 1.1;
+}
+.modal-update-user-footer-btn-cancel{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    border-radius: 10px;
+    border: 0.2px solid gray;
+    box-shadow: 3px 3px 3px 0px darkgrey;
+    cursor: pointer;
+    background-color: lightcoral;
+    transition: transform 0.3s;
+}
+.modal-update-user-footer-btn-cancel:hover{
+    background-color: coral;
+    scale: 1.1;
+}

@@ -89,7 +89,7 @@ const UserLayout = () => {
         });
     }
   }, [lastUrl, user, dispatch]);
-  
+
   const [centerContent, setCenterContent] = useState(<Learn />);
   const [selectedButton, setSelectedButton] = useState(1);
 
@@ -107,7 +107,6 @@ const UserLayout = () => {
   return (
     <div className="container">
       <div className="leftContainer">
-        
         <button
           style={{
             backgroundColor: "transparent",
@@ -234,11 +233,13 @@ const UserLayout = () => {
         <Outlet />
       </div>
       <div className="rightContainer">
-       
         <div className="right-header">
-        
           <img
-            src={imgFire}
+            src={
+              user && user.streak > 0
+                ? imgFire
+                : "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/fire.png"
+            }
             alt="My GIF"
             style={{ width: "100px", height: "100px" }}
             onDragStart={(e) => e.preventDefault()}
@@ -250,29 +251,27 @@ const UserLayout = () => {
               justifyContent: "center",
               alignItems: "center",
               textAlign: "center",
-              fontSize: "20px",
+              fontSize: "50px",
               gap: "10px",
               padding: "10px",
+              fontWeight: "bold",
             }}
           >
-           <h4>{user && user.streak}</h4>
+            {user && user.streak}
           </div>
         </div>
 
-        
-        <div className="right-content">
-          {/* <img
-            src={imgSuccess}
-            alt="My GIF"
-            style={{ width: "80px", height: "80px" }} // Thay đổi kích thước tại đây
-            onDragStart={(e) => e.preventDefault()}
-          /> */}
-          <div>
-            <strong>Điểm kiếm được</strong>
-            <div>
-              <p>Điểm hôm nay: {user && user.dailyPoints}</p>
-              <p>Điểm tuần này: {user && user.weeklyPoints}</p>
-            </div>
+        <div className="points-container">
+          <strong className="points-title">Điểm kiếm được</strong>
+          <div className="points-content">
+            <p className="points-item">
+              <span className="points-label">Điểm hôm nay:</span>
+              <span className="points-value">{user && user.dailyPoints}</span>
+            </p>
+            <p className="points-item">
+              <span className="points-label">Điểm tuần này:</span>
+              <span className="points-value">{user && user.weeklyPoints}</span>
+            </p>
           </div>
         </div>
       </div>
