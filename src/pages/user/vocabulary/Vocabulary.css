@@ -1,7 +1,11 @@
 
 .v-container {
-  background-color: white;
+  background-color: lightskyblue;
   height: 100vh;
+  background-image: url('https://english-for-kids.s3.ap-southeast-1.amazonaws.com/5418aa07d5330b9a0c0f21ff947a5f3b779cff018a48c3e4659b90e4beba03c0.png');
+  background-size: cover;
+  background-position: left;
+  background-repeat: no-repeat; 
 }
 
 .v-content {
@@ -64,4 +68,22 @@
   padding: 10px;
   background-color: white;
   border-radius: 10px;
+}
+.back-btn{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  background-color: white;
+  border-radius: 10px;
+  width: 100px;
+  height: 50px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.back-btn:hover {
+  scale: 2;
+  font-size: 50px;
 }

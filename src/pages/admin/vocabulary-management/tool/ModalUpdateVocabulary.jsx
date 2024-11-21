@@ -161,13 +161,6 @@ const ModalUpdateVocabulary = ({ open, handleClose, rowData }) => {
     } else {
       setCheckType(false);
     }
-
-    if (!image || image === "") {
-      setCheckImage(true);
-    } else {
-      setCheckImage(false);
-    }
-
     if (audio === "") {
       setCheckAudio(true);
     } else {
@@ -179,7 +172,6 @@ const ModalUpdateVocabulary = ({ open, handleClose, rowData }) => {
       meaning === "" ||
       pronunciation === "" ||
       type === "" ||
-      image === "" ||
       image === null ||
       audio === "" ||
       audio === null
@@ -342,6 +334,7 @@ const ModalUpdateVocabulary = ({ open, handleClose, rowData }) => {
                 <MenuItem value={"PREPOSITION"}>PREPOSITION</MenuItem>
                 <MenuItem value={"CONJUNCTION"}>CONJUNCTION</MenuItem>
                 <MenuItem value={"INTERJECTION"}>INTERJECTION</MenuItem>
+                <MenuItem value={"EXCLAMATION"}>EXCLAMATION</MenuItem>
                 <MenuItem value={"" || null}>UNKNOWN</MenuItem>
               </Select>
             </FormControl>

@@ -106,22 +106,12 @@ const ProgressInfo = ({ percent, passImport, lack, duplicate }) => {
         >
           <ErrorIcon /> Lỗi: {lack}
         </span>
-        <span
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "5px",
-            color: "#ff9800",
-          }}
-        >
-          <RepeatIcon /> Trùng lặp: {duplicate}
-        </span>
       </div>
     </div>
   );
 };
 
-const ProgressBar = ({ percent, passImport, lack, duplicate }) => {
+const ProgressBar = ({ percent, passImport, lack }) => {
   return (
     <div
       style={{
@@ -137,9 +127,7 @@ const ProgressBar = ({ percent, passImport, lack, duplicate }) => {
         percent={percent}
         passImport={passImport}
         lack={lack}
-        duplicate={duplicate}
       />
-      {/* Progress bar */}
       <div
         style={{
           height: "10px",
@@ -198,7 +186,6 @@ const Question = () => {
   const [percent, setPercent] = useState(0);
   const [passImport, setPassImport] = useState(0);
   const [lack, setLack] = useState(0);
-  const [duplicate, setDuplicate] = useState(0);
 
   const [loadingImport, setLoadingImport] = useState(false);
   const [disibleResult, setDisibleResult] = useState(true);
@@ -333,95 +320,181 @@ const Question = () => {
 
   // =================================================================================================
   const handleFileSelect = async (file) => {
-    let count = 0;
     setLoadingImport(true);
     if (loadingImport) return;
     try {
       const data = await ReadExcel(file);
       console.log("Excel Data:", data);
       // duyệt qua từng dòng trong file excel
-
       setDisibleResult(false);
       setPassImport(0);
       setLack(0);
-      setDuplicate(0);
       setPercent(0);
       for (let i = 0; i < data.length; i++) {
+        setPercent(((i + 1) / data.length) * 100);
+        const res = await customFetch.get(
+          `/api/v1/vocabulary/find-word-fast/${data[i].word.toLowerCase()}`
+        );
         if (
           !data[i].contentQuestion ||
           !data[i].typeQuestion ||
-          !data[i].answerContent
+          !res.data.inDatabase
         ) {
           setLack(lack + 1);
           continue;
         } else {
           if (
-            !data[i].wrongAnswerContent1 &&
-            !data[i].wrongAnswerContent2 &&
-            !data[i].wrongAnswerContent3
+            data[i].typeQuestion === "WORD_MEANING" ||
+            data[i].typeQuestion === "MEANING_WORD"
           ) {
-            setLack(lack + 1);
-            continue;
-          } else {
-            try {
-              const res = await customFetch.get(
-                `/api/v1/vocabulary/find-word-fast/${data[
-                  i
-                ].word.toLowerCase()}`
-              );
-              if (res.data.inDatabase) {
-                let dataQuestion = {
-                  content: data[i].contentQuestion,
-                  image: data[i].imageQuestion,
-                  audio: data[i].audioQuestion,
-                  type: data[i].typeQuestion,
-                  lesson: {
-                    id: lessonCurrent.id,
-                  },
-                  vocabulary: {
-                    id: res.data.id,
-                  },
-                };
-                let answers = [
-                  {
-                    content: data[i].answerContent,
-                    image: data[i].answerImage,
-                    audio: data[i].answerAudio,
-                    isCorrect: true,
-                  },
-                ];
-                if (data[i].wrongAnswerImage1) {
-                  answers.push({
-                    content: data[i].wrongAnswerContent1,
-                    image: data[i].wrongAnswerImage1,
-                    audio: data[i].wrongAnswerAudio1,
-                    isCorrect: false,
-                  });
-                }
-                if (data[i].wrongAnswerImage2) {
-                  answers.push({
-                    content: data[i].wrongAnswerContent2,
-                    image: data[i].wrongAnswerImage2,
-                    audio: data[i].wrongAnswerAudio2,
-                    isCorrect: false,
-                  });
-                }
-                if (data[i].wrongAnswerImage3) {
-                  answers.push({
-                    content: data[i].wrongAnswerContent3,
-                    image: data[i].wrongAnswerImage3,
-                    audio: data[i].wrongAnswerAudio3,
-                    isCorrect: false,
-                  });
-                }
-                dataQuestion = { ...dataQuestion, answers: answers };
-                console.log("dataQuestion", dataQuestion);
-                const response = await customFetch.post("/api/v1/questions/create", dataQuestion);
-                console.log("Question saved successfully!", response.data);
+            if (!data[i].answerContent) {
+              setLack(lack + 1);
+              console.log("Lỗi từ - nghĩa 1", data[i]);
+              continue;
+            } else {
+              if (
+                !data[i].wrongAnswerContent1 &&
+                !data[i].wrongAnswerContent2 &&
+                !data[i].wrongAnswerContent3
+              ) {
+                setLack(lack + 1);
+                console.log("Lỗi từ - nghĩa 2", data[i]);
+                continue;
               }
-            } catch (error) {
-              console.error("Lỗi tìm từ", error);
             }
+          }
+          if (data[i].typeQuestion === "WORD_SPELLING") {
+            if (!data[i].answerAudio) {
+              setLack(lack + 1);
+              console.log("Lỗi từ - âm 1", data[i]);
+              continue;
+            } else {
+              if (
+                !data[i].wrongAnswerAudio1 &&
+                !data[i].wrongAnswerAudio2 &&
+                !data[i].wrongAnswerAudio3
+              ) {
+                setLack(lack + 1);
+                console.log("Lỗi từ - âm 2", data[i]);
+                continue;
+              }
+            }
+          }
+          if (data[i].typeQuestion === "SPELLING_WORD") {
+            if (!data[i].audioQuestion) {
+              setLack(lack + 1);
+              console.log("Lỗi âm - từ 1", data[i]);
+              continue;
+            } else {
+              if (!data[i].answerContent) {
+                setLack(lack + 1);
+                console.log("Lỗi âm - từ 2", data[i]);
+                continue;
+              } else {
+                if (
+                  !data[i].wrongAnswerContent1 &&
+                  !data[i].wrongAnswerContent2 &&
+                  !data[i].wrongAnswerContent3
+                ) {
+                  setLack(lack + 1);
+                  console.log("Lỗi âm - từ 3", data[i]);
+                  continue;
+                }
+              }
+            }
+          }
+          if (data[i].typeQuestion === "WORD_ORDER") {
+            if (data[i].contentQuestion.split(" ").length < 2) {
+              setLack(lack + 1);
+              console.log("Lỗi thiết từ", data[i]);
+              continue;
+            }
+          }
+          if (data[i].typeQuestion === "FILL_IN_FLANK") {
+            if (!data[i].answerContent) {
+              setLack(lack + 1);
+              console.log("Lỗi thiếu từ 1", data[i]);
+              continue;
+            } else {
+              if (
+                !data[i].wrongAnswerContent1 &&
+                !data[i].wrongAnswerContent2 &&
+                !data[i].wrongAnswerContent3
+              ) {
+                setLack(lack + 1);
+                console.log("Lỗi thiếu từ 2", data[i]);
+                continue;
+              }
+            }
+          }
+
+          try {
+            console.log("data[i]", data[i]);
+            let dataQuestion = {
+              content: data[i].contentQuestion,
+              image: data[i].imageQuestion,
+              audio: data[i].audioQuestion,
+              type: data[i].typeQuestion,
+              lesson: {
+                id: lessonCurrent.id,
+              },
+              vocabulary: {
+                id: res.data.id,
+              },
+            };
+            let answers = [
+              {
+                content: data[i].answerContent,
+                image: data[i].answerImage,
+                audio: data[i].answerAudio,
+                isCorrect: true,
+              },
+            ];
+            if (
+              data[i].wrongAnswerImage1 ||
+              data[i].wrongAnswerContent1 ||
+              data[i].wrongAnswerAudio1
+            ) {
+              answers.push({
+                content: data[i].wrongAnswerContent1,
+                image: data[i].wrongAnswerImage1,
+                audio: data[i].wrongAnswerAudio1,
+                isCorrect: false,
+              });
+            }
+            if (
+              data[i].wrongAnswerImage2 ||
+              data[i].wrongAnswerContent2 ||
+              data[i].wrongAnswerAudio2
+            ) {
+              answers.push({
+                content: data[i].wrongAnswerContent2,
+                image: data[i].wrongAnswerImage2,
+                audio: data[i].wrongAnswerAudio2,
+                isCorrect: false,
+              });
+            }
+            if (
+              data[i].wrongAnswerImage3 ||
+              data[i].wrongAnswerContent3 ||
+              data[i].wrongAnswerAudio3
+            ) {
+              answers.push({
+                content: data[i].wrongAnswerContent3,
+                image: data[i].wrongAnswerImage3,
+                audio: data[i].wrongAnswerAudio3,
+                isCorrect: false,
+              });
+            }
+            setPassImport((prev) => prev + 1);
+            dataQuestion = { ...dataQuestion, answers: answers };
+            console.log("dataQuestion", dataQuestion);
+            const response = await customFetch.post(
+              "/api/v1/questions/create",
+              dataQuestion
+            );
+          } catch (error) {
+            console.error("Lỗi tìm từ", error);
           }
         }
       }
@@ -496,7 +569,6 @@ const Question = () => {
               percent={percent}
               passImport={passImport}
               lack={lack}
-              duplicate={duplicate}
             />
           )}
         </div>
@@ -544,15 +616,23 @@ const Question = () => {
                             ></TableCell>
                             <TableCell align="left">{row.content}</TableCell>
                             <TableCell align="left">
-                              <img
-                                src={row.image}
-                                width={50}
-                                height={50}
-                                alt=""
-                              />
+                              {row.image ? (
+                                <img
+                                  src={row.image}
+                                  width={50}
+                                  height={50}
+                                  alt=""
+                                />
+                              ) : (
+                                <div>-</div>
+                              )}
                             </TableCell>
                             <TableCell align="left">
-                              <AudioPlayer audioSrc={row.audio} />
+                              {row.audio ? (
+                                <AudioPlayer audioSrc={row.audio} />
+                              ) : (
+                                <div>-</div>
+                              )}
                             </TableCell>
                             <TableCell align="left">
                               {
@@ -566,7 +646,7 @@ const Question = () => {
                                   ? "Từ vựng - Âm thanh"
                                   : row.type === "SPELLING_WORD"
                                   ? "Âm thanh - Từ vựng"
-                                  : "Không xác định"
+                                  : "Sắp xếp từ"
                               }
                             </TableCell>
                             <TableCell
@@ -575,59 +655,69 @@ const Question = () => {
                                 maxWidth: "200px",
                               }}
                             >
-                              <Accordion>
-                                <AccordionSummary
-                                  expandIcon={<ArrowDropDownIcon />}
-                                  aria-controls="panel2-content"
-                                  id="panel2-header"
-                                >
-                                  <Typography>Chi tiết đáp án</Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                  <Typography>
-                                    {row.answers.map((answer, index) => (
-                                      <div
-                                        key={index}
-                                        style={{
-                                          ...styles.answer,
-                                          ...(index === 0
-                                            ? styles.correctAnswer
-                                            : {}),
-                                        }}
-                                      >
+                              {row.type === "WORD_ORDER" ? (
+                                <div></div>
+                              ) : (
+                                <Accordion>
+                                  <AccordionSummary
+                                    expandIcon={<ArrowDropDownIcon />}
+                                    aria-controls="panel2-content"
+                                    id="panel2-header"
+                                  >
+                                    <Typography>Chi tiết đáp án</Typography>
+                                  </AccordionSummary>
+                                  <AccordionDetails>
+                                    <Typography>
+                                      {row.answers.map((answer, index) => (
                                         <div
+                                          key={index}
                                           style={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "space-between",
-                                            gap: "10px",
-                                            flexDirection: "row",
-                                            padding: "5px",
+                                            ...styles.answer,
+                                            ...(index === 0
+                                              ? styles.correctAnswer
+                                              : {}),
                                           }}
                                         >
-                                          <p style={styles.answerText}>
-                                            <strong>
-                                              {" "}
-                                              {String.fromCharCode(65 + index)}:
-                                            </strong>{" "}
-                                            {answer.content}
-                                          </p>
-
-                                          <img
-                                            src={answer.image}
-                                            alt=""
-                                            width={60}
-                                            height={60}
-                                          />
-                                          <AudioPlayer
-                                            audioSrc={answer.audio}
-                                          />
+                                          <div
+                                            style={{
+                                              display: "flex",
+                                              alignItems: "center",
+                                              justifyContent: "space-between",
+                                              gap: "10px",
+                                              flexDirection: "row",
+                                              padding: "5px",
+                                            }}
+                                          >
+                                            <p style={styles.answerText}>
+                                              <strong>
+                                                {" "}
+                                                {String.fromCharCode(
+                                                  65 + index
+                                                )}
+                                                :
+                                              </strong>{" "}
+                                              {answer.content}
+                                            </p>
+                                            {answer.image && (
+                                              <img
+                                                src={answer.image}
+                                                alt=""
+                                                width={60}
+                                                height={60}
+                                              />
+                                            )}
+                                            {answer.audio && (
+                                              <AudioPlayer
+                                                audioSrc={answer.audio}
+                                              />
+                                            )}
+                                          </div>
                                         </div>
-                                      </div>
-                                    ))}
-                                  </Typography>
-                                </AccordionDetails>
-                              </Accordion>
+                                      ))}
+                                    </Typography>
+                                  </AccordionDetails>
+                                </Accordion>
+                              )}
                             </TableCell>
 
                             <TableCell align="left">

@@ -1,0 +1,103 @@
+.profile-container {
+  background-image: url("https://english-for-kids.s3.ap-southeast-1.amazonaws.com/2ecfee2c89491f71b156accd878b6e8e25df3e13207752152fbad2a6f106708b.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+  height: 100vh;
+  background-color: #f5f5f5;
+}
+.profile-avatar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 70%;
+  background-color: lightskyblue;
+  height: 20%;
+  padding: 10px;
+  border-radius: 20px;
+  gap: 20px;
+  box-shadow: 2px 2px 2px 0px gray;
+}
+.profile-avatar-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.profile-avatar-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 10px;
+  height: 100%;
+  gap: 10px;
+}
+.profile-avatar-edit{
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 10px;
+  height: 100%;
+  gap: 10px;
+  border-right: 1px solid white;
+}
+.profile-avatar-info-name {
+  font-size: 35px;
+  font-weight: bold;
+}
+.profile-info-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 10px;
+  gap: 20px;
+  padding: 10px;
+}
+.profile-info {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  gap: 10px;
+  width: 40%;
+  border-radius: 20px;
+  border: 0.2px solid whitesmoke;
+  height: 100px;
+  box-shadow: 3px 3px 3px 0px gray;
+  background-color: whitesmoke;
+}
+.profile-avatar-progress{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  width: 40%;
+  border-radius: 20px;
+  border: 0.2px solid whitesmoke;
+  height: 100px;
+  box-shadow: 3px 3px 3px 0px gray;
+  background-color: whitesmoke;
+}
+.profile-avatar-edit-button{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  border-radius: 10px;
+  border: 0.2px solid gray;
+  box-shadow: 3px 3px 3px 0px darkgrey;
+  cursor: pointer;
+  background-color: transparent;
+  transition: transform 0.3s;
+}
+.profile-avatar-edit-button:hover{
+  background-color: lightgray;
+  scale: 1.1;
+}

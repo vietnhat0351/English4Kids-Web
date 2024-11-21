@@ -138,6 +138,7 @@
   font-size: 18px;
 }
 .m-add-question-footer{
+      
     display: flex;
     flex-direction: row;
     justify-content: flex-end;

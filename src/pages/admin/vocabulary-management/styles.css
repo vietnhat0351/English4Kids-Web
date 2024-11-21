@@ -5,12 +5,14 @@
   gap: 10px;
   background-color: lightskyblue;
   border-radius: 10px;
+  
 }
 .ad-p-content{
   display: flex;
   flex-direction: column;
   padding: 5px;
   border-radius: 10px;
+  width: 100%;
 }
 .ad-p-content-header {
   width: 100%;

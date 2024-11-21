@@ -51,7 +51,7 @@ const Learn = () => {
       <div className="lesson-list">
         {lessons && lessons.length > 0 ? (
           lessons.map((lesson, index) => (
-            <div className="lesson-card" key={index} onClick={
+            <div className={ lesson.completed? "lesson-card-complete" :"lesson-card" } key={index} onClick={
               () => {
                 navigate("" + lesson.id);
               }

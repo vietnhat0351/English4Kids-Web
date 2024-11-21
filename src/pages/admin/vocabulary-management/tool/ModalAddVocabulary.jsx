@@ -185,12 +185,6 @@ const ModalAddVocabulary = ({ open, handleClose }) => {
       setCheckType(false);
     }
 
-    if (!image || image === "") {
-      setCheckImage(true);
-    } else {
-      setCheckImage(false);
-    }
-
     if (audio === "") {
       setCheckAudio(true);
     } else {
@@ -389,6 +383,7 @@ const ModalAddVocabulary = ({ open, handleClose }) => {
                 <MenuItem value={"PREPOSITION"}>PREPOSITION</MenuItem>
                 <MenuItem value={"CONJUNCTION"}>CONJUNCTION</MenuItem>
                 <MenuItem value={"INTERJECTION"}>INTERJECTION</MenuItem>
+                <MenuItem value={"EXCLAMATION"}>EXCLAMATION</MenuItem>
                 <MenuItem value={"" || null}>UNKNOWN</MenuItem>
               </Select>
             </FormControl>

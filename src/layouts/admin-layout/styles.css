@@ -22,7 +22,7 @@
   flex-direction: column;
   width: 100%;
   background-color: #f8f8f8;
-  min-height: 100vh;
+  height: 100vh;
   overflow-y: auto;
 }
 .ad-header {
@@ -136,8 +136,8 @@
 }
 .ad-content-content {
   display: flex;
-  width: 97%;
-  height: 97%;
+  width: 98%;
+  height: 98%;
   background-color: aliceblue;
   overflow-y: auto;
   padding: 5px; 

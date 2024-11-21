@@ -8,9 +8,11 @@
   margin-bottom: 20px;
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 97vh;
   padding: 20px;
   padding-top: 50px;
+  overflow: hidden;
+  
 }
 .lq-question-lesson {
   display: flex;
@@ -26,6 +28,10 @@
   font-weight: bold;
   border: 1px solid lightblue;
   width: 30%;
+  display: flex;
+  max-height: 50px;
+  align-items: center;
+  justify-content: center;
 }
 .lq-question-title {
   font-size: 2rem;
@@ -81,20 +87,17 @@
 .lq-next-button {
   margin-top: 20px;
   padding: 10px 20px;
-  background-color: green;
-  color: white;
+  background-color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  font-size: 30px;
+  font-weight: bold;
 }
 .lq-answer-button.selected {
   background-color: lightskyblue;
   color: white;
   border: 2px solid #4884f4;
-}
-
-.lq-next-button {
-  background-color: green;
 }
 
 .lq-check-button {
@@ -147,7 +150,7 @@
   height: 100px;
 }
 .lq-question-content{
-  font-size: 1.8rem;
+  font-size: 2rem;
 }
 .lq-question-content-audio{
   display: flex;
@@ -157,7 +160,6 @@
   background-color: whitesmoke;
   padding: 10px;
   border-radius: 10px;
-
   box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
   cursor: pointer;
 }
@@ -252,5 +254,20 @@
 .l-bar-button-close:hover{
   scale: 1.1;
 }
-
+.lq-question-title-container{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+.lq-word-button{
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+  border: 1px solid lightblue;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 30px;
+}
 

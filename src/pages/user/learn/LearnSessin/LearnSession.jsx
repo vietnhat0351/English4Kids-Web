@@ -356,6 +356,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import customFetch from "../../../../utils/customFetch";
 import { setLessonSelected } from "../../../../redux/slices/clessonSlice";
+import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 import "./style.css";
 
 const LearnSession = () => {
@@ -373,7 +374,9 @@ const LearnSession = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await customFetch.get(`/api/v1/lessons/${lastUrl}`);
+        const response = await customFetch.get(
+          `/api/v1/lessons/get-lesson/${lastUrl}`
+        );
         console.log("response", response.data);
         dispatch(setLessonSelected(response.data));
       } catch (error) {
@@ -387,30 +390,103 @@ const LearnSession = () => {
   return (
     <div className="lesson-page-container">
       {/* Phần trên - Thông tin bài học */}
-      <div className="slesson-info">
+      <div
+        className={
+          selectedLesson.completed ? "slesson-info-complete" : "slesson-info"
+        }
+      >
         <img
           className="slesson-image"
           src={selectedLesson.image}
           alt={selectedLesson.title}
         />
-        <div>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+            justifyContent: "flex-start",
+            alignItems: "flex-start",
+          }}
+        >
           <h2 className="slesson-title">{selectedLesson.title}</h2>
-          <p className="slesson-description">{selectedLesson.description}</p>
+          <h5 className="slesson-description">{selectedLesson.description}</h5>
+          {selectedLesson.score && (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between", // Căn đều hai đầu nếu cần
+                alignItems: "center", // Căn giữa theo chiều dọc
+                height: "80px",
+                borderRadius: "10px",
+                color: "black",
+                fontSize: "20px",
+                fontWeight: "bold",
+                width: "100%",
+                padding: "0 10px", // Thêm khoảng c
+                whiteSpace: "nowrap",
+              }}
+            >
+              {" Điểm: " + Math.round(selectedLesson.score) + " /100"}
+              <IoMdCheckmarkCircleOutline
+                size={{
+                  width: "10px",
+                  height: "10px",
+                }}
+              />
+            </div>
+          )}
         </div>
       </div>
 
       {/* Phần dưới - 3 nút (từ vựng, câu hỏi, luyện tập) */}
       <div className="sbutton-container">
-        <button className="saction-button">TỪ VỰNG</button>
+        <button className={
+          selectedLesson.completed ? "saction-button-complete" : "saction-button"
+        }
+        onClick={() => {
+          navigate("/learn/vocabulary/" + selectedLesson.id);
+        }}
+        >
+          TỪ VỰNG
+          <img
+            src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/teacher.png"
+            alt=""
+            style={{
+              width: "300px",
+              height: "300px",
+            }}
+          />
+        </button>
         <button
-          className="saction-button"
+          className={
+            selectedLesson.completed ? "saction-button-complete" : "saction-button"
+          }
           onClick={() => {
             navigate("/learn/question/" + selectedLesson.id);
           }}
         >
           CÂU HỎI
+          <img
+            src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/grade.png"
+            alt=""
+            style={{
+              width: "300px",
+              height: "300px",
+            }}
+          />
         </button>
-        <button className="saction-button">LUYỆN TẬP</button>
+        <button className="saction-button">
+          LUYỆN TẬP
+          <img
+            src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/weights.png"
+            alt=""
+            style={{
+              width: "300px",
+              height: "300px",
+            }}
+          />
+        </button>
       </div>
     </div>
   );

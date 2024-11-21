@@ -7,7 +7,7 @@ const style = {
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: 800,
+  width: 1000,
   bgcolor: "background.paper",
   border: "1px solid #000",
   boxShadow: 24,
@@ -27,11 +27,17 @@ const ModalResult = ({ open, handleClose, countCorrect, totalQuestions }) => {
       onClose={(e) => e.stopPropagation()} // Ngừng việc đóng modal khi click vào backdrop
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
+      BackdropProps={{
+        sx: {
+          backgroundColor: "rgba(0, 0, 0, 0.5)", // Màu mờ tối phía ngoài
+          backdropFilter: "blur(5px)", // Hiệu ứng mờ phía ngoài
+        },
+      }}
     >
       <Box sx={style} onClick={handleCloseModal}>
         <div className="l-bar-finish">
           <img
-            src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/success.png"
+            src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/cat.png"
             alt=""
             width={400}
             height={400}

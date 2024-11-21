@@ -16,7 +16,6 @@ import FileInput from "../../../../src/utils/ReadExcelFile/FileInput";
 import ReadExcel from "../../../../src/utils/ReadExcelFile/ReadExcel";
 
 import { IoMdAdd } from "react-icons/io";
-import { CiImport } from "react-icons/ci";
 import { MdEdit } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -26,7 +25,7 @@ import "./styles.css";
 import { useDispatch, useSelector } from "react-redux";
 import { setVocabularies } from "../../../redux/slices/vocabularySlice";
 import { useEffect } from "react";
-import { FaSearch } from "react-icons/fa";
+// import { FaSearch } from "react-icons/fa";
 import { TextField } from "@mui/material";
 import { useState, useMemo } from "react";
 import { useRef } from "react";
@@ -79,16 +78,16 @@ const VocabularyManagement = () => {
       setLack(0);
       setDuplicate(0);
       setPercent(0);
+
       for (let i = 0; i < data.length; i++) {
-        // Làm tròn lên
         setPercent(Math.ceil(((i + 1) / data.length) * 100));
+
         if (
-          data[i].word === null ||
-          data[i].meaning === null ||
-          data[i].pronunciation === null ||
-          data[i].type === null ||
-          data[i].image === null ||
-          data[i].audio === null
+          !data[i].word ||
+          !data[i].meaning ||
+          !data[i].pronunciation ||
+          !data[i].type ||
+          !data[i].audio
         ) {
           setLack((prev) => prev + 1);
           count++;
@@ -99,7 +98,6 @@ const VocabularyManagement = () => {
         const response = await customFetch.get(
           `/api/v1/vocabulary/find-word-fast/${data[i].word}`
         );
-        console.log("from database ", response.data);
 
         if (response.data) {
           if (!response.data.inDatabase) {
@@ -110,7 +108,8 @@ const VocabularyManagement = () => {
 
             if (res.status === 200) {
               setPassImport((prev) => prev + 1);
-         
+            } else {
+              setLack((prev) => prev + 1);
             }
           }
           if (response.data.inDatabase) {
@@ -371,14 +370,14 @@ const VocabularyManagement = () => {
         <div className="ad-p-content-header">
           <TextField
             id="outlined-basic"
-            label="Tên từ vựng"
+            label="Từ cần tìm"
             variant="outlined"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <button className="a-l-button">
+          {/* <button className="a-l-button">
             <FaSearch />
-          </button>
+          </button> */}
           <div className="a-l-search"></div>
 
           <div
@@ -467,12 +466,14 @@ const VocabularyManagement = () => {
                               </TableCell>
                               <TableCell align="left">{row.type}</TableCell>
                               <TableCell align="left">
-                                <img
-                                  src={row.image}
-                                  width={50}
-                                  height={50}
-                                  alt=""
-                                />
+                                {row.image && (
+                                  <img
+                                    src={row.image}
+                                    width={50}
+                                    height={50}
+                                    alt=""
+                                  />
+                                )}
                               </TableCell>
                               <TableCell align="left">
                                 <AudioPlayer audioSrc={row.audio} />
