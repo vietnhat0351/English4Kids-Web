@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import './WorkShake.css'
 // chọn card-matching-bg-image.webp từ assets
-import bgImage from '../../assets/card-matching-bg-image.webp'
+import bgImage from '../../assets/workshake-bg-image.png'
+import prepareBG from '../../assets/wordshake.jpg'
 
 const WorkShake = () => {
 
@@ -10,6 +11,8 @@ const WorkShake = () => {
     const [selectedWord, setSelectedWord] = useState('');
     const [words, setWords] = useState([]);
     const [points, setPoints] = useState(0);
+
+    const [isGameActive, setIsGameActive] = useState(false);
 
     useEffect(() => {
         // Initialize random letters
@@ -142,90 +145,119 @@ const WorkShake = () => {
     };
 
     return (
-        <div className="ws-App" style={{
-            backgroundImage: `url(${bgImage})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            backgroundSize: '100% 100%',
-        }}>
-            <div className="game-area">
-                <div style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    gap: '1rem',
-                    height: '100%',
-                    width: '100%',
+        <div>
+            {
+                isGameActive ? <div className="ws-App" style={{
+                    backgroundImage: `url(${bgImage})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundSize: '100% 100%',
                 }}>
-                    <div className="time">{formatTime(time)}</div>
-                    <div className="grid">
-                        {letters.map((letter, index) => (
-                            <div key={index}
-                                className={selectedCellIds.includes(index) ? 'grid-cell-clicked' : 'grid-cell'}
-                                onClick={() => handleCellClick(letter, index)}>
-                                {letter}
+                    <div className="game-area">
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            gap: '1rem',
+                            height: '100%',
+                            width: '100%',
+                        }}>
+                            <div className="time">{formatTime(time)}</div>
+                            <div className="grid">
+                                {letters.map((letter, index) => (
+                                    <div key={index}
+                                        className={selectedCellIds.includes(index) ? 'grid-cell-clicked' : 'grid-cell'}
+                                        onClick={() => handleCellClick(letter, index)}>
+                                        {letter}
+                                    </div>
+                                ))}
                             </div>
-                        ))}
-                    </div>
-                </div>
-                <div style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: '100%',
-                    width: '100%',
-                }}>
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        paddingBottom: '2rem',
-                        borderBottom: '1px solid #ccc',
-                    }}>
-                        <div className="new-game-btn" onClick={handleNewGame}>New game</div>
-                        <div className="home-btn">Home</div>
-                    </div>
-                    <div style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        height: '100%',
-                        border: '1px solid #ccc',
-                        width: '100%',
-                    }}>
-                        <div className="scrollable-table">
-                            <table className='ws-table'>
-                                <thead>
-                                    <tr>
-                                        <th>Word</th>
-                                        <th>Points</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {words.map((word, index) => (
-                                        <tr key={index}>
-                                            <td>{word}</td>
-                                            <td>{word.length}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
                         </div>
-
-                        <div className="selected-word">
-                            {selectedWord.toUpperCase()}
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            height: '100%',
+                            width: '100%',
+                        }}>
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                paddingBottom: '2rem',
+                                borderBottom: '1px solid #ccc',
+                            }}>
+                                <div className="new-game-btn" onClick={handleNewGame}>New game</div>
+                                <div className="home-btn">Home</div>
+                            </div>
+                            <div style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'space-between',
+                                height: '100%',
+                                border: '1px solid #ccc',
+                                width: '100%',
+                            }}>
+                                <div className="scrollable-table">
+                                    <table className='ws-table'>
+                                        <thead>
+                                            <tr>
+                                                <th>Word</th>
+                                                <th>Points</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {words.map((word, index) => (
+                                                <tr key={index}>
+                                                    <td>{word}</td>
+                                                    <td>{word.length}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+        
+                                <div className="selected-word">
+                                    {selectedWord.toUpperCase()}
+                                </div>
+        
+                                <div className="controls">
+                                    <button className="cancel-btn" onClick={handleCancel}>Cancel</button>
+                                    <button className="enter-btn" onClick={handleEnter}>Enter</button>
+                                </div>
+        
+                            </div>
                         </div>
-
-                        <div className="controls">
-                            <button className="cancel-btn" onClick={handleCancel}>Cancel</button>
-                            <button className="enter-btn" onClick={handleEnter}>Enter</button>
-                        </div>
-
                     </div>
-                </div>
-            </div>
-
-
+                </div> : (
+                    <div style={
+                        {
+                            backgroundImage: `url(${prepareBG})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat',
+                            backgroundSize: '100% 100%',
+                            height: '100vh',
+                            display: 'flex',
+                            overflow: 'hidden',
+                        }
+                    }>
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            gap: '1rem',
+                            height: '100%',
+                            width: '100%',
+                            position: 'relative',
+                            top: '120px',
+                        }}>
+                            <button className="start-btn" onClick={() => setIsGameActive(true)}>Start Game</button>
+                        </div>
+                    </div>
+                )
+            }
         </div>
     )
 }
