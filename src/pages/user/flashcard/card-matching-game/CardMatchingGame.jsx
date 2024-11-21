@@ -3,7 +3,8 @@ import { useParams } from 'react-router-dom';
 import customFetch from '../../../../utils/customFetch';
 import { Button, Paper } from '@mui/material';
 // const [flashcardSet, setFlashcardSet] = useState({});
-import bgImage from '../../../../assets/card-matching-bg-image.webp';
+// import bgImage from '../../../../assets/card-matching-bg-image.webp';
+import { IoMdClose } from 'react-icons/io';
 
 const CardMatchingGame = () => {
     const [cards, setCards] = useState([]);
@@ -13,24 +14,29 @@ const CardMatchingGame = () => {
     const [isGameActive, setIsGameActive] = useState(false);
     const flashcardSetId = useParams().flashcardSetId;
 
+    const [flashcardSetName, setFlashcardSetName] = useState("");
+
+    // "prepare" || "playing" || "finished"
+    const [gameState, setGameState] = useState("prepare");
+
     const [count, setCount] = useState(0);
 
     useEffect(() => {
         let timer
-        if (isGameActive) {
+        if (gameState === "playing") {
             timer = setInterval(() => {
                 setTime(prevTime => prevTime + 10); // Cập nhật mỗi 10 mili giây
             }, 10);
         }
 
         return () => clearInterval(timer);
-    }, [isGameActive]);
+    }, [gameState]);
 
     useEffect(() => {
         customFetch.get(`/api/v1/flashcards/get-flashcard-set/${flashcardSetId}`)
             .then(response => {
-                console.log(response.data);
                 let c = [];
+                setFlashcardSetName(response.data.name);
                 response.data.flashcards.forEach(flashcard => {
                     c = [...c, {
                         id: flashcard.id,
@@ -45,7 +51,6 @@ const CardMatchingGame = () => {
                 });
                 c.sort(() => Math.random() - 0.5);
                 setCards(c);
-                console.log(c);
             })
             .catch(error => {
                 console.error(error);
@@ -54,26 +59,21 @@ const CardMatchingGame = () => {
 
     useEffect(() => {
         let timer;
-        if (isGameActive) {
+        if (gameState === "playing") {
             timer = setInterval(() => {
                 setTime(prevTime => prevTime + 1);
             }, 1000);
         }
         return () => clearInterval(timer);
-    }, [isGameActive]);
+    }, [gameState]);
 
     useEffect(() => {
-        if (matchedCards.length === cards.length) {
-            setIsGameActive(false);
+        if (cards.length && matchedCards.length === cards.length) {
+            setGameState("finished");
         }
-    }, [matchedCards, cards.length]);
+    }, [matchedCards, cards]);
 
     function handleCardClick(cardId) {
-
-        if (count === cards.length / 2) {
-            setIsGameActive(false);
-        }
-
         if (selectedCards.length === 2 || matchedCards.includes(cardId)) {
             return;
         }
@@ -112,8 +112,33 @@ const CardMatchingGame = () => {
 
     return (
         <div style={styles.cardMatchingGame}>
+            <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                width: '100%',
+            }}>
+                <Button variant="contained" color="primary" onClick={() => {
+                    window.location.href = `/flashcard-set/${flashcardSetId}`;
+                }}>Quay</Button>
+                {
+                    gameState === "playing" ? <div style={styles.timer}>Thời Gian: {formatTime(time)}</div> :
+                    <div>{flashcardSetName}</div>
+                }
+                <IoMdClose size={35} style={{
+                    cursor: 'pointer',
+                    border: '1px solid black',
+                    borderRadius: '5px',
+                    borderColor: '#fff',
+                    color: '#fff',
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)'
+                }}
+                    onClick={() => {
+                        window.location.href = `/flashcard/${flashcardSetId}`;
+                    }}
+                />
+            </div>
             {
-                isGameActive === false ? (
+                gameState === "prepare" ? (
                     <div style={{
                         display: 'flex',
                         flexDirection: 'column',
@@ -134,77 +159,102 @@ const CardMatchingGame = () => {
                             setTime(0);
                             setMatchedCards([]);
                             setSelectedCards([]);
-                            setIsGameActive(true);
+                            setGameState("playing");
                         }}>Bắt đầu</Button>
                     </div>
-                ) : (
-                    <div><div style={styles.timer}>Thời Gian: {formatTime(time)}</div>
-                        <div style={styles.grid}>
-                            {cards.map((card, index) => (
-                                <div
-                                    key={index}
-                                    style={{
-                                        ...styles.card,
-                                        visibility: matchedCards.includes(index) ? 'hidden' : 'visible',
-                                    }}
-                                    onClick={() => handleCardClick(index)}
-                                >
-                                    <Paper style={{
-                                        width: '100%',
-                                        height: '100%',
-                                        display: 'flex',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        fontSize: '24px',
-                                        border: selectedCards.includes(index) ? '3px solid green' : 'none',
-                                        cursor: 'pointer',
-                                        backgroundColor: '#f0f8ff',
-                                    }}>
-                                        {
-                                            card.image ? <div style={{
-                                                width: '100%',
-                                                height: '100%',
-                                                position: 'relative',
-                                                display: 'flex',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                                fontSize: '24px',
-                                            }}>
-                                                <Paper style={{
+                ) :
+                    gameState === "playing" ? (
+                        <div>
+                            
+                            <div style={styles.grid}>
+                                {cards.map((card, index) => (
+                                    <div
+                                        key={index}
+                                        style={{
+                                            ...styles.card,
+                                            visibility: matchedCards.includes(index) ? 'hidden' : 'visible',
+                                        }}
+                                        onClick={() => handleCardClick(index)}
+                                    >
+                                        <Paper style={{
+                                            width: '100%',
+                                            height: '100%',
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            fontSize: '24px',
+                                            border: selectedCards.includes(index) ? '3px solid green' : 'none',
+                                            cursor: 'pointer',
+                                            backgroundColor: '#f0f8ff',
+                                        }}>
+                                            {
+                                                card.image ? <div style={{
                                                     width: '100%',
                                                     height: '100%',
-                                                    backgroundImage: `url(${card.image})`,
-                                                    backgroundSize: 'cover',
-                                                    backgroundPosition: 'center',
-                                                    filter: 'blur(0px)', // Adjust the blur level as needed
-                                                    position: 'absolute',
-                                                    top: 0,
-                                                    left: 0,
-                                                    zIndex: 1,
-                                                }}></Paper>
-                                                <Paper style={{
-                                                    position: 'absolute',
-                                                    top: 0,
-                                                    left: 0,
-                                                    width: '100%',
-                                                    height: '100%',
-                                                    backgroundColor: 'rgba(255, 255, 255, 0.5)', // Adjust the overlay color and opacity as needed
-                                                    zIndex: 2,
-                                                }}></Paper>
-                                                <div style={{
                                                     position: 'relative',
-                                                    zIndex: 3,
-                                                    color: '#000', // Adjust the text color as needed
+                                                    display: 'flex',
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                    fontSize: '24px',
                                                 }}>
-                                                    {card.meaning}
-                                                </div>
-                                            </div> : card.word
-                                        }
-                                    </Paper>
-                                </div>
-                            ))}
-                        </div></div>
-                )
+                                                    <Paper style={{
+                                                        width: '100%',
+                                                        height: '100%',
+                                                        backgroundImage: `url(${card.image})`,
+                                                        backgroundSize: 'cover',
+                                                        backgroundPosition: 'center',
+                                                        filter: 'blur(0px)', // Adjust the blur level as needed
+                                                        position: 'absolute',
+                                                        top: 0,
+                                                        left: 0,
+                                                        zIndex: 1,
+                                                    }}></Paper>
+                                                    <Paper style={{
+                                                        position: 'absolute',
+                                                        top: 0,
+                                                        left: 0,
+                                                        width: '100%',
+                                                        height: '100%',
+                                                        backgroundColor: 'rgba(255, 255, 255, 0.5)', // Adjust the overlay color and opacity as needed
+                                                        zIndex: 2,
+                                                    }}></Paper>
+                                                    <div style={{
+                                                        position: 'relative',
+                                                        zIndex: 3,
+                                                        color: '#000', // Adjust the text color as needed
+                                                    }}>
+                                                        {card.meaning}
+                                                    </div>
+                                                </div> : card.word
+                                            }
+                                        </Paper>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ) : (
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            height: '100vh',
+                            color: 'black',
+                            gap: '20px',
+                        }}>
+                            <h1>Chúc mừng bạn đã hoàn thành!</h1>
+                            <p style={{
+                                maxWidth: '300px',
+                                textAlign: 'center',
+                            }}>
+                                Bạn đã hoàn thành trong {formatTime(time)} với {count} cặp.
+                            </p>
+                            <Button variant="contained" color="primary" onClick={() => {
+                                setGameState("prepare");
+                                setCount(0);
+                            }}>Chơi lại</Button>
+                        </div>
+                    )
             }
         </div>
     );
@@ -213,7 +263,7 @@ const CardMatchingGame = () => {
 const styles = {
     cardMatchingGame: {
         display: 'flex',
-        flexDirection: 'column',  
+        flexDirection: 'column',
         alignItems: 'center',
         padding: '1rem',
         height: '100vh',
