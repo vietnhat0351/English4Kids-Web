@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import customFetch from '../../../../utils/customFetch';
 import { useParams } from 'react-router-dom';
-import { Button, IconButton, TextField, Tooltip } from '@mui/material';
+import { Box, Button, IconButton, LinearProgress, TextField, Tooltip, Typography } from '@mui/material';
 import CloseIcon from "@mui/icons-material/Close";
 import './ReviewFlashcard.css';
+import { IoMdClose } from 'react-icons/io';
 
 const ReviewFlashcard = () => {
     const flashcardSetId = useParams().flashcardSetId;
@@ -64,36 +65,88 @@ const ReviewFlashcard = () => {
             </div>
         )
     }
+
+    function LinearProgressWithLabel(props) {
+        return (
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Box sx={{ width: '100%', mr: 1 }}>
+                    <LinearProgress
+                        sx={{ width: '100%', height: '7px' }}
+                        variant="determinate"
+                        color='secondary'
+                        {...props}
+                    />
+                </Box>
+                <Box sx={{ minWidth: 35 }}>
+                    <Typography
+                        variant="body2"
+                        sx={{ color: 'text.secondary' }}
+                    >{`${Math.round(props.value)}%`}</Typography>
+                </Box>
+            </Box>
+        );
+    }
     return (
         <div>
-            <div className="learn-session-header">
-                <div className="progress-header">
-                    <div className="progress-bar">
-                        <div
-                            className="progress-bar-fill"
-                            style={{ width: `${progressPercent}%` }}
-                        ></div>
+            <div>
+                <div style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "10px",
+                    // color: '#fff',
+                }}>
+                    <div style={{
+                        flex: 1,
+                    }}>
+
                     </div>
-                    <button>
-                        <Tooltip title="Close">
-                            <IconButton
-                                onClick={() => {
-                                    window.location.href = "/";
-                                }}
-                            >
-                                <CloseIcon />
-                            </IconButton>
-                        </Tooltip>
-                    </button>
+                    <div style={{
+                        flex: 10,
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                    }}>
+                        <p>
+                            {question} / {total}
+                        </p>
+                    </div>
+                    <div style={{
+                        flex: 1,
+                        display: "flex",
+                        justifyContent: "flex-end",
+                    }}>
+                        <IoMdClose size={35} style={{
+                            cursor: 'pointer',
+                            border: '1px solid black',
+                            borderRadius: '5px',
+                            borderColor: '#fff',
+                            color: '#fff',
+                            backgroundColor: 'rgba(0, 0, 0, 0.5)'
+                        }}
+                            onClick={() => {
+                                window.location.href = `/flashcard/${flashcardSetId}`;
+                            }}
+                        />
+                    </div>
                 </div>
-                <p>
-                    Tiến trình: {question}/{total}
-                </p>
+                <div style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                }}>
+                    <Box sx={{
+                        width: '95%',
+                    }}>
+                        <LinearProgressWithLabel value={progressPercent} />
+                    </Box>
+                </div>
             </div>
             <div style={{
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
+                padding: "5rem",
             }}>
                 {
                     flashcards[question] && (
@@ -121,7 +174,7 @@ const ReviewFlashcard = () => {
                                 }}>Đáp án {flashcards[question].word}</p>
                             </div>
 
-                            <TextField id="outlined-basic" label="Outlined" variant="outlined"
+                            <TextField id="outlined-basic" label="Câu Trả Lời" variant="outlined"
                                 value={answer}
                                 onKeyUp={(e) => {
                                     if (e.key === "Enter") {
@@ -134,9 +187,7 @@ const ReviewFlashcard = () => {
                                 autoComplete='off'
                             />
                         </div>
-
                     )
-                    
                 }
                 {
                     progressPercent === 100 ? <ShowResult /> : null

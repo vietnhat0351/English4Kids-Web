@@ -15,6 +15,7 @@ import "./style.css";
 import { setLessons } from "../../../redux/slices/lessonSlice";
 import ModalResult from "../learn/learnQuestion/ModalResult";
 import ModalUpdateUser from "./tool/ModalUpdateUser";
+import dayjs from "dayjs";
 
 function Profile() {
   const user = useSelector((state) => state.user.profile);
@@ -26,8 +27,10 @@ function Profile() {
   );
 
   const [numOfVocab, setNumOfVocab] = useState(0);
-
   const [openModal, setOpenModal] = useState(false);
+
+  const [selectedDate, handleDateChange] = useState(new Date());
+
   const handleOpenModal = () => {
     setOpenModal(true);
   };
@@ -53,7 +56,14 @@ function Profile() {
       setNumOfVocab(response.data);
     };
     res();
-  }, []);
+    user && customFetch.get(`/api/v1/study-schedule/find-by-userId?userId=${user?.id}`)
+    .then((response) => {
+      console.log(response.data);
+      if (response.data) {
+        handleDateChange(new Date(response.data));
+      }
+    })
+  }, [user]);
 
   useEffect(() => {
     if (!lessons.length) {
@@ -122,8 +132,6 @@ function Profile() {
     return `${day}-${month}-${year}`;
   };
 
-  const [selectedDate, handleDateChange] = useState(null);
-
   const handleSubmit = () => {
     // kiểm tra dữ liệu trước khi gửi lên server
     if (!selectedDate) {
@@ -180,14 +188,16 @@ function Profile() {
               </button>
             </div>
             <div className="profile-avatar-progress">
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <LocalizationProvider dateAdapter={AdapterDayjs} >
                 <MobileTimePicker
                   label={"Lịch Học Hàng Ngày"}
                   openTo="minutes"
-                  // value={selectedDate}
                   onAccept={(date) => {
+                    console.log(date.toJSON());
                     handleDateChange(date);
                   }}
+                  // defaultValue={dayjs("2021-11-22T00:40:00")}
+                  value={dayjs(selectedDate)}
                 />
               </LocalizationProvider>
               <Button
