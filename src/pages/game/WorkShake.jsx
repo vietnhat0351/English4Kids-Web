@@ -3,6 +3,8 @@ import './WorkShake.css'
 // chọn card-matching-bg-image.webp từ assets
 import bgImage from '../../assets/workshake-bg-image.png'
 import prepareBG from '../../assets/wordshake.jpg'
+import bgheader from '../../assets/wordshake-header.png'
+import { FaQuestion } from 'react-icons/fa6'
 
 const WorkShake = () => {
 
@@ -13,6 +15,8 @@ const WorkShake = () => {
     const [points, setPoints] = useState(0);
 
     const [isGameActive, setIsGameActive] = useState(false);
+
+    const [checkAnswer, setCheckAnswer] = useState('');
 
     useEffect(() => {
         // Initialize random letters
@@ -86,6 +90,7 @@ const WorkShake = () => {
     const checkWordValidity = async (word) => {
         const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
         const data = await response.json();
+        console.log(data);
 
         return response.ok && data.length > 0;
     };
@@ -118,6 +123,7 @@ const WorkShake = () => {
                 setPoints(points + selectedWord.length); // Simple point logic
             } else {
                 alert('Word is not valid!');
+                setCheckAnswer('invalid');
                 setSelectedWord('');
                 setSelectedCellIds([]);
             }
@@ -154,6 +160,34 @@ const WorkShake = () => {
                     backgroundRepeat: 'no-repeat',
                     backgroundSize: '100% 100%',
                 }}>
+                    <div style={{
+                        backgroundImage: `url(${bgheader})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundSize: '100% 100%',
+                        height: '90px',
+                        width: '1130px',
+                        display: 'flex',
+                        flexDirection: 'row',
+                    }}>
+                        <div style={{
+                            display: 'flex',
+                            flex: 6,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}><div className="time">{formatTime(time)}</div></div>
+                        <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                height: '100%',
+                                flex: 6,
+                                alignItems: 'center',
+                            }}>
+                                <div className="new-game-btn" onClick={handleNewGame}>New game</div>
+                                <div className="home-btn">Home</div>
+                            </div>
+                    </div>
                     <div className="game-area">
                         <div style={{
                             display: 'flex',
@@ -161,10 +195,8 @@ const WorkShake = () => {
                             justifyContent: 'center',
                             alignItems: 'center',
                             gap: '1rem',
-                            height: '100%',
-                            width: '100%',
                         }}>
-                            <div className="time">{formatTime(time)}</div>
+
                             <div className="grid">
                                 {letters.map((letter, index) => (
                                     <div key={index}
@@ -183,20 +215,12 @@ const WorkShake = () => {
                         }}>
                             <div style={{
                                 display: 'flex',
-                                justifyContent: 'space-between',
-                                paddingBottom: '2rem',
-                                borderBottom: '1px solid #ccc',
-                            }}>
-                                <div className="new-game-btn" onClick={handleNewGame}>New game</div>
-                                <div className="home-btn">Home</div>
-                            </div>
-                            <div style={{
-                                display: 'flex',
                                 flexDirection: 'column',
                                 justifyContent: 'space-between',
                                 height: '100%',
                                 border: '1px solid #ccc',
                                 width: '100%',
+                                backgroundColor: '#cae0e2'
                             }}>
                                 <div className="scrollable-table">
                                     <table className='ws-table'>
@@ -206,7 +230,9 @@ const WorkShake = () => {
                                                 <th>Points</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
+                                        <tbody style={{
+                                            backgroundColor: '#fff',
+                                        }}>
                                             {words.map((word, index) => (
                                                 <tr key={index}>
                                                     <td>{word}</td>
@@ -216,16 +242,30 @@ const WorkShake = () => {
                                         </tbody>
                                     </table>
                                 </div>
-        
+                                {
+                                    checkAnswer === 'invalid' ? <div style={{
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        backgroundColor: '#f00',
+                                        color: '#fff',
+                                        height: '50px',
+                                    }}>
+                                        <FaQuestion style={{
+                                            marginRight: '10px',
+                                        }} />
+                                        Word is not valid!
+                                    </div> : null
+                                }
                                 <div className="selected-word">
                                     {selectedWord.toUpperCase()}
                                 </div>
-        
+
                                 <div className="controls">
                                     <button className="cancel-btn" onClick={handleCancel}>Cancel</button>
                                     <button className="enter-btn" onClick={handleEnter}>Enter</button>
                                 </div>
-        
+
                             </div>
                         </div>
                     </div>
@@ -251,9 +291,22 @@ const WorkShake = () => {
                             height: '100%',
                             width: '100%',
                             position: 'relative',
-                            top: '120px',
+                            top: '180px',
                         }}>
-                            <button className="start-btn" onClick={() => setIsGameActive(true)}>Start Game</button>
+                            <button onClick={() => setIsGameActive(true)}
+                                style={{
+                                    padding: '10px',
+                                    backgroundColor: '#2f4554',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: '5px',
+                                    cursor: 'pointer',
+                                    fontSize: '1.5rem',
+                                    fontWeight: 'bold',
+                                    width: '200px',
+                                    height: '50px',
+                                }}
+                                >Start Game</button>
                         </div>
                     </div>
                 )

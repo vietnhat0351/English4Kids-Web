@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import customFetch from '../../../utils/customFetch';
-import { Button, TextField } from '@mui/material';
+import { Button, CircularProgress, TextField } from '@mui/material';
 
 // import '../../../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import './MyVerticallyCenteredModal.css';
@@ -22,7 +22,6 @@ function MyVerticallyCenteredModal(props) {
   const fetchImages = (keyword) => {
     customFetch.get(`/api/v1/pixabay/search?query=${keyword}`)
       .then((response) => {
-        console.log(response.data);
         const imagesURL = response.data.hits.map((image) => image.webformatURL);
         setImages(imagesURL);
       })
@@ -73,7 +72,7 @@ function MyVerticallyCenteredModal(props) {
             paddingBottom: '1rem',
           }}>
             <TextField id="outlined-basic" label="Từ Khóa" variant="outlined"
-              value={keywordState}
+              value={keywordState && keywordState !== '' ? keywordState : keyword}
               onChange={(event) => {
                 setKeywordState(event.target.value);
               }}
@@ -83,30 +82,29 @@ function MyVerticallyCenteredModal(props) {
             />
             <Button variant="contained" onClick={() => fetchImages(keywordState)}>Tìm Ảnh</Button>
           </div>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '1rem',
-            maxHeight: '80vh',
-            overflowY: 'auto',
-          }}>
-            {
-              images.length > 0 && images.map((image, index) => (
-                <img key={index} src={image} alt="Ảnh" style={{ width: '100%', cursor: 'pointer' }}
-                  // onClick={handleChooseImage(index)}
-                  onClick={() => {
-                    handleChooseImage(index);
-                    onHide();
-                  }
-                  }
-                />
-              ))
-            }
-          </div>
+          {
+            images.length > 0 ? (<div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: '1rem',
+              maxHeight: '80vh',
+              overflowY: 'auto',
+            }}>
+              {
+                images.map((image, index) => (
+                  <img key={index} src={image} alt="Ảnh" style={{ width: '100%', cursor: 'pointer' }}
+                    // onClick={handleChooseImage(index)}
+                    onClick={() => {
+                      handleChooseImage(index);
+                      setImages([]);
+                      onHide();
+                    }}
+                  />
+                ))
+              }
+            </div>) : (<CircularProgress />)
+          }
         </div>
-        {/* <div className="modal-footer">
-          <h3>Modal Footer</h3>
-        </div> */}
       </div>
 
     </div>

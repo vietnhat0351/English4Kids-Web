@@ -80,10 +80,6 @@ const router = createBrowserRouter(
             <Route path="create" element={<CreateFlashcardSet />} />
             <Route path=":flashcardSetId" element={<LearnFlashcard />} />
             <Route path=":flashcardSetId/edit" element={<EditFlashcardSet />} />
-            <Route
-              path=":flashcardSetId/card-matching"
-              element={<CardMatchingGame />}
-            />
           </Route>
           <Route path="profile" element={<Profile />} />
           <Route path="grammar" element={<Grammar />} />
