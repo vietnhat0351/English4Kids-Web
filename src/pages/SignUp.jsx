@@ -134,7 +134,7 @@ const SignUp = () => {
                     flexDirection: 'column',
                 }}>
                     <h1>Đăng ký</h1>
-                    <p>Please sign up to view this page.</p>
+                    <p>Vui lòng đăng ký để xem trang này</p>
                     <FormControl sx={{ m: 1, width: '50ch' }} variant="outlined">
                         <InputLabel htmlFor="outlined-adornment-firstname">Họ</InputLabel>
                         <OutlinedInput

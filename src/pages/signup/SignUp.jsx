@@ -11,7 +11,7 @@ import React from "react";
 import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { MdOutlineVisibility, MdOutlineVisibilityOff } from "react-icons/md";
-import imgHello from "../../assets/Hi.gif";
+import LOGO from "../../assets/WebLogo.png";
 const SignUp = () => {
 
   const [showPassword, setShowPassword] = useState(false);
@@ -85,6 +85,7 @@ const SignUp = () => {
       .then((response) => {
         localStorage.setItem('accessToken', response.data.accessToken);
         localStorage.setItem('refreshToken', response.data.refreshToken);
+        localStorage.setItem('loginType', 'normal');
         window.location.href = '/';
       })
       .catch((error) => {
@@ -120,7 +121,7 @@ const SignUp = () => {
   return (
     <div style={{ display: "flex", flexDirection: "row" }}>
       <div className="imgLogin">
-        <button
+        {/* <button
           style={{
             backgroundColor: "transparent",
             border: "none",
@@ -137,13 +138,15 @@ const SignUp = () => {
           }}
         >
           <h1 className="title">English4Kids</h1>
-        </button>
+        </button> */}
 
-        <img
-          src={imgHello}
-          alt="login"
-          style={{ width: "100%", height: "100%" }}
-        />
+        <div className="imgLogin">
+          <img
+            src={LOGO}
+            alt="login"
+            style={{ width: "100%", height: "100%" }}
+          />
+        </div>
       </div>
       <div className="loginContainer">
         {otpForm ? (<div>
@@ -175,7 +178,7 @@ const SignUp = () => {
           }}
         >
           <h1>Đăng ký</h1>
-          <p>Please sign up to view this page.</p>
+          <p>Vui lòng đăng ký để xem trang này.</p>
           <FormControl sx={{ m: 1, width: "50ch" }} variant="outlined">
             <InputLabel htmlFor="outlined-adornment-firstname">Họ</InputLabel>
             <OutlinedInput

@@ -9,7 +9,7 @@
 }
 
 * {
-  user-select: none; /* Ngăn chọn văn bản */
+  /* user-select: none;  */
   box-sizing: border-box;
   font-family: Arial, sans-serif;
 }

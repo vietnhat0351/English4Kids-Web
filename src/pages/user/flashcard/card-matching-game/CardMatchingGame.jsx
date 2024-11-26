@@ -5,6 +5,7 @@ import { Button, Paper } from '@mui/material';
 // const [flashcardSet, setFlashcardSet] = useState({});
 // import bgImage from '../../../../assets/card-matching-bg-image.webp';
 import { IoMdClose } from 'react-icons/io';
+import { useSelector } from 'react-redux';
 
 const CardMatchingGame = () => {
     const [cards, setCards] = useState([]);
@@ -14,7 +15,11 @@ const CardMatchingGame = () => {
     const [isGameActive, setIsGameActive] = useState(false);
     const flashcardSetId = useParams().flashcardSetId;
 
+    const [userRecords, setUserRecords] = useState([]);
+
     const [flashcardSetName, setFlashcardSetName] = useState("");
+
+    const user = useSelector((state) => state.user.profile);
 
     // "prepare" || "playing" || "finished"
     const [gameState, setGameState] = useState("prepare");
@@ -35,9 +40,16 @@ const CardMatchingGame = () => {
     useEffect(() => {
         customFetch.get(`/api/v1/flashcards/get-flashcard-set/${flashcardSetId}`)
             .then(response => {
+                // lấy ngẫu nhiên tối đa 10 cặp flashcard
+                let fc;
+                if (response.data.flashcards.length > 10) {
+                    fc = response.data.flashcards.slice(0, 10);
+                } else {
+                    fc = response.data.flashcards;
+                }
                 let c = [];
                 setFlashcardSetName(response.data.name);
-                response.data.flashcards.forEach(flashcard => {
+                fc.forEach(flashcard => {
                     c = [...c, {
                         id: flashcard.id,
                         word: flashcard.word,
@@ -55,7 +67,18 @@ const CardMatchingGame = () => {
             .catch(error => {
                 console.error(error);
             })
-    }, [flashcardSetId])
+
+        if (user) {
+            customFetch.get(`/api/v1/flashcards/get-user-card-matching-record/${user.id}`)
+                .then(response => {
+                    console.log(response.data);
+                    setUserRecords(response.data);
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+    }, [flashcardSetId, user]);
 
     useEffect(() => {
         let timer;
@@ -65,6 +88,31 @@ const CardMatchingGame = () => {
             }, 1000);
         }
         return () => clearInterval(timer);
+    }, [gameState]);
+
+    useEffect(() => {
+        if (gameState === "finished") {
+            const record = userRecords.find(record => record.flashcardSetId.toString() === flashcardSetId);
+            customFetch.post(`/api/v1/flashcards/update-card-matching-record/${flashcardSetId}`, {
+                id: record.id,
+                userId: user.id,
+                timeRecord: time > record.timeRecord ? record.timeRecord : time,
+                playCount: record.playCount + 1,
+            })
+                .then(response => {
+                    customFetch.get(`/api/v1/flashcards/get-user-card-matching-record/${user.id}`)
+                        .then(response => {
+                            console.log(response.data);
+                            setUserRecords(response.data);
+                        })
+                        .catch(error => {
+                            console.error(error);
+                        });
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
     }, [gameState]);
 
     useEffect(() => {
@@ -117,12 +165,10 @@ const CardMatchingGame = () => {
                 justifyContent: 'space-between',
                 width: '100%',
             }}>
-                <Button variant="contained" color="primary" onClick={() => {
-                    window.location.href = `/flashcard-set/${flashcardSetId}`;
-                }}>Quay</Button>
+                <div></div>
                 {
                     gameState === "playing" ? <div style={styles.timer}>Thời Gian: {formatTime(time)}</div> :
-                    <div>{flashcardSetName}</div>
+                        <div>{flashcardSetName}</div>
                 }
                 <IoMdClose size={35} style={{
                     cursor: 'pointer',
@@ -165,7 +211,7 @@ const CardMatchingGame = () => {
                 ) :
                     gameState === "playing" ? (
                         <div>
-                            
+
                             <div style={styles.grid}>
                                 {cards.map((card, index) => (
                                     <div
@@ -182,7 +228,7 @@ const CardMatchingGame = () => {
                                             display: 'flex',
                                             justifyContent: 'center',
                                             alignItems: 'center',
-                                            fontSize: '24px',
+                                            fontSize: '30px',
                                             border: selectedCards.includes(index) ? '3px solid green' : 'none',
                                             cursor: 'pointer',
                                             backgroundColor: '#f0f8ff',
@@ -195,7 +241,7 @@ const CardMatchingGame = () => {
                                                     display: 'flex',
                                                     justifyContent: 'center',
                                                     alignItems: 'center',
-                                                    fontSize: '24px',
+                                                    fontSize: '30px',
                                                 }}>
                                                     <Paper style={{
                                                         width: '100%',
@@ -221,7 +267,8 @@ const CardMatchingGame = () => {
                                                     <div style={{
                                                         position: 'relative',
                                                         zIndex: 3,
-                                                        color: '#000', // Adjust the text color as needed
+                                                        fontSize: '30px',
+                                                        color: '#000',
                                                     }}>
                                                         {card.meaning}
                                                     </div>
@@ -281,13 +328,13 @@ const styles = {
     },
     grid: {
         display: 'grid',
-        gridTemplateColumns: 'repeat(5, 200px)',
-        gridTemplateRows: 'repeat(4, 150px)',
+        gridTemplateColumns: 'repeat(5, 240px)',
+        gridTemplateRows: 'repeat(4, 180px)',
         gap: '10px'
     },
     card: {
-        width: '200px',
-        height: '150px',
+        width: '240px',
+        height: '180px',
         perspective: '1000px',
         position: 'relative'
     },

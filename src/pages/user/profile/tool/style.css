@@ -38,8 +38,8 @@
 }
 .modal-update-user-avatar-list-list{
     display: flex;
-    flex-direction: row;
-    gap: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 .modal-update-user-footer{
     display: flex;

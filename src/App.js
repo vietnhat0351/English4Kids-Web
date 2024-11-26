@@ -111,7 +111,7 @@ function App() {
         if (authResponse) {
           localStorage.setItem("accessToken", authResponse?.accessToken);
           localStorage.setItem("refreshToken", authResponse?.refreshToken);
-
+          localStorage.setItem("loginType", "google");
           axios
             .get(`${process.env.REACT_APP_API_URL}/api/v1/user/current`, {
               headers: {

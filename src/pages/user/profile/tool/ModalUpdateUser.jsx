@@ -1,4 +1,4 @@
-import { Box, Modal, TextField } from "@mui/material";
+import { Avatar, Box, Modal, TextField } from "@mui/material";
 import React, { useEffect, useState } from "react";
 
 import "./style.css";
@@ -25,9 +25,25 @@ const ModalUpdateUser = ({ open, handleClose }) => {
   const [lastName, setLastName] = useState(user.lastName || "");
   const [avatar, setAvatar] = useState(user.avatar || "");
   const listAvatar = [
-    "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/avatar1.png",
-    "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/avatar2.png",
-    "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/avatar3.png",
+    "https://assets.quizlet.com/static/i/animals/108.3b3090077134db3.jpg",
+    "https://assets.quizlet.com/static/i/animals/109.5b75ca8158c771c.jpg",
+    "https://assets.quizlet.com/static/i/animals/110.36d90f6882d4593.jpg",
+    "https://assets.quizlet.com/static/i/animals/111.f9dd73353feb908.jpg",
+    "https://assets.quizlet.com/static/i/animals/112.c90135dfc341a90.jpg",
+    "https://assets.quizlet.com/static/i/animals/113.e4b7e1c4ed27afa.jpg",
+    "https://assets.quizlet.com/static/i/animals/114.0adc064c9a6d1eb.jpg",
+    "https://assets.quizlet.com/static/i/animals/115.70946d9217589e8.jpg",
+    "https://assets.quizlet.com/static/i/animals/116.9aaedd4f4495837.jpg",
+    "https://assets.quizlet.com/static/i/animals/117.3cd40b021ac604f.jpg",
+    "https://assets.quizlet.com/static/i/animals/118.17bed2945aa1600.jpg",
+    "https://assets.quizlet.com/static/i/animals/119.ed0b39ac3915639.jpg",
+    "https://assets.quizlet.com/static/i/animals/120.bd14e2049ea1628.jpg",
+    "https://assets.quizlet.com/static/i/animals/121.86d7c15a5a6be0f.jpg",
+    "https://assets.quizlet.com/static/i/animals/122.c263b6b48ca2b1a.jpg",
+    "https://assets.quizlet.com/static/i/animals/123.e5f0bd4b49e7c12.jpg",
+    "https://assets.quizlet.com/static/i/animals/124.e99fa024b6881c1.jpg",
+    "https://assets.quizlet.com/static/i/animals/125.a46eeeaa1617163.jpg",
+    "https://assets.quizlet.com/static/i/animals/126.70ed6cbb19b8447.jpg",
   ];
   useEffect(() => {
     setFirstName(user.firstName || "");
@@ -72,39 +88,45 @@ const ModalUpdateUser = ({ open, handleClose }) => {
           <div className="modal-update-user-title">
             <h1>Cập nhật thông tin</h1>
           </div>
+
+          <div className="modal-update-user-avatar">
+            {/* <img src={avatar} alt="avatar" width={200} height={200} /> */}
+            <Avatar
+              alt="avatar"
+              src={avatar}
+              sx={{ width: 200, height: 200 }}
+            />
+            <div className="modal-update-user-avatar-list">
+              <h3>Ảnh Hồ Sơ</h3>
+              <div className="modal-update-user-avatar-list-list">
+                {listAvatar.map((item, index) => (
+                  <Avatar
+                    key={index}
+                    alt="avatar"
+                    src={item}
+                    onClick={() => setAvatar(item)}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
           <div className="modal-update-user-content">
             <TextField
               id="outlined-basic"
               label="Họ"
               variant="outlined"
+              fullWidth
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
             />
             <TextField
               id="outlined-basic"
               label="Tên"
+              fullWidth
               variant="outlined"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
             />
-          </div>
-          <div className="modal-update-user-avatar">
-            <img src={avatar} alt="avatar" width={200} height={200} />
-            <div className="modal-update-user-avatar-list">
-              <h3>Chọn hình đại </h3>
-              <div className="modal-update-user-avatar-list-list">
-                {listAvatar.map((item, index) => (
-                  <img
-                    key={index}
-                    src={item}
-                    alt="avatar"
-                    width={100}
-                    height={100}
-                    onClick={() => setAvatar(item)}
-                  />
-                ))}
-              </div>
-            </div>
           </div>
           <div className="modal-update-user-footer">
             <button

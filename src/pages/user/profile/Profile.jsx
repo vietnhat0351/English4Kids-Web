@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
-import { Button } from "@mui/material";
+import { Button, IconButton, InputAdornment, OutlinedInput, TextField } from "@mui/material";
 import customFetch from "../../../utils/customFetch";
 import { useDispatch, useSelector } from "react-redux";
 import { setUserProfile } from "../../../redux/slices/userSlice";
@@ -16,11 +16,21 @@ import { setLessons } from "../../../redux/slices/lessonSlice";
 import ModalResult from "../learn/learnQuestion/ModalResult";
 import ModalUpdateUser from "./tool/ModalUpdateUser";
 import dayjs from "dayjs";
+import { useSnackbar } from "notistack";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 function Profile() {
   const user = useSelector((state) => state.user.profile);
   const lessons = useSelector((state) => state.lessons);
   const dispatch = useDispatch();
+
+  const [loginType, setLoginType] = useState(localStorage.getItem("loginType"));
+
+  const { enqueueSnackbar } = useSnackbar();
+  const handleClickVariant = (variant, message) => {
+    // variant could be success, error, warning, info, or default
+    enqueueSnackbar(message, { variant });
+  };
 
   const [countCompleted, setCountCompleted] = useState(
     lessons.filter((lesson) => lesson.completed).length || 0
@@ -28,7 +38,6 @@ function Profile() {
 
   const [numOfVocab, setNumOfVocab] = useState(0);
   const [openModal, setOpenModal] = useState(false);
-
   const [selectedDate, handleDateChange] = useState(new Date());
 
   const handleOpenModal = () => {
@@ -57,12 +66,12 @@ function Profile() {
     };
     res();
     user && customFetch.get(`/api/v1/study-schedule/find-by-userId?userId=${user?.id}`)
-    .then((response) => {
-      console.log(response.data);
-      if (response.data) {
-        handleDateChange(new Date(response.data));
-      }
-    })
+      .then((response) => {
+        console.log(response.data);
+        if (response.data) {
+          handleDateChange(new Date(response.data));
+        }
+      })
   }, [user]);
 
   useEffect(() => {
@@ -144,10 +153,58 @@ function Profile() {
         startTime: selectedDate,
       })
       .then((data) => {
-        console.log(data);
+        handleClickVariant('success', 'Cập nhật lịch học thành công');
       })
       .catch((error) => {
         console.error(error);
+        handleClickVariant('error', 'Cập nhật lịch học thất bại');
+      });
+  };
+
+  const [showOldPassword, setShowOldPassword] = useState(false);
+
+  const handleClickShowOldPassword = () => setShowOldPassword((show) => !show);
+
+  const handleMouseDownPassword = (event) => {
+    event.preventDefault();
+  };
+
+  const handleMouseUpPassword = (event) => {
+    event.preventDefault();
+  };
+
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+  const validatePassword = (password) => {
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return regex.test(password);
+  };
+
+  const handleChangePassword = () => {
+    const oldPassword = document.getElementById("outlined-old-password").value;
+    const newPassword = document.getElementById("outlined-new-password").value;
+    console.log(oldPassword, newPassword);
+    if (!oldPassword || !newPassword) {
+      handleClickVariant('error', 'Vui lòng nhập đầy đủ thông tin');
+      return;
+    }
+    if (!validatePassword(newPassword)) {
+      handleClickVariant('error', 'Mật khẩu mới phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt');
+      return;
+    }
+    customFetch
+      .post("/api/v1/user/change-password", {
+        oldPassword,
+        newPassword
+      })
+      .then((data) => {
+        handleClickVariant('success', 'Đổi mật khẩu thành công');
+      })
+      .catch((error) => {
+        console.error(error);
+        handleClickVariant('error', 'Đã xảy ra lỗi, vui lòng thử lại');
       });
   };
 
@@ -169,7 +226,7 @@ function Profile() {
               <img
                 src={user.avatar}
                 alt="avatar"
-                style={{ width: "150px", height: "150px" }}
+                style={{ width: "150px", height: "150px", borderRadius: "50%" }}
               />
             </div>
             <div className="profile-avatar-info">
@@ -314,6 +371,70 @@ function Profile() {
                   </div>
                 </div>
               </div>
+            </div>
+            <div style={{
+              display: "flex",
+              // justifyContent: "center",
+              // alignItems: "center",
+              gap: "20px",
+              flexDirection: "column"
+            }}>
+              <span style={{
+                fontSize: "25px",
+                fontWeight: "bold",
+              }}>Mật khẩu cũ</span>
+              <OutlinedInput
+                id="outlined-old-password"
+                type={showOldPassword ? 'text' : 'password'}
+                // disabled={loginType && loginType === 'google'}
+                sx={{ width: "80%", alignSelf: "center" }}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label={
+                        showOldPassword ? 'hide the password' : 'display the password'
+                      }
+                      onClick={handleClickShowOldPassword}
+                      onMouseDown={handleMouseDownPassword}
+                      onMouseUp={handleMouseUpPassword}
+                      edge="end"
+                    >
+                      {showOldPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                }
+              />
+              <span style={{
+                fontSize: "25px",
+                fontWeight: "bold",
+              }}>Mật khẩu mới</span>
+              <OutlinedInput
+                id="outlined-new-password"
+                type={showPassword ? 'text' : 'password'}
+                // disabled={loginType && loginType === 'google'}
+                sx={{ width: "80%", alignSelf: "center" }}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label={
+                        showPassword ? 'hide the password' : 'display the password'
+                      }
+                      onClick={handleClickShowPassword}
+                      onMouseDown={handleMouseDownPassword}
+                      onMouseUp={handleMouseUpPassword}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                }
+              />
+              <Button
+                variant="contained"
+                color="primary"
+                style={{ alignSelf: "center", marginTop: "30px" }}
+                onClick={handleChangePassword}
+              >lưu thay đổi</Button>
             </div>
           </div>
           <ModalUpdateUser open={openModal} handleClose={handleCloseModal} />
