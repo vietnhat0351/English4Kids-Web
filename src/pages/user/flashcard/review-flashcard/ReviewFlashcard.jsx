@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import customFetch from '../../../../utils/customFetch';
 import { useParams } from 'react-router-dom';
-import { Box, Button, IconButton, LinearProgress, TextField, Tooltip, Typography } from '@mui/material';
+import { Box, Button, IconButton, LinearProgress, Paper, TextField, Tooltip, Typography } from '@mui/material';
 import CloseIcon from "@mui/icons-material/Close";
-import './ReviewFlashcard.css';
 import { IoMdClose } from 'react-icons/io';
+import { FaCheck } from "react-icons/fa";
+import { FaXmark } from "react-icons/fa6";
 
 const ReviewFlashcard = () => {
     const flashcardSetId = useParams().flashcardSetId;
@@ -16,25 +17,60 @@ const ReviewFlashcard = () => {
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [inCorrectFlashcards, setInCorrectFlashcards] = useState([]);
 
+    const [isAnswerCorrectSubmitted, setIsAnswerCorrectSubmitted] = useState(false);
+    const [isWrongAnswerSubmitted, setIsWrongAnswerSubmitted] = useState(false);
+
+    const answerInput = useRef(null);
+
+    useEffect(() => {
+        if (answerInput.current) {
+            answerInput.current.focus();
+        }
+    }, [answer])
+
+
     const handleSubmitAnswer = () => {
         setIsSubmitted(true);
         if (answer.toLowerCase() === flashcards[question].word.toLowerCase()) {
+            setIsAnswerCorrectSubmitted(true);
             setTimeout(() => {
                 setQuestion(question + 1);
                 setAnswer("");
                 setIsSubmitted(false);
+                setIsAnswerCorrectSubmitted(false);
+
             }, 1000);
+
         } else {
-            alert("Sai rồi");
             setTimeout(() => {
-                setQuestion(question + 1);
-                setInCorrectFlashcards([...inCorrectFlashcards, flashcards[question]]);
-                setAnswer("");
-                setIsSubmitted(false);
-            }, 1500);
+                setIsWrongAnswerSubmitted(true);
+            }, 10);
+        }
+    }
+
+    const handleContinue = () => {
+        setQuestion(question + 1);
+        setInCorrectFlashcards([...inCorrectFlashcards, flashcards[question]]);
+        setAnswer("");
+        setIsSubmitted(false);
+        setIsWrongAnswerSubmitted(false);
+    }
+
+    useEffect(() => {
+        const handleKeyUp = (event) => {
+            if (event.key === 'Enter') {
+                handleContinue();
+            }
+        };
+
+        if (isWrongAnswerSubmitted) {
+            document.addEventListener('keyup', handleKeyUp);
         }
 
-    }
+        return () => {
+            document.removeEventListener('keyup', handleKeyUp);
+        };
+    }, [isWrongAnswerSubmitted]);
 
     useEffect(() => {
         customFetch.get(`/api/v1/flashcards/get-flashcard-set/${flashcardSetId}`)
@@ -55,12 +91,18 @@ const ReviewFlashcard = () => {
                 <p>Số câu đúng: {question - inCorrectFlashcards.length} / {total}</p>
                 <p>Số câu sai: {inCorrectFlashcards.length}</p>
                 <div>
-                    <Button variant="contained" color="primary" onClick={() => {
-                        setQuestion(0);
-                        setFlashcards(inCorrectFlashcards);
-                        setTotal(inCorrectFlashcards.length);
-                        setInCorrectFlashcards([]);
-                    }}>Tiếp Tục</Button>
+                    {
+                        question - inCorrectFlashcards.length === total ? <Button variant="contained" color="primary" onClick={() => {
+                            setQuestion(0);
+                            setInCorrectFlashcards([]);
+                        }}>Làm Lại Từ Đầu</Button> : <Button variant="contained" color="primary" onClick={() => {
+                            setQuestion(0);
+                            setFlashcards(inCorrectFlashcards);
+                            setTotal(inCorrectFlashcards.length);
+                            setInCorrectFlashcards([]);
+                        }}>Làm Lại Câu Sai</Button>
+                    }
+
                 </div>
             </div>
         )
@@ -87,14 +129,20 @@ const ReviewFlashcard = () => {
         );
     }
     return (
-        <div>
-            <div>
+        <div style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "column",
+        }}>
+            <div style={{
+                width: '100%',
+            }}>
                 <div style={{
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
                     padding: "10px",
-                    // color: '#fff',
                 }}>
                     <div style={{
                         flex: 1,
@@ -142,21 +190,39 @@ const ReviewFlashcard = () => {
                     </Box>
                 </div>
             </div>
-            <div style={{
+            <Paper style={{
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
                 padding: "5rem",
+                width: '70%',
+                height: '70%',
             }}>
                 {
                     flashcards[question] && (
-                        <div className="flashcard">
-                            <img src={flashcards[question].image} alt="flashcard" style={{
-                                width: "200px",
-                                height: "200px",
-                            }} />
-                            <div className="flashcard-meaning">
-                                {flashcards[question].meaning}
+                        <div style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            flex: 1,
+                        }}>
+                            <div style={{
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                flexDirection: "row",
+                                gap: "10px",
+                                padding: "10px",
+                                border: "1px solid black",
+                            }}>
+                                <div>
+                                    {flashcards[question].meaning}
+                                </div>
+                                <img src={flashcards[question].image} alt="flashcard" style={{
+                                    width: "300px",
+                                    height: "300px",
+                                }} />
                             </div>
                             <div style={{
                                 display: "flex",
@@ -164,17 +230,80 @@ const ReviewFlashcard = () => {
                                 alignItems: "center",
                                 height: "50px",
                             }}>
-                                <p style={{
-                                    // chỉ xuất hiện khi submit đáp án
-                                    display: isSubmitted ? "block" : "none",
-                                    fontSize: "24px",
-                                    fontWeight: "bold",
-                                    // border màu đỏ nếu trả lời sai màu xanh nếu trả lời đúng
-                                    border: answer.toLowerCase() === flashcards[question].word.toLowerCase() ? "1px dotted green" : "1px dotted red",
-                                }}>Đáp án {flashcards[question].word}</p>
+                            </div>
+                            <div style={{
+                                display: "flex",
+                                width: "70%",
+                                flexDirection: "column",
+                                visibility: isAnswerCorrectSubmitted ? 'visible' : 'hidden',
+                                gap: '20px',
+                                color: 'green',
+                                position: 'absolute',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                top: '55%',
+                            }}>
+                                <p>Chính Xác! 🥳</p>
+                                <div style={{
+                                    display: 'flex',
+                                    gap: '20px',
+                                    fontSize: '30px',
+                                    fontWeight: 'bold',
+                                    width: '70%',
+                                    textAlign: 'start',
+                                    border: '2px solid green',
+                                    padding: '17px',
+                                    borderRadius: '5px',
+                                }}>
+                                    <FaCheck /><span>{answer}</span>
+                                </div>
+                            </div>
+                            <div style={{
+                                display: 'flex',
+                                flex: 1,
+                                gap: '20px',
+                                visibility: isWrongAnswerSubmitted ? 'visible' : 'hidden',
+                                position: 'absolute',
+                                top: '55%',
+                                width: '70%',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                flexDirection: 'column',
+                            }}>
+                                <div style={{
+                                    color: 'red',
+                                    fontSize: '30px',
+                                    fontWeight: 'bold',
+                                    width: '70%',
+                                    textAlign: 'start',
+                                    border: '1px solid red',
+                                    padding: '17px',
+                                    borderRadius: '5px',
+                                    gap: '20px',
+                                    display: 'flex',
+                                }}><FaXmark /><span>{answer}</span></div>
+
+                                <div style={{
+                                    color: 'green',
+                                    fontSize: '30px',
+                                    fontWeight: 'bold',
+                                    width: '70%',
+                                    textAlign: 'start',
+                                    border: '1px solid green',
+                                    padding: '17px',
+                                    borderRadius: '5px',
+                                    gap: '20px',
+                                    display: 'flex',
+                                }}><FaCheck /><span>{flashcards[question].word}</span></div>
                             </div>
 
-                            <TextField id="outlined-basic" label="Câu Trả Lời" variant="outlined"
+                            <TextField id="answer-input" variant="outlined"
+                                placeholder='Nhập Câu Trả Lời Tiếng Anh'
+                                inputRef={answerInput}
+                                sx={{
+                                    width: '70%',
+                                    visibility: isSubmitted ? 'hidden' : 'visible',
+                                }}
                                 value={answer}
                                 onKeyUp={(e) => {
                                     if (e.key === "Enter") {
@@ -186,13 +315,26 @@ const ReviewFlashcard = () => {
                                 }}
                                 autoComplete='off'
                             />
+                            <div style={{
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                gap: "20px",
+                                visibility: isWrongAnswerSubmitted ? 'visible' : 'hidden',
+                                position: 'fixed',
+                                height: '50px',
+                                bottom: '0',
+                            }}>
+                                <span>Nhấn phím Enter để tiếp tục</span>
+                            </div>
                         </div>
+
                     )
                 }
                 {
                     progressPercent === 100 ? <ShowResult /> : null
                 }
-            </div>
+            </Paper>
         </div>
     )
 }
