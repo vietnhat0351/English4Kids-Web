@@ -91,7 +91,7 @@ const ModalUpdateVocabulary = ({ open, handleClose, rowData }) => {
 
   const handleFindWord = async () => {
     if (word === "" || word === null) {
-      setCheckWordFind("Từ vựng không được để trống");
+      setCheckWordFind("Word is required!");
       return;
     }
     const response = await customFetch.get(
@@ -100,7 +100,7 @@ const ModalUpdateVocabulary = ({ open, handleClose, rowData }) => {
     console.log("Response", response.data);
     if (response.data) {
       if (!response.data.inDatabase) {
-        setCheckWordFind("Đây là thông tin có sẵn, hãy kiểm tra lại");
+        setCheckWordFind("This information already exists, please double-check.");
         if (response.data.word) {
           setWord(response.data.word);
         }
@@ -128,11 +128,11 @@ const ModalUpdateVocabulary = ({ open, handleClose, rowData }) => {
         setAudio(response.data.audio);
 
         setCheckWordFind(
-          "Từ vựng đã tồn tại! Hãy cập nhật thông tin (nếu cần)"
+          "The vocabulary already exists! Please update the information if needed."
         );
       }
     } else {
-      setCheckWordFind("Đây là thông tin có sẵn, hãy kiểm tra lại");
+      setCheckWordFind("Vocabulary not found, please add a new one.");
     }
   };
 
@@ -193,11 +193,12 @@ const ModalUpdateVocabulary = ({ open, handleClose, rowData }) => {
     console.log("Data to save", dataSave);
     try {
       await customFetch
-        .post(`/api/v1/vocabulary/create-vocabulary`, dataSave)
+        .post(`/api/v1/vocabulary/update-vocabulary`, dataSave)
         .then((response) => {
           console.log("Word saved successfully!", response.data);
         });
-      handleClose();
+      handleClose(true, "Word saved successfully!", "success");
+      
       await customFetch
         .get(`/api/v1/vocabulary/vocabularies`)
         .then((response) => {
@@ -272,14 +273,14 @@ const ModalUpdateVocabulary = ({ open, handleClose, rowData }) => {
       <Box sx={style}>
         <div className="m-add-voca-container">
           <Typography id="modal-modal-title" variant="h4" component="h1">
-            Cập nhật từ vựng
+            Update Vocabulary
           </Typography>
           <div className="m-add-voca-content">
             <div className="m-add-voca-content-content">
               <TextField
                 fullWidth
                 id="demo-helper-text-misaligned"
-                label="Từ vựng"
+                label="Word"
                 value={word}
                 sx={{ width: "100%" }}
                 disabled
@@ -288,13 +289,12 @@ const ModalUpdateVocabulary = ({ open, handleClose, rowData }) => {
 
             <TextField
               id="demo-helper-text-misaligned"
-              label="Nghĩa"
+              label="Meaning"
               value={meaning}
               sx={{ width: "100%" }}
               onChange={(e) => {
                 setMeaning(e.target.value);
                 setCheckMeaning(false);
-                console.log("Meaning", meaning);
               }}
             />
             {checkMeaning && (
@@ -302,7 +302,7 @@ const ModalUpdateVocabulary = ({ open, handleClose, rowData }) => {
             )}
             <TextField
               id="demo-helper-text-misaligned"
-              label="Phát âm"
+              label="Pronunciation"
               value={pronunciation}
               sx={{ width: "100%" }}
               onChange={(e) => {
@@ -315,7 +315,7 @@ const ModalUpdateVocabulary = ({ open, handleClose, rowData }) => {
             )}
 
             <FormControl fullWidth>
-              <InputLabel id="demo-simple-select-label">Từ loại</InputLabel>
+              <InputLabel id="demo-simple-select-label">Type</InputLabel>
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
@@ -347,7 +347,7 @@ const ModalUpdateVocabulary = ({ open, handleClose, rowData }) => {
                   className="m-add-voca-upload-image"
                   onClick={() => document.getElementById("fileInput").click()}
                 >
-                  {loadingImage ? "Đang tải..." : "Tải hình ảnh lên"}
+                  {loadingImage ? "Uploading..." : "Upload image"}
                 </button>
 
                 <input
@@ -369,7 +369,7 @@ const ModalUpdateVocabulary = ({ open, handleClose, rowData }) => {
                   className="m-add-voca-upload-image"
                   onClick={() => document.getElementById("audioInput").click()}
                 >
-                  {loadingAudio ? "Đang tải..." : "Tải âm thanh lên"}
+                  {loadingAudio ? "Uploading" : "Upload audio"}
                 </button>
 
                 <input
@@ -390,7 +390,7 @@ const ModalUpdateVocabulary = ({ open, handleClose, rowData }) => {
                         fontStyle: "italic",
                       }}
                     >
-                      *Click để nghe âm thanh
+                      *Click to play audio
                     </p>
                   </>
                 )}
@@ -401,13 +401,13 @@ const ModalUpdateVocabulary = ({ open, handleClose, rowData }) => {
                 className="m-add-voca-content-footer-add"
                 onClick={handleSaveWord}
               >
-                Cập nhật
+                Update
               </button>
               <button
                 className="m-add-voca-content-footer-cancel"
                 onClick={handleClose}
               >
-                Hủy
+                Cancel
               </button>
             </div>
           </div>

@@ -50,7 +50,7 @@ const AdminLayout = () => {
             to="/admin/lesson"
           >
             <img src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/book.png" width={30} height={30} alt="lesson" />
-            Bài học
+            Lesson
           </NavLink>
 
           <NavLink
@@ -58,7 +58,7 @@ const AdminLayout = () => {
             to="/admin/vocabulary"
           >
             <img src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/book+(1).png" width={30} height={30} alt="vocabulary" />
-            Từ vựng
+            Vocabulary
           </NavLink>
           
           <NavLink
@@ -66,7 +66,7 @@ const AdminLayout = () => {
             to="/admin/user"
           >
             <img src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/management.png" width={30} height={30} alt="user" />
-            Người dùng
+            User 
           </NavLink>
         </div>
 

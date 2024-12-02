@@ -68,7 +68,9 @@ const FlashCardVocabulary = ({ data }) => {
               <AudioPlayer audioSrc={data.audio} />
             </span>
           </div>
-          <div style={{ fontStyle: "italic", color: "#555", fontSize:"1.5rem" }}>
+          <div
+            style={{ fontStyle: "italic", color: "#555", fontSize: "1.5rem" }}
+          >
             {data.pronunciation}
           </div>
           <div
@@ -108,11 +110,14 @@ const FlashCardVocabulary = ({ data }) => {
             position: "absolute",
           }}
         >
-          <img
-            src={data.image}
-            alt="Meaning"
-            style={{ width: "300px", height: "auto", objectFit: "cover" }}
-          />
+          {data.image && (
+            <img
+              src={data.image}
+              alt="Meaning"
+              style={{ width: "300px", height: "auto", objectFit: "cover" }}
+            />
+          )}
+
           <div
             style={{
               fontSize: "2rem",

@@ -98,7 +98,7 @@ const ModalAddVocabulary = ({ open, handleClose }) => {
 
   const handleFindWord = async () => {
     if (word === "" || word === null) {
-      setCheckWordFind("Từ vựng không được để trống");
+      setCheckWordFind("Word is required!");
       return;
     }
     // Call the API to find the word with word is lowercase
@@ -109,7 +109,7 @@ const ModalAddVocabulary = ({ open, handleClose }) => {
     if (response.data) {
       setWordFind(response.data);
       if (!response.data.inDatabase && response.data.word) {
-        setCheckWordFind("Đây là thông tin có sẵn, hãy kiểm tra lại");
+        setCheckWordFind("This information already exists, please double-check.");
         if (response.data.word) {
           setWord(response.data.word);
         }
@@ -135,26 +135,23 @@ const ModalAddVocabulary = ({ open, handleClose }) => {
         setImage(response.data.image);
         setAudio(response.data.audio);
         setCheckWordFind(
-          "Từ vựng đã tồn tại! Hãy cập nhật thông tin (nếu cần)"
+          "The vocabulary already exists! Please update the information if needed."
         );
       } else {
-        setCheckWordFind("Không tìm thấy từ vựng, hãy thêm từ vựng mới");
+        setCheckWordFind("Vocabulary not found, please add a new one.");
         setMeaning("");
         setPronunciation("");
         setType("");
         setImage("");
         setAudio("");
-        
-
       }
     } else {
-      setCheckWordFind("Không tìm thấy từ vựng, hãy thêm từ vựng mới");
+      setCheckWordFind("Vocabulary not found, please add a new one.");
       setMeaning("");
       setPronunciation("");
       setType("");
       setImage("");
       setAudio("");
-
     }
     console.log("Word find", wordFind);
   };
@@ -196,7 +193,6 @@ const ModalAddVocabulary = ({ open, handleClose }) => {
       meaning === "" ||
       pronunciation === "" ||
       type === "" ||
-      image === "" ||
       image === null ||
       audio === "" ||
       audio === null
@@ -226,12 +222,13 @@ const ModalAddVocabulary = ({ open, handleClose }) => {
         .then((response) => {
           console.log("Word saved successfully!", response.data);
         });
-      handleClose();
+
       await customFetch
         .get(`/api/v1/vocabulary/vocabularies`)
         .then((response) => {
           dispatch(setVocabularies(response.data));
         });
+      handleClose(true, "Word saved successfully!", "success");
     } catch (error) {
       console.error("Error when saving word", error);
     }
@@ -301,14 +298,14 @@ const ModalAddVocabulary = ({ open, handleClose }) => {
       <Box sx={style}>
         <div className="m-add-voca-container">
           <Typography id="modal-modal-title" variant="h4" component="h1">
-            Thêm từ vựng mới
+            Add Vocabulary
           </Typography>
           <div className="m-add-voca-content">
             <div className="m-add-voca-content-content">
               <TextField
                 fullWidth
                 id="demo-helper-text-misaligned"
-                label="Từ vựng"
+                label="Word"
                 value={word}
                 sx={{ width: "100%" }}
                 onChange={(e) => {
@@ -320,7 +317,7 @@ const ModalAddVocabulary = ({ open, handleClose }) => {
                 className="m-add-voca-button"
                 onClick={() => handleFindWord()}
               >
-                Kiểm tra
+                Find
               </button>
             </div>
             {checkWordFind !== "" && (
@@ -337,7 +334,7 @@ const ModalAddVocabulary = ({ open, handleClose }) => {
 
             <TextField
               id="demo-helper-text-misaligned"
-              label="Nghĩa"
+              label="Meaning"
               value={meaning}
               sx={{ width: "100%" }}
               onChange={(e) => {
@@ -351,7 +348,7 @@ const ModalAddVocabulary = ({ open, handleClose }) => {
             )}
             <TextField
               id="demo-helper-text-misaligned"
-              label="Phát âm"
+              label="Pronunciation"
               value={pronunciation}
               sx={{ width: "100%" }}
               onChange={(e) => {
@@ -364,12 +361,12 @@ const ModalAddVocabulary = ({ open, handleClose }) => {
             )}
 
             <FormControl fullWidth>
-              <InputLabel id="demo-simple-select-label">Từ loại</InputLabel>
+              <InputLabel id="demo-simple-select-label">Type</InputLabel>
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
                 value={type}
-                label="Age"
+                label="Type"
                 onChange={(e) => {
                   setType(e.target.value);
                   setCheckType(false);
@@ -396,7 +393,7 @@ const ModalAddVocabulary = ({ open, handleClose }) => {
                   className="m-add-voca-upload-image"
                   onClick={() => document.getElementById("fileInput").click()}
                 >
-                  {loadingImage ? "Đang tải..." : "Tải hình ảnh lên"}
+                  {loadingImage ? "Uploading..." : "Upload image"}
                 </button>
 
                 <input
@@ -418,7 +415,7 @@ const ModalAddVocabulary = ({ open, handleClose }) => {
                   className="m-add-voca-upload-image"
                   onClick={() => document.getElementById("audioInput").click()}
                 >
-                  {loadingAudio ? "Đang tải..." : "Tải âm thanh lên"}
+                  {loadingAudio ? "Uploading..." : "Upload audio"}
                 </button>
 
                 <input
@@ -439,7 +436,7 @@ const ModalAddVocabulary = ({ open, handleClose }) => {
                         fontStyle: "italic",
                       }}
                     >
-                      *Click để nghe âm thanh
+                      *Click on the audio player to play the audio.
                     </p>
                   </>
                 )}
@@ -450,13 +447,13 @@ const ModalAddVocabulary = ({ open, handleClose }) => {
                 className="m-add-voca-content-footer-add"
                 onClick={handleSaveWord}
               >
-                Lưu từ vựng
+                Save
               </button>
               <button
                 className="m-add-voca-content-footer-cancel"
                 onClick={handleClose}
               >
-                Hủy
+                Cancel
               </button>
             </div>
           </div>

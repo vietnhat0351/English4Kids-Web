@@ -2,7 +2,13 @@ import React, { useEffect, useState } from "react";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
-import { Button, IconButton, InputAdornment, OutlinedInput, TextField } from "@mui/material";
+import {
+  Button,
+  IconButton,
+  InputAdornment,
+  OutlinedInput,
+  TextField,
+} from "@mui/material";
 import customFetch from "../../../utils/customFetch";
 import { useDispatch, useSelector } from "react-redux";
 import { setUserProfile } from "../../../redux/slices/userSlice";
@@ -32,10 +38,8 @@ function Profile() {
     enqueueSnackbar(message, { variant });
   };
 
-  const [countCompleted, setCountCompleted] = useState(
-    lessons.filter((lesson) => lesson.completed).length || 0
-  );
-
+  const countCompleted =
+    lessons.filter((lesson) => lesson.completed).length || 0;
   const [numOfVocab, setNumOfVocab] = useState(0);
   const [openModal, setOpenModal] = useState(false);
   const [selectedDate, handleDateChange] = useState(new Date());
@@ -53,7 +57,7 @@ function Profile() {
         "/api/v1/lessons/get-all-for-user"
       );
       if (response.status === 200) {
-        dispatch(setLessons(response.data));
+        dispatch(setLessons(response.data.sort((a, b) => a.id - b.id)));
       }
     } catch (error) {
       console.log(error);
@@ -65,19 +69,20 @@ function Profile() {
       setNumOfVocab(response.data);
     };
     res();
-    user && customFetch.get(`/api/v1/study-schedule/find-by-userId?userId=${user?.id}`)
-      .then((response) => {
-        console.log(response.data);
-        if (response.data) {
-          handleDateChange(new Date(response.data));
-        }
-      })
+    user &&
+      customFetch
+        .get(`/api/v1/study-schedule/find-by-userId?userId=${user?.id}`)
+        .then((response) => {
+          console.log(response.data);
+          if (response.data) {
+            handleDateChange(new Date(response.data));
+          }
+        });
   }, [user]);
 
   useEffect(() => {
     if (!lessons.length) {
       fetchData();
-      setCountCompleted(lessons.filter((lesson) => lesson.completed).length);
     }
     if (user === null) {
       axios
@@ -87,7 +92,6 @@ function Profile() {
           },
         })
         .then((response) => {
-          console.log(response.data);
           const today = new Date();
           const todayISO = today.toISOString().split("T")[0];
 
@@ -95,37 +99,26 @@ function Profile() {
           yesterday.setDate(today.getDate() - 1);
           const yesterdayISO = yesterday.toISOString().split("T")[0];
 
-          // Tìm ngày bắt đầu của tuần hiện tại (tuần bắt đầu từ Thứ Hai)
-          const dayOfWeek = today.getDay();
-          const startOfWeek = new Date(today);
-          startOfWeek.setDate(
-            today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1)
-          ); // Nếu là Chủ Nhật (0), lùi về Thứ Hai tuần trước
+          const lastSunday = new Date(today);
+          lastSunday.setDate(today.getDate() - today.getDay()); // Lấy ngày Chủ Nhật tuần trước
 
-          // Tìm ngày kết thúc của tuần hiện tại
-          const endOfWeek = new Date(startOfWeek);
-          endOfWeek.setDate(startOfWeek.getDate() + 6); // Ngày cuối tuần (Chủ Nhật)
+          const { lastLearningDate, weeklyPoints, streak } = response.data;
 
-          // Chuyển đổi lastLearningDate sang định dạng ngày
-          const lastLearningDate = response.data.lastLearningDate.split("T")[0];
-          console.log(lastLearningDate !== yesterdayISO);
+          // Chuyển đổi lastLearningDate sang kiểu Date
+          const lastLearningDateObj = new Date(lastLearningDate);
 
-          if (lastLearningDate !== todayISO) {
+          if (lastLearningDateObj.toISOString().split("T")[0] !== todayISO) {
             response.data.dailyPoints = 0;
           }
 
-          if (
-            !lastLearningDate >= startOfWeek &&
-            !lastLearningDate <= endOfWeek
-          ) {
+          // Kiểm tra nếu lastLearningDate là trước tuần hiện tại
+          if (lastLearningDateObj < lastSunday) {
             response.data.weeklyPoints = 0;
           }
-          if (lastLearningDate !== yesterdayISO) {
-            console.log("streak");
+
+          // Kiểm tra nếu lastLearningDate là trước ngày hôm qua
+          if (lastLearningDateObj < new Date(yesterdayISO)) {
             response.data.streak = 0;
-          }
-          if (lastLearningDate === todayISO && response.data.dailyPoints > 0) {
-            response.data.streak = 1;
           }
 
           dispatch(setUserProfile(response.data));
@@ -134,7 +127,7 @@ function Profile() {
           console.error(error);
         });
     }
-  }, [user, dispatch]);
+  }, [user, dispatch, lessons]);
 
   const formatDate = (dateString) => {
     const [year, month, day] = dateString.split("-");
@@ -144,7 +137,7 @@ function Profile() {
   const handleSubmit = () => {
     // kiểm tra dữ liệu trước khi gửi lên server
     if (!selectedDate) {
-      alert("Vui lòng chọn thời gian học hàng ngày");
+      alert("Please select a date to update schedule!");
       return;
     }
     // gửi dữ liệu lên server
@@ -153,11 +146,11 @@ function Profile() {
         startTime: selectedDate,
       })
       .then((data) => {
-        handleClickVariant('success', 'Cập nhật lịch học thành công');
+        handleClickVariant("success", "Updated schedule successfully!");
       })
       .catch((error) => {
         console.error(error);
-        handleClickVariant('error', 'Cập nhật lịch học thất bại');
+        handleClickVariant("error", "Schedule update failed");
       });
   };
 
@@ -178,7 +171,8 @@ function Profile() {
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
   const validatePassword = (password) => {
-    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const regex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     return regex.test(password);
   };
 
@@ -187,24 +181,27 @@ function Profile() {
     const newPassword = document.getElementById("outlined-new-password").value;
     console.log(oldPassword, newPassword);
     if (!oldPassword || !newPassword) {
-      handleClickVariant('error', 'Vui lòng nhập đầy đủ thông tin');
+      handleClickVariant("error", "Please fill in all fields");
       return;
     }
     if (!validatePassword(newPassword)) {
-      handleClickVariant('error', 'Mật khẩu mới phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt');
+      handleClickVariant(
+        "error",
+        "Password must contain at least 8 characters, including uppercase, lowercase, number and special character"
+      );
       return;
     }
     customFetch
       .post("/api/v1/user/change-password", {
         oldPassword,
-        newPassword
+        newPassword,
       })
       .then((data) => {
-        handleClickVariant('success', 'Đổi mật khẩu thành công');
+        handleClickVariant("success", "Password changed successfully!");
       })
       .catch((error) => {
         console.error(error);
-        handleClickVariant('error', 'Đã xảy ra lỗi, vui lòng thử lại');
+        handleClickVariant("error", "Password change failed");
       });
   };
 
@@ -223,18 +220,24 @@ function Profile() {
         >
           <div className="profile-avatar">
             <div className="profile-avatar-image">
-              <img
-                src={user.avatar}
-                alt="avatar"
-                style={{ width: "150px", height: "150px", borderRadius: "50%" }}
-              />
+              {user.avatar && (
+                <img
+                  src={user.avatar}
+                  alt="avatar"
+                  style={{
+                    width: "150px",
+                    height: "150px",
+                    borderRadius: "50%",
+                  }}
+                />
+              )}
             </div>
             <div className="profile-avatar-info">
               <div className="profile-avatar-info-name">
                 {user.firstName + " " + user.lastName}
               </div>
               <p>{user.email}</p>
-              <p>{"Ngày học cuối : " + formatDate(user.lastLearningDate)}</p>
+              <p>{"Last learning date : " + formatDate(user.lastLearningDate)}</p>
             </div>
             <div className="profile-avatar-edit">
               <button
@@ -245,9 +248,9 @@ function Profile() {
               </button>
             </div>
             <div className="profile-avatar-progress">
-              <LocalizationProvider dateAdapter={AdapterDayjs} >
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <MobileTimePicker
-                  label={"Lịch Học Hàng Ngày"}
+                  label={"Schedule"}
                   openTo="minutes"
                   onAccept={(date) => {
                     console.log(date.toJSON());
@@ -262,7 +265,7 @@ function Profile() {
                 color="primary"
                 onClick={handleSubmit}
               >
-                Lưu
+                Update
               </Button>
             </div>
           </div>
@@ -282,7 +285,7 @@ function Profile() {
                 fontWeight: "bold",
               }}
             >
-              Thống kê
+              Statistics
             </div>
             <div className="profile-info-container">
               <div className="profile-info">
@@ -302,7 +305,7 @@ function Profile() {
                     >
                       {user.streak + " "}
                     </div>{" "}
-                    Ngày liên tục{" "}
+                    Day streak{" "}
                   </div>
                 </div>
               </div>
@@ -323,7 +326,7 @@ function Profile() {
                     >
                       {countCompleted + " "}
                     </div>{" "}
-                    Bài học hoàn thành{" "}
+                    Lesson completed{" "}
                   </div>
                 </div>
               </div>
@@ -346,7 +349,7 @@ function Profile() {
                     >
                       {user.totalPoints + " "}
                     </div>{" "}
-                    Tổng điểm{" "}
+                    Total XP{" "}
                   </div>
                 </div>
               </div>
@@ -367,32 +370,40 @@ function Profile() {
                     >
                       {numOfVocab + " "}
                     </div>{" "}
-                    Từ vựng đã học{" "}
+                    Vocabulary learned{" "}
                   </div>
                 </div>
               </div>
             </div>
-            <div style={{
-              display: "flex",
-              // justifyContent: "center",
-              // alignItems: "center",
-              gap: "20px",
-              flexDirection: "column"
-            }}>
-              <span style={{
-                fontSize: "25px",
-                fontWeight: "bold",
-              }}>Mật khẩu cũ</span>
+            <div
+              style={{
+                display: "flex",
+                // justifyContent: "center",
+                // alignItems: "center",
+                gap: "20px",
+                flexDirection: "column",
+              }}
+            >
+              <span
+                style={{
+                  fontSize: "25px",
+                  fontWeight: "bold",
+                }}
+              >
+                Old password
+              </span>
               <OutlinedInput
                 id="outlined-old-password"
-                type={showOldPassword ? 'text' : 'password'}
+                type={showOldPassword ? "text" : "password"}
                 // disabled={loginType && loginType === 'google'}
                 sx={{ width: "80%", alignSelf: "center" }}
                 endAdornment={
                   <InputAdornment position="end">
                     <IconButton
                       aria-label={
-                        showOldPassword ? 'hide the password' : 'display the password'
+                        showOldPassword
+                          ? "hide the password"
+                          : "display the password"
                       }
                       onClick={handleClickShowOldPassword}
                       onMouseDown={handleMouseDownPassword}
@@ -404,20 +415,26 @@ function Profile() {
                   </InputAdornment>
                 }
               />
-              <span style={{
-                fontSize: "25px",
-                fontWeight: "bold",
-              }}>Mật khẩu mới</span>
+              <span
+                style={{
+                  fontSize: "25px",
+                  fontWeight: "bold",
+                }}
+              >
+                New password
+              </span>
               <OutlinedInput
                 id="outlined-new-password"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 // disabled={loginType && loginType === 'google'}
                 sx={{ width: "80%", alignSelf: "center" }}
                 endAdornment={
                   <InputAdornment position="end">
                     <IconButton
                       aria-label={
-                        showPassword ? 'hide the password' : 'display the password'
+                        showPassword
+                          ? "hide the password"
+                          : "display the password"
                       }
                       onClick={handleClickShowPassword}
                       onMouseDown={handleMouseDownPassword}
@@ -434,7 +451,9 @@ function Profile() {
                 color="primary"
                 style={{ alignSelf: "center", marginTop: "30px" }}
                 onClick={handleChangePassword}
-              >lưu thay đổi</Button>
+              >
+                Save
+              </Button>
             </div>
           </div>
           <ModalUpdateUser open={openModal} handleClose={handleCloseModal} />

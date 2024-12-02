@@ -22,6 +22,8 @@ import customFetch from "../../../../../utils/customFetch";
 import AudioPlayer from "../../../../../utils/AudioPlayer";
 import { setVocabularies } from "../../../../../redux/slices/vocabularySlice";
 import { current } from "@reduxjs/toolkit";
+import { setLessonSelected } from "../../../../../redux/slices/clessonSlice";
+import { useLocation } from "react-router-dom";
 
 const style = {
   position: "absolute",
@@ -39,6 +41,7 @@ const style = {
 const ModalAddQuestion = ({ open, handleClose }) => {
   const vovabularies = useSelector((state) => state.vovabularies);
   const dispatch = useDispatch();
+  const location = useLocation();
 
   const [word, setWord] = useState("");
   const [checkWord, setCheckWord] = useState(false);
@@ -106,7 +109,7 @@ const ModalAddQuestion = ({ open, handleClose }) => {
 
   const handleFindWord = async () => {
     if (word === "" || word === null) {
-      setCheckWordFind("Từ vựng không được để trống");
+      setCheckWordFind("Word is required!");
       return;
     }
     // Call the API to find the word with word is lowercase
@@ -117,7 +120,7 @@ const ModalAddQuestion = ({ open, handleClose }) => {
     if (response.data) {
       setWordFind(response.data);
       if (!response.data.inDatabase && response.data.word) {
-        setCheckWordFind("Đây là thông tin có sẵn, hãy kiểm tra lại");
+        setCheckWordFind("This information already exists, please double-check.");
         if (response.data.word) {
           setWord(response.data.word);
         }
@@ -143,10 +146,10 @@ const ModalAddQuestion = ({ open, handleClose }) => {
         setImage(response.data.image);
         setAudio(response.data.audio);
         setCheckWordFind(
-          "Từ vựng đã tồn tại! Hãy cập nhật thông tin (nếu cần)"
+          "The vocabulary already exists! Please update the information if needed."
         );
       } else {
-        setCheckWordFind("Không tìm thấy từ vựng, hãy thêm từ vựng mới");
+        setCheckWordFind("Vocabulary not found, please add a new one.");
         setMeaning("");
         setPronunciation("");
         setType("");
@@ -154,23 +157,25 @@ const ModalAddQuestion = ({ open, handleClose }) => {
         setAudio("");
       }
     } else {
-      setCheckWordFind("Không tìm thấy từ vựng, hãy thêm từ vựng mới");
+      setCheckWordFind("Vocabulary not found, please add a new one.");
       setMeaning("");
       setPronunciation("");
       setType("");
       setImage("");
       setAudio("");
     }
-    console.log("Word find", wordFind);
   };
 
   const handleSaveWord = async () => {
+    
     try {
       const res = await customFetch.get(
         `/api/v1/vocabulary/find-word-fast/${word.toLowerCase()}`
       );
+      setWordFind(res.data);
       if (res.data.inDatabase) {
-        return;
+        setWordFind(res.data);
+        // return;
       }
     } catch (error) {
       console.error("Error when finding word", error);
@@ -212,13 +217,14 @@ const ModalAddQuestion = ({ open, handleClose }) => {
       meaning === "" ||
       pronunciation === "" ||
       type === "" ||
-      image === null ||
       audio === "" ||
       audio === null
     ) {
-      handleClickSnack("Cần điền đầy đủ thông tin từ vựng!.", "error");
+     
+      handleClickSnack("Please complete all required information.", "error");
       return;
     }
+    
     let dataSave = {
       word: word,
       meaning: meaning,
@@ -240,13 +246,15 @@ const ModalAddQuestion = ({ open, handleClose }) => {
         .post(`/api/v1/vocabulary/create-vocabulary`, dataSave)
         .then((response) => {
           console.log("Word saved successfully!", response.data);
+          setWordFind(response.data)
         });
+        
       await customFetch
         .get(`/api/v1/vocabulary/vocabularies`)
         .then((response) => {
           dispatch(setVocabularies(response.data));
         });
-      handleClickSnack("Thành công", "success");
+      handleClickSnack("Word saved successfully!", "success");
     } catch (error) {
       console.error("Error when saving word", error);
     }
@@ -582,22 +590,50 @@ const ModalAddQuestion = ({ open, handleClose }) => {
   ///================================================================================================
 
   const handleSaveQuestion = async () => {
+    if(!wordFind.id){
+      handleClickSnackQuestion("Please add vocabulary first");
+      return;
+    }
     if (!questionContent || !questionType || !wordFind) {
-      handleClickSnackQuestion("Cần điền đầy đủ thông tin câu hỏi");
+      handleClickSnackQuestion("All question details must be filled out.");
       return;
     } else {
       //================================================================================================
-      if (questionType === "WORD_MEANING" || questionType === "MEANING_WORD") {
+      if (questionType === "WORD_MEANING") {
+        if (!questionAudio) {
+          handleClickSnackQuestion("Question audio is missing.");
+          return;
+        }
         if (!answerContent) {
-          handleClickSnackQuestion("Thiếu thông tin câu trả lời");
+          handleClickSnackQuestion("Answer information is missing.");
           return;
         } else {
           if (!wrongAnswer1 && !wrongAnswer2 && !wrongAnswer3) {
-            handleClickSnackQuestion("Thiếu thông tin câu trả lời sai");
+            handleClickSnackQuestion("Incorrect answer information is missing.");
             return;
           }
         }
       }
+      if (questionType === "MEANING_WORD") {
+        if (!answerAudio) {
+          handleClickSnackQuestion("Answer audio is missing");
+          return;
+        }
+        if (!answerContent) {
+          handleClickSnackQuestion("Answer information is missing.");
+          return;
+        } else {
+          if (!wrongAnswer1 && !wrongAnswer2 && !wrongAnswer3) {
+            handleClickSnackQuestion("Incorrect answer information is missing.");
+            return;
+          }
+          if (!wrongAnswer1Audio && !wrongAnswer2Audio && !wrongAnswer3Audio) {
+            handleClickSnackQuestion("Incorrect answer information is missing.");
+            return;
+          }
+        }
+      }
+
       //================================================================================================
       if (questionType === "WORD_SPELLING") {
         if (!answerAudio) {
@@ -605,7 +641,7 @@ const ModalAddQuestion = ({ open, handleClose }) => {
           return;
         } else {
           if (!wrongAnswer1Audio && !wrongAnswer2Audio && !wrongAnswer3Audio) {
-            handleClickSnackQuestion("Thiếu audio câu trả lời sai");
+            handleClickSnackQuestion("Incorrect answer information is missing.");
             return;
           }
         }
@@ -613,15 +649,15 @@ const ModalAddQuestion = ({ open, handleClose }) => {
       //================================================================================================
       if (questionType === "SPELLING_WORD") {
         if (!questionAudio) {
-          handleClickSnackQuestion("Thiếu audio câu hỏi");
+          handleClickSnackQuestion("Question audio is missing.");
           return;
         } else {
           if (!answerContent) {
-            handleClickSnackQuestion("Thiếu thông tin câu trả lời");
+            handleClickSnackQuestion("Answer information is missing.");
             return;
           }
           if (!wrongAnswer1 && !wrongAnswer2 && !wrongAnswer3) {
-            handleClickSnackQuestion("Thiếu thông tin câu trả lời sai");
+            handleClickSnackQuestion("Incorrect answer information is missing.");
             return;
           }
         }
@@ -629,11 +665,11 @@ const ModalAddQuestion = ({ open, handleClose }) => {
       //================================================================================================
       if (questionType === "FILL_IN_FLANK") {
         if (!answerContent) {
-          handleClickSnackQuestion("Thiếu thông tin câu trả lời");
+          handleClickSnackQuestion("Answer information is missing.");
           return;
         } else {
           if (!wrongAnswer1 && !wrongAnswer2 && !wrongAnswer3) {
-            handleClickSnackQuestion("Câu hỏi không cần câu trả lời sai");
+            handleClickSnackQuestion("Answer information is missing.");
             return;
           }
         }
@@ -642,8 +678,8 @@ const ModalAddQuestion = ({ open, handleClose }) => {
       if (questionType === "WORD_ORDER") {
         //Nêu câu hỏi có ít hơn 2 từ thì lỗi
         if (questionContent.split(" ").length < 2) {
-          handleClickSnackQuestion("Câu hỏi phải có ít nhất 2 từ");
-          return
+          handleClickSnackQuestion("The question must contain at least two words.");
+          return;
         }
       }
       //================================================================================================
@@ -702,6 +738,19 @@ const ModalAddQuestion = ({ open, handleClose }) => {
           "/api/v1/questions/create",
           dataSave
         );
+        const fetchData = async () => {
+          const lastUrl = location.pathname.split("/").pop();
+          try {
+           
+            const response = await customFetch.get(
+              `/api/v1/lessons/${lastUrl}`
+            );
+            dispatch(setLessonSelected(response.data));
+          } catch (error) {
+            console.error(error);
+          }
+        };
+        fetchData();
         console.log("Question saved successfully!", response.data);
 
         handleClose();
@@ -723,14 +772,14 @@ const ModalAddQuestion = ({ open, handleClose }) => {
         <div className="m-add-question-container">
           <div className="m-word-container">
             <Typography id="modal-modal-title" variant="h4" component="h1">
-              Chọn từ vựng
+              Vocabulary
             </Typography>
             <div className="m-add-voca-content">
               <div className="m-add-voca-content-content">
                 <TextField
                   fullWidth
                   id="demo-helper-text-misaligned"
-                  label="Từ vựng"
+                  label="Word"
                   value={word}
                   sx={{ width: "100%" }}
                   onChange={(e) => {
@@ -742,7 +791,7 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                   className="m-add-voca-button"
                   onClick={() => handleFindWord()}
                 >
-                  Kiểm tra
+                  Find
                 </button>
               </div>
               {checkWordFind !== "" && (
@@ -759,7 +808,7 @@ const ModalAddQuestion = ({ open, handleClose }) => {
 
               <TextField
                 id="demo-helper-text-misaligned"
-                label="Nghĩa"
+                label="Meaning"
                 value={meaning}
                 sx={{ width: "100%" }}
                 onChange={(e) => {
@@ -773,7 +822,7 @@ const ModalAddQuestion = ({ open, handleClose }) => {
               )}
               <TextField
                 id="demo-helper-text-misaligned"
-                label="Phát âm"
+                label="Pronunciation"
                 value={pronunciation}
                 sx={{ width: "100%" }}
                 onChange={(e) => {
@@ -786,7 +835,7 @@ const ModalAddQuestion = ({ open, handleClose }) => {
               )}
 
               <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label">Từ loại</InputLabel>
+                <InputLabel id="demo-simple-select-label">Type</InputLabel>
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
@@ -805,6 +854,7 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                   <MenuItem value={"PREPOSITION"}>PREPOSITION</MenuItem>
                   <MenuItem value={"CONJUNCTION"}>CONJUNCTION</MenuItem>
                   <MenuItem value={"INTERJECTION"}>INTERJECTION</MenuItem>
+                  <MenuItem value={"EXCLAMATION"}>EXCLAMATION</MenuItem>
                   <MenuItem value={"" || null}>UNKNOWN</MenuItem>
                 </Select>
               </FormControl>
@@ -817,7 +867,7 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                     className="m-add-voca-upload-image"
                     onClick={() => document.getElementById("fileInput").click()}
                   >
-                    {loadingImage ? "Đang tải..." : "Chọn file ảnh"}
+                    {loadingImage ? "Upload..." : "Upload Image"}
                   </button>
 
                   <input
@@ -841,7 +891,7 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                       document.getElementById("audioInput").click()
                     }
                   >
-                    {loadingAudio ? "Đang tải..." : "Chọn âm thanh"}
+                    {loadingAudio ? "Upload..." : "Upload Audio"}
                   </button>
 
                   <input
@@ -862,7 +912,7 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                           fontStyle: "italic",
                         }}
                       >
-                        *Click để nghe âm thanh
+                        *Click on the audio player to play the audio.
                       </p>
                     </>
                   )}
@@ -874,7 +924,7 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                     className="m-add-voca-content-footer-add"
                     onClick={handleSaveWord}
                   >
-                    {wordFind.inDatabase ? "Cập nhật từ vựng" : "Thêm từ vựng"}
+                    {wordFind.inDatabase ? "Update" : "Save"}
                   </button>
                 )}
               </div>
@@ -896,7 +946,7 @@ const ModalAddQuestion = ({ open, handleClose }) => {
           </div>
           <div className="m-question-container">
             <Typography id="modal-modal-title" variant="h4" component="h1">
-              Thêm câu hỏi
+              Create Question
             </Typography>
             <div
               style={{
@@ -906,7 +956,7 @@ const ModalAddQuestion = ({ open, handleClose }) => {
             >
               <TextField
                 id="demo-helper-text-misaligned"
-                label="Nội dung câu hỏi"
+                label="Question content"
                 value={questionContent}
                 sx={{ width: "100%" }}
                 onChange={(e) => {
@@ -915,29 +965,29 @@ const ModalAddQuestion = ({ open, handleClose }) => {
               />
               <FormControl style={{ minWidth: 200 }}>
                 <InputLabel id="demo-simple-select-label">
-                  Loại câu hỏi
+                  Question type
                 </InputLabel>
                 <Select
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
                   value={questionType}
-                  label="Loại câu hỏi"
+                  label="Question type"
                   onChange={(e) => {
                     setQuestionType(e.target.value);
                   }}
                 >
-                  <MenuItem value={"WORD_MEANING"}>Từ vừng - Ý nghĩa</MenuItem>
-                  <MenuItem value={"MEANING_WORD"}>Ý nghĩa - Từ vựng</MenuItem>
+                  <MenuItem value={"WORD_MEANING"}>Word - Meaning</MenuItem>
+                  <MenuItem value={"MEANING_WORD"}>Meaning - Word</MenuItem>
                   <MenuItem value={"WORD_SPELLING"}>
-                    Từ vựng - Âm thanh
+                    Word - Audio
                   </MenuItem>
                   <MenuItem value={"SPELLING_WORD"}>
-                    Âm thanh - Từ vựng
+                    Audio - Word
                   </MenuItem>
                   <MenuItem value={"FILL_IN_FLANK"}>
-                    Điền vào chổ trống
+                    Fill in the blank
                   </MenuItem>
-                  <MenuItem value={"WORD_ORDER"}>Sắp xếp từ</MenuItem>
+                  <MenuItem value={"WORD_ORDER"}>Word order</MenuItem>
                 </Select>
               </FormControl>
             </div>
@@ -956,7 +1006,7 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                     document.getElementById("questionImageInput").click()
                   }
                 >
-                  {loadingImageQuestion ? "Đang tải..." : "Chọn file ảnh"}
+                  {loadingImageQuestion ? "Upload..." : "Upload Image"}
                 </button>
 
                 <input
@@ -1003,7 +1053,7 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                     document.getElementById("questionAudioInput").click()
                   }
                 >
-                  {loadingAudioQuestion ? "Đang tải..." : "Chọn file âm thanh"}
+                  {loadingAudioQuestion ? "Upload..." : "Upload Audio"}
                 </button>
 
                 <input
@@ -1065,7 +1115,7 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                     variant="h5"
                     component="h2"
                   >
-                    Câu trả lời
+                    Answer
                   </Typography>
                   <div
                     style={{
@@ -1078,7 +1128,7 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                     <div className="m-add-answer-corect">
                       <TextField
                         id="demo-helper-text-misaligned"
-                        label="Nội dung câu trả lời"
+                        label="Answer content"
                         value={answerContent}
                         sx={{ width: "100%" }}
                         onChange={(e) => {
@@ -1110,8 +1160,8 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                             }
                           >
                             {loadingAnswerImage
-                              ? "Đang tải..."
-                              : "Chọn file ảnh"}
+                              ? "Upload..."
+                              : "Upload Image"}
                           </button>
 
                           <input
@@ -1170,8 +1220,8 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                             }
                           >
                             {loadingAnswerAudio
-                              ? "Đang tải..."
-                              : "Chọn âm thanh"}
+                              ? "Upload..."
+                              : "Upload Audio"}
                           </button>
 
                           <input
@@ -1218,7 +1268,7 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                       <div className="m-add-answer-wrong">
                         <TextField
                           id="demo-helper-text-misaligned"
-                          label="Nội dung câu trả lời"
+                          label="Answer content"
                           value={wrongAnswer1}
                           sx={{ width: "100%" }}
                           onChange={(e) => {
@@ -1250,8 +1300,8 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                               }
                             >
                               {loadingWrongAnswer1Image
-                                ? "Đang tải..."
-                                : "Chọn file ảnh"}
+                                ? "Upload..."
+                                : "Upload Image"}
                             </button>
 
                             <input
@@ -1308,8 +1358,8 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                               }
                             >
                               {loadingWrongAnswer1Audio
-                                ? "Đang tải..."
-                                : "Chọn âm thanh"}
+                                ? "Upload..."
+                                : "Upload Audio"}
                             </button>
 
                             <input
@@ -1352,10 +1402,11 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                         <button
                           className="m-add-answer-button-add-answer-close"
                           onClick={() => {
+                            setWrongAnswer1("");
                             setWrongAnswer1Disiable(true);
                           }}
                         >
-                          Xóa câu trả lời
+                          Delete answer
                         </button>
                       </div>
                     ) : (
@@ -1378,7 +1429,7 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                       <div className="m-add-answer-wrong">
                         <TextField
                           id="demo-helper-text-misaligned"
-                          label="Nội dung câu trả lời"
+                          label="Answer content"
                           value={wrongAnswer2}
                           sx={{ width: "100%" }}
                           onChange={(e) => {
@@ -1410,8 +1461,8 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                               }
                             >
                               {loadingWrongAnswer2Image
-                                ? "Đang tải..."
-                                : "Chọn file ảnh"}
+                                ? "Upload..."
+                                : "Upload Image"}
                             </button>
 
                             <input
@@ -1469,8 +1520,8 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                               }
                             >
                               {loadingWrongAnswer2Audio
-                                ? "Đang tải..."
-                                : "Chọn âm thanh"}
+                                ? "Upload..."
+                                : "Upload Audio"}
                             </button>
 
                             <input
@@ -1513,10 +1564,11 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                         <button
                           className="m-add-answer-button-add-answer-close"
                           onClick={() => {
+                            setWrongAnswer2("");
                             setWrongAnswer2Disiable(true);
                           }}
                         >
-                          Xóa câu trả lời
+                          Delete answer
                         </button>
                       </div>
                     ) : (
@@ -1539,7 +1591,7 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                       <div className="m-add-answer-wrong">
                         <TextField
                           id="demo-helper-text-misaligned"
-                          label="Nội dung câu trả lời"
+                          label="Answer content"
                           value={wrongAnswer3}
                           sx={{ width: "100%" }}
                           onChange={(e) => {
@@ -1571,8 +1623,8 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                               }
                             >
                               {loadingWrongAnswer3Image
-                                ? "Đang tải..."
-                                : "Chọn file ảnh"}
+                                ? "Upload..."
+                                : "Upload Image"}
                             </button>
 
                             <input
@@ -1630,8 +1682,8 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                               }
                             >
                               {loadingWrongAnswer3Audio
-                                ? "Đang tải..."
-                                : "Chọn âm thanh"}
+                                ? "Upload..."
+                                : "Upload Audio"}
                             </button>
 
                             <input
@@ -1674,10 +1726,11 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                         <button
                           className="m-add-answer-button-add-answer-close"
                           onClick={() => {
+                            setWrongAnswer3("");
                             setWrongAnswer3Disiable(true);
                           }}
                         >
-                          Xóa câu trả lời
+                          Delete answer
                         </button>
                       </div>
                     ) : (
@@ -1707,7 +1760,7 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                   handleSaveQuestion();
                 }}
               >
-                Thêm câu hỏi
+                Save
               </button>
             </div>
           </div>

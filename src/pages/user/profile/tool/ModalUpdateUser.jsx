@@ -86,7 +86,7 @@ const ModalUpdateUser = ({ open, handleClose }) => {
       <Box sx={style}>
         <div className="modal-update-user-container">
           <div className="modal-update-user-title">
-            <h1>Cập nhật thông tin</h1>
+            <h1>Update Information</h1>
           </div>
 
           <div className="modal-update-user-avatar">
@@ -97,7 +97,7 @@ const ModalUpdateUser = ({ open, handleClose }) => {
               sx={{ width: 200, height: 200 }}
             />
             <div className="modal-update-user-avatar-list">
-              <h3>Ảnh Hồ Sơ</h3>
+              <h3>Avatar</h3>
               <div className="modal-update-user-avatar-list-list">
                 {listAvatar.map((item, index) => (
                   <Avatar
@@ -113,7 +113,7 @@ const ModalUpdateUser = ({ open, handleClose }) => {
           <div className="modal-update-user-content">
             <TextField
               id="outlined-basic"
-              label="Họ"
+              label="First Name"
               variant="outlined"
               fullWidth
               value={firstName}
@@ -121,7 +121,7 @@ const ModalUpdateUser = ({ open, handleClose }) => {
             />
             <TextField
               id="outlined-basic"
-              label="Tên"
+              label="Last Name"
               fullWidth
               variant="outlined"
               value={lastName}
@@ -133,13 +133,13 @@ const ModalUpdateUser = ({ open, handleClose }) => {
               className="modal-update-user-footer-btn-save"
               onClick={handleUpdateUser}
             >
-              Lưu
+              Save
             </button>
             <button
               className="modal-update-user-footer-btn-cancel"
               onClick={handleClose}
             >
-              Hủy
+              Cancel
             </button>
           </div>
         </div>

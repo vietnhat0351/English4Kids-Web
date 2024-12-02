@@ -8,7 +8,7 @@
   margin-bottom: 20px;
   display: flex;
   flex-direction: column;
-  height: 97vh;
+  height: 100vh;
   padding: 20px;
   padding-top: 50px;
   overflow: hidden;
@@ -18,7 +18,7 @@
   display: flex;
   gap: 10px;
   flex-direction: column;
-  height: 20%;
+  height: 25%;
 }
 .lq-question-lesson-title {
   background-color: lightblue;
@@ -27,14 +27,14 @@
   font-size: 22px;
   font-weight: bold;
   border: 1px solid lightblue;
-  width: 30%;
+  width: 25%;
   display: flex;
   max-height: 50px;
   align-items: center;
   justify-content: center;
 }
 .lq-question-title {
-  font-size: 2rem;
+  font-size: 36px;
   font-weight: bold;
 }
 
@@ -56,14 +56,14 @@
   border-radius: 10px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  width: 250px;
-  height: 250px;
+  width: 220px;
+  height: 200px;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
   gap: 10px;
-  font-size: 20px;
+  font-size: 30px;
   font-weight: bold;
 }
 
@@ -85,7 +85,6 @@
 }
 
 .lq-next-button {
-  margin-top: 20px;
   padding: 10px 20px;
   background-color: white;
   border: none;
@@ -93,6 +92,7 @@
   cursor: pointer;
   font-size: 30px;
   font-weight: bold;
+  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
 }
 .lq-answer-button.selected {
   background-color: lightskyblue;
@@ -127,7 +127,7 @@
   flex-direction: column;
   justify-content: space-between;
   gap: 20px;
-  height: 80%;
+  height: 70%;
   align-items: center;
 }
 .lq-next-button-disabled {
@@ -150,7 +150,8 @@
   height: 100px;
 }
 .lq-question-content{
-  font-size: 2rem;
+  font-size: 36px;
+  font-weight: bold;
 }
 .lq-question-content-audio{
   display: flex;
@@ -227,6 +228,21 @@
   font-size: large;
   font-weight: bold;
 }
+.l-bar-finish-body-4 {
+  width: 35%;
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  background-color: #4884f4;
+  border: 1px solid #4884f4;
+  border-radius: 20px;
+  padding: 1px;
+  padding-top: 10px;
+  font-size: large;
+  font-weight: bold;
+}
 .l-bar-finish-body-3 {
   height: 100px;
   width: 100%;
@@ -238,14 +254,14 @@
   background-color: white;
   border: 1px solid white;
   border-radius: 20px;
-  font-size: large;
+  font-size: 30px;
 }
 
 .l-bar-button-close{
   background-color: lightskyblue;
   padding: 10px;
   border: 5px solid #4884f4;
-  font-size: 30px;
+  font-size: 36px;
   font-weight: bold;
   border-radius: 10px;
   cursor: pointer;
@@ -268,6 +284,12 @@
   border-radius: 10px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  font-size: 30px;
+  font-size: 36px;
 }
-
+.lq-answer-container{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}

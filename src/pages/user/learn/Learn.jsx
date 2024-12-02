@@ -22,9 +22,11 @@ const Learn = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const response = await customFetch.get("/api/v1/lessons/get-all-for-user");
+      const response = await customFetch.get(
+        "/api/v1/lessons/get-all-for-user"
+      );
       if (response.status === 200) {
-        dispatch(setLessons(response.data));
+        dispatch(setLessons(response.data.sort((a, b) => a.id - b.id)));
       }
       setHasFetched(true); // Mark that we've attempted to fetch data
     } catch (error) {
@@ -49,25 +51,65 @@ const Learn = () => {
   return (
     <div className="lesson-container">
       <div className="lesson-list">
-        {lessons && lessons.length > 0 ? (
+        {/* {lessons && lessons.length > 0 ? (
           lessons.map((lesson, index) => (
-            <div className={ lesson.completed? "lesson-card-complete" :"lesson-card" } key={index} onClick={
-              () => {
-                navigate("" + lesson.id);
+            <button
+              className={
+                lesson.completed ? "lesson-card-complete" : "lesson-card"
               }
-            }>
+              key={index}
+              onClick={() => {
+                navigate("" + lesson.id);
+              }}
+              disabled={lesson.completed}
+            >
               <img
                 className="lesson-image"
                 src={lesson.image}
                 alt={lesson.title}
-     
               />
               <div className="lesson-content">
                 <h3 className="lesson-title">{lesson.title}</h3>
                 <p className="lesson-description">{lesson.description}</p>
               </div>
-            </div>
+            </button>
           ))
+        ) : (
+          <p>No lessons available</p>
+        )} */}
+        {lessons && lessons.length > 0 ? (
+          lessons.map((lesson, index) => {
+            const isDisabled =
+              !lesson.done &&
+              (index === 0 ? false : !lessons[index - 1].completed);
+
+            return (
+              <button
+                className={
+                  isDisabled
+                    ? "lesson-card-disabled"
+                    : lesson.done
+                    ? "lesson-card-complete"
+                    : "lesson-card"
+                }
+                key={index}
+                onClick={() => {
+                  navigate("" + lesson.id);
+                }}
+                // disabled={isDisabled}
+              >
+                <img
+                  className="lesson-image"
+                  src={lesson.image}
+                  alt={lesson.title}
+                />
+                <div className="lesson-content">
+                  <h3 className="lesson-title">{lesson.title}</h3>
+                  <p className="lesson-description">{lesson.description}</p>
+                </div>
+              </button>
+            );
+          })
         ) : (
           <p>No lessons available</p>
         )}

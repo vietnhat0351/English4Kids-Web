@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import customFetch from "../../../utils/customFetch";
 
 import "./style.css";
@@ -7,6 +7,7 @@ import { Avatar } from "@mui/material";
 
 const Ranking = () => {
   const user = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
   const [ranking, setRanking] = useState([]);
   const [topRanking, setTopRanking] = useState([]);
@@ -47,36 +48,50 @@ const Ranking = () => {
         <div className="r-top">
           <div className="r-top-2">
             <Avatar
-              src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/medal+(1).png"
+              src={topRanking[1].avatar}
               sx={{ width: 70, height: 70 }}
+            ></Avatar>
+            <Avatar
+              src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/medal+(1).png"
+              sx={{ width: 30, height: 30 }}
             ></Avatar>
             <h4>{topRanking[1].firstName + " " + topRanking[1].lastName}</h4>
-            <h5>{topRanking[1].weeklyPoints} điểm</h5>
+            <p>{topRanking[1].weeklyPoints} XP</p>
           </div>
+
           <div className="r-top-1">
             <Avatar
-              src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/medal.png"
-              sx={{ width: 100, height: 100 }}
-            ></Avatar>
-            <h2>{topRanking[0].firstName + " " + topRanking[0].lastName}</h2>
-            <h5>{topRanking[0].weeklyPoints} điểm</h5>
-          </div>
-          <div className="r-top-3">
-            <Avatar
-              src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/medal+(2).png"
+              src={topRanking[0].avatar}
               sx={{ width: 70, height: 70 }}
             ></Avatar>
+            <Avatar
+              src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/medal.png"
+              sx={{ width: 40, height: 40 }}
+            ></Avatar>
+            <h2>{topRanking[0].firstName + " " + topRanking[0].lastName}</h2>
+            <p>{topRanking[0].weeklyPoints} XP</p>
+          </div>
+
+          <div className="r-top-3">
+            <Avatar
+              src={topRanking[2].avatar}
+              sx={{ width: 70, height: 70 }}
+            ></Avatar>
+            <Avatar
+              src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/medal+(2).png"
+              sx={{ width: 30, height: 30 }}
+            ></Avatar>
             <h4>{topRanking[2].firstName + " " + topRanking[2].lastName}</h4>
-            <h5>{topRanking[2].weeklyPoints} điểm</h5>
+            <p>{topRanking[2].weeklyPoints} XP</p>
           </div>
         </div>
       )}
       {ranking.length > 0 && (
         <div className="r-content">
           <div className="r-content-title">
-            <div>Hạng</div>
-            <div>Tên</div>
-            <div>Điểm</div>
+            <div>Rank</div>
+            <div>Name</div>
+            <div>XP Points</div>
           </div>
           {ranking.map((userA, index) => (
             <div
@@ -87,7 +102,12 @@ const Ranking = () => {
                   : "r-content-body"
               }
             >
-              <div>
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                justifyContent: "center",
+              }}>
                 {" "}
                 <Avatar
                   src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/bronze-medal.png"
@@ -95,7 +115,18 @@ const Ranking = () => {
                 />
                 {index + 4}
               </div>
-              <div>{userA.firstName + " " + userA.lastName}</div>
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                justifyContent: "flex-start",
+              }}>
+                <Avatar
+                  src={userA.avatar}
+                  sx={{ width: 70, height: 70 }}
+                ></Avatar>{" "}
+                {userA.firstName + " " + userA.lastName}
+              </div>
               <div>{userA.weeklyPoints}</div>
             </div>
           ))}

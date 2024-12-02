@@ -1,0 +1,9 @@
+.ad-u-container{
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    gap: 10px;
+    background-color: lightskyblue;
+    border-radius: 10px;
+    padding: 10px;
+}

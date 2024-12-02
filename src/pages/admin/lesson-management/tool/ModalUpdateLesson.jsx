@@ -22,13 +22,19 @@ const style = {
   p: 4,
   borderRadius: 2,
 };
-const ModalAddLesson = ({ open, handleClose }) => {
+const ModalUpdateLesson = ({ open, handleClose, data }) => {
   const lessons = useSelector((state) => state.lessons);
   const dispatch = useDispatch();
   const [title, setTitle] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [image, setImage] = React.useState("");
   const [loadingImage, setLoadingImage] = React.useState(false);
+
+  React.useEffect(() => {
+    setTitle(data.title);
+    setDescription(data.description);
+    setImage(data.image);
+  }, [data, open, lessons]);
 
   const handleFileChange = async (selectedFile, type) => {
     let setLoading, setData;
@@ -73,36 +79,35 @@ const ModalAddLesson = ({ open, handleClose }) => {
     handleFileChange(selectedFile, "image");
   };
 
-  const handleSaveLesson = async (handleClose) => {
+  const handleSaveLesson = async () => {
     if (!title || !description || !image) {
       handleClickSnack();
       return;
     } else {
-        try{
-            const response = await customFetch.post("/api/v1/lessons/create", {
-                title,
-                description,
-                image,
-            });
-            if (response.status === 200) {
-                console.log("Lesson created successfully!", response.data);
-                // Reset all input fields
-                setTitle("");
-                setDescription("");
-                setImage("");
-                
+      try {
+        const response = await customFetch.post("/api/v1/lessons/update", {
+          id: data.id,
+          title,
+          description,
+          image,
+        });
+        if (response.status === 200) {
+          console.log("Lesson created successfully!", response.data);
+          // Reset all input fields
+          setTitle("");
+          setDescription("");
+          setImage("");
+          handleClose();
 
-                await customFetch.get("/api/v1/lessons/get-all").then((response) => {
-                    dispatch(setLessons(response.data.sort((a, b) => a.id - b.id)));
-                });
-                handleClose(true, "Create lesson successfully!", "success");
-
-            }
+          await customFetch.get("/api/v1/lessons/get-all").then((response) => {
+            dispatch(setLessons(response.data.sort((a, b) => a.id - b.id)));
+          });
+          const isSuccess = true;
+          handleClose(isSuccess);
         }
-        catch (error) {
-            console.error("There was an error creating the lesson!", error);
-            handleClose(false, " Error! ", "error");
-        }
+      } catch (error) {
+        console.error("There was an error creating the lesson!", error);
+      }
     }
   };
 
@@ -116,6 +121,7 @@ const ModalAddLesson = ({ open, handleClose }) => {
     if (reason === "clickaway") {
       return;
     }
+    //Xóa các trường dữ liệu đã nhập
 
     setOpenSnackbar(false);
   };
@@ -123,13 +129,13 @@ const ModalAddLesson = ({ open, handleClose }) => {
   return (
     <Modal
       open={open}
-      onClose={handleClose}
+      onClose={() => handleClose(false)} // Đóng modal với trạng thái thất bại
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
     >
       <Box sx={style}>
         <Typography id="modal-modal-title" variant="h6" component="h2">
-          Create a new lesson
+          Update Lesson
         </Typography>
         <div
           style={{
@@ -165,7 +171,7 @@ const ModalAddLesson = ({ open, handleClose }) => {
               }}
               onClick={() => document.getElementById("fileInput").click()}
             >
-              {loadingImage ? "Uploading....." : "Upload Image"}
+              {loadingImage ? "Upload..." : "Upload Image"}
             </button>
 
             <input
@@ -202,7 +208,7 @@ const ModalAddLesson = ({ open, handleClose }) => {
                   color: "white",
                 }}
                 onClick={() => {
-                  handleSaveLesson(handleClose);
+                  handleSaveLesson();
                 }}
               >
                 Save
@@ -249,4 +255,4 @@ const ModalAddLesson = ({ open, handleClose }) => {
   );
 };
 
-export default ModalAddLesson;
+export default ModalUpdateLesson;

@@ -20,3 +20,13 @@
   gap: 40px;
   padding: 10px;
 }
+.btn-download-sample{
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.btn-download-sample:hover{
+  color: blue;
+  scale: 1.1;
+}

@@ -1,8 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const userProcessSlice = createSlice({
-  name: "userProcess",
-  initialState: {},
+  name: "listUser",
+  initialState: [],
   reducers: {
     setUserProcess: (state, action) => action.payload,
   },
