@@ -5,10 +5,15 @@ import customFetch from '../utils/customFetch';
 
 function Flashcard({ flashcard }) {
   const [flip, setFlip] = useState(false);
-
   const [audioUrl, setAudioUrl] = useState(null);
 
+  const [flashcardData, setFlashcardData] = useState(flashcard);
+
   useEffect(() => {
+    if (!flashcardData) {
+      return;
+    }
+    console.log(flashcardData);
     const fetchAudio = async () => {
       try {
 
@@ -28,14 +33,12 @@ function Flashcard({ flashcard }) {
         const blob = new Blob([response.data], { type: "audio/mpeg" });
         const url = URL.createObjectURL(blob);
         setAudioUrl(url);  // Lưu URL để phát hoặc tải xuống
-        console.log("Audio URL:", url);
-
       } catch (error) {
         console.error("Error generating audio:", error);
       }
     }
     fetchAudio();
-  }, []);
+  }, [flashcard]);
 
   const playAudio = async (event) => {
     event.stopPropagation();
@@ -56,7 +59,8 @@ function Flashcard({ flashcard }) {
       onClick={() => setFlip(!flip)}
     >
       <div className="front">
-        <h3>{flashcard?.word}</h3>
+        <h3>{flashcardData?.word}</h3>
+        <p>{flashcardData?.phonetic}</p>
         <button onClick={playAudio}
         >🔊 Listen</button>
       </div>
@@ -64,9 +68,9 @@ function Flashcard({ flashcard }) {
         <div style={{
           height: "80%",
         }}>
-          <img src={flashcard?.image} alt={flashcard.word} className="flashcard-image" />
+          <img src={flashcardData?.image} alt={flashcardData.word} className="flashcard-image" />
         </div>
-        <h3>{flashcard?.meaning}</h3>
+        <h3>{flashcardData?.meaning}</h3>
       </div>
     </div>
   );

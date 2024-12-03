@@ -13,7 +13,9 @@ import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/scrollbar';
 import 'swiper/css/keyboard';
-import { Button } from '@mui/material';
+import { Button, Paper } from '@mui/material';
+
+import { FaArrowLeft } from "react-icons/fa";
 
 const LearnFlashcard = () => {
 
@@ -33,22 +35,26 @@ const LearnFlashcard = () => {
     }, [flashcardSetId])
 
     return (
-        <div>
+        <div id='learn-flashcard'>
             <div style={{
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
                 marginBottom: '1rem',
             }}>
+                <FaArrowLeft style={{
+                    fontSize: '1.5rem',
+                    cursor: 'pointer',
+                    justifySelf: 'flex-start',
+                    alignSelf: 'flex-start',
+                }}
+                    onClick={() => {
+                        window.history.back();
+                    }}
+                />
                 <h1>{flashcardSet?.name}</h1>
             </div>
-            <div style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: '1rem',
-                marginBottom: '1rem',
-            }}>
+            <div className='btn-group'>
                 <NavLink to={`/flashcard/${flashcardSetId}/edit`}>
                     <Button variant="contained" color="primary">Sửa bộ flashcard</Button>
                 </NavLink>
@@ -99,7 +105,19 @@ const LearnFlashcard = () => {
                         </SwiperSlide>
                     ))}
                 </Swiper>
+
             </div>
+            <Paper style={{
+                minHeight: '200px',
+                width: '80%',
+                justifySelf: 'center',
+                padding: '0.5rem',
+                marginTop: '3rem',
+            }}>
+                {
+                    flashcardSet?.description
+                }
+            </Paper>
         </div>
     )
 }

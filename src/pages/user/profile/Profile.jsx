@@ -396,7 +396,7 @@ function Profile() {
                 id="outlined-old-password"
                 type={showOldPassword ? "text" : "password"}
                 // disabled={loginType && loginType === 'google'}
-                sx={{ width: "80%", alignSelf: "center" }}
+                sx={{ width: "80%", alignSelf: "center", backgroundColor: "white"}}
                 endAdornment={
                   <InputAdornment position="end">
                     <IconButton
@@ -427,7 +427,7 @@ function Profile() {
                 id="outlined-new-password"
                 type={showPassword ? "text" : "password"}
                 // disabled={loginType && loginType === 'google'}
-                sx={{ width: "80%", alignSelf: "center" }}
+                sx={{ width: "80%", alignSelf: "center", backgroundColor: "white"}}
                 endAdornment={
                   <InputAdornment position="end">
                     <IconButton

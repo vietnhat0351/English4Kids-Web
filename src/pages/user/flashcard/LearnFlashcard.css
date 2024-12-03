@@ -1,3 +1,31 @@
+#learn-flashcard {
+    /* backgroundImage: `url("https://english-for-kids.s3.ap-southeast-1.amazonaws.com/2ecfee2c89491f71b156accd878b6e8e25df3e13207752152fbad2a6f106708b.png")`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    height: '100vh', */
+    background-image: url("https://english-for-kids.s3.ap-southeast-1.amazonaws.com/2ecfee2c89491f71b156accd878b6e8e25df3e13207752152fbad2a6f106708b.png");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh;
+}
+
+#learn-flashcard .btn-group {
+    /* display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: '1rem',
+    marginBottom: '1rem',
+    width: '100%', */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
 .flashcard-container {
     max-width: 600px;
     margin: 0 auto;

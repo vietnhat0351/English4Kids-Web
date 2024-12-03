@@ -1,17 +1,21 @@
 import React, { useEffect, useRef, useState } from 'react'
 import customFetch from '../../../../utils/customFetch';
 import { useParams } from 'react-router-dom';
-import { Box, Button, IconButton, LinearProgress, Paper, TextField, Tooltip, Typography } from '@mui/material';
-import CloseIcon from "@mui/icons-material/Close";
+import { Box, Button, IconButton, LinearProgress, Paper, TextField, Typography } from '@mui/material';
 import { IoMdClose } from 'react-icons/io';
 import { FaCheck } from "react-icons/fa";
 import { FaXmark } from "react-icons/fa6";
+
+import bgImage from '../../../../assets/workshake-bg-image.png'
+
+import './ReviewFlashcard.css'
 
 const ReviewFlashcard = () => {
     const flashcardSetId = useParams().flashcardSetId;
     const [question, setQuestion] = useState(0);
     const [total, setTotal] = useState(0);
     const [flashcards, setFlashcards] = useState([]);
+    const [flashcards1, setFlashcards1] = useState([]);
     const progressPercent = total > 0 ? (question / total) * 100 : 0;
     const [answer, setAnswer] = useState("");
     const [isSubmitted, setIsSubmitted] = useState(false);
@@ -77,6 +81,7 @@ const ReviewFlashcard = () => {
             .then(response => {
                 let c = response.data.flashcards.sort(() => Math.random() - 0.5);
                 setFlashcards(c);
+                setFlashcards1(c);
                 setTotal(c.length);
             })
             .catch(error => {
@@ -86,7 +91,15 @@ const ReviewFlashcard = () => {
 
     const ShowResult = () => {
         return (
-            <div>
+            <div style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: "20px",
+                height: "100%",
+                width: "100%",
+            }}>
                 <h1>Kết quả</h1>
                 <p>Số câu đúng: {question - inCorrectFlashcards.length} / {total}</p>
                 <p>Số câu sai: {inCorrectFlashcards.length}</p>
@@ -95,7 +108,10 @@ const ReviewFlashcard = () => {
                         question - inCorrectFlashcards.length === total ? <Button variant="contained" color="primary" onClick={() => {
                             setQuestion(0);
                             setInCorrectFlashcards([]);
-                        }}>Làm Lại Từ Đầu</Button> : <Button variant="contained" color="primary" onClick={() => {
+                            setFlashcards(flashcards1.sort(() => Math.random() - 0.5));
+                            setTotal(flashcards1.length);
+                        }}>Làm Lại Từ Đầu</Button> : 
+                        <Button variant="contained" color="primary" onClick={() => {
                             setQuestion(0);
                             setFlashcards(inCorrectFlashcards);
                             setTotal(inCorrectFlashcards.length);
@@ -113,65 +129,46 @@ const ReviewFlashcard = () => {
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Box sx={{ width: '100%', mr: 1 }}>
                     <LinearProgress
-                        sx={{ width: '100%', height: '7px' }}
+                        sx={{ width: '100%', height: '12px' }}
                         variant="determinate"
-                        color='secondary'
+                        color='info'
                         {...props}
                     />
                 </Box>
                 <Box sx={{ minWidth: 35 }}>
                     <Typography
                         variant="body2"
-                        sx={{ color: 'text.secondary' }}
+                        sx={{ color: '#fff' }}
                     >{`${Math.round(props.value)}%`}</Typography>
                 </Box>
             </Box>
         );
     }
     return (
-        <div style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            flexDirection: "column",
+        <div id='review-flashcard-container' style={{
+            backgroundImage: `url(${bgImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: '100% 100%',
         }}>
-            <div style={{
-                width: '100%',
-            }}>
+            <div className='header'>
                 <div style={{
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
                     padding: "10px",
                 }}>
-                    <div style={{
-                        flex: 1,
-                    }}>
-
-                    </div>
-                    <div style={{
-                        flex: 10,
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                    }}>
-                        <p>
-                            {question} / {total}
-                        </p>
+                    <div style={{flex: 1}}></div>
+                    <div className='counters'>
+                        <p>{question} / {total}</p>
                     </div>
                     <div style={{
                         flex: 1,
                         display: "flex",
                         justifyContent: "flex-end",
                     }}>
-                        <IoMdClose size={35} style={{
-                            cursor: 'pointer',
-                            border: '1px solid black',
-                            borderRadius: '5px',
-                            borderColor: '#fff',
-                            color: '#fff',
-                            backgroundColor: 'rgba(0, 0, 0, 0.5)'
-                        }}
+                        <IoMdClose size={35} className='close-icon'
                             onClick={() => {
                                 window.location.href = `/flashcard/${flashcardSetId}`;
                             }}
@@ -190,39 +187,51 @@ const ReviewFlashcard = () => {
                     </Box>
                 </div>
             </div>
-            <Paper style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                padding: "5rem",
-                width: '70%',
-                height: '70%',
-            }}>
+            <Paper className='body'>
                 {
                     flashcards[question] && (
                         <div style={{
                             display: "flex",
                             flexDirection: "column",
-                            justifyContent: "center",
                             alignItems: "center",
+                            border: "3px solid #fff",
+                            gap: "2rem",
                             flex: 1,
                         }}>
                             <div style={{
                                 display: "flex",
+                                width: "100%",
                                 justifyContent: "center",
                                 alignItems: "center",
                                 flexDirection: "row",
                                 gap: "10px",
                                 padding: "10px",
-                                border: "1px solid black",
+                                borderBottom: "2px solid #fff",
+                            
                             }}>
-                                <div>
-                                    {flashcards[question].meaning}
+                                <div style={{
+                                    display: "flex",
+                                    justifyContent: "space-evenly",
+                                    alignItems: "center",
+                                    fontSize: "50px",
+                                    flex: 6,
+                                    height: "100%",
+                                    flexDirection: "column",
+
+                                }}>
+                                    <p>Định Nghĩa</p>
+                                    <p>{flashcards[question].meaning}</p>
                                 </div>
-                                <img src={flashcards[question].image} alt="flashcard" style={{
-                                    width: "300px",
-                                    height: "300px",
-                                }} />
+                                <div style={{
+                                    display: "flex",
+                                    justifyContent: "flex-end",
+                                    flex: 6,
+                                }}>
+                                    <img src={flashcards[question].image} alt="flashcard" style={{
+                                        maxHeight: "300px",
+                                        borderRadius: "10px",
+                                    }} />
+                                </div>
                             </div>
                             <div style={{
                                 display: "flex",
@@ -241,7 +250,7 @@ const ReviewFlashcard = () => {
                                 position: 'absolute',
                                 justifyContent: 'center',
                                 alignItems: 'center',
-                                top: '55%',
+                                top: '65%',
                             }}>
                                 <p>Chính Xác! 🥳</p>
                                 <div style={{
@@ -264,7 +273,7 @@ const ReviewFlashcard = () => {
                                 gap: '20px',
                                 visibility: isWrongAnswerSubmitted ? 'visible' : 'hidden',
                                 position: 'absolute',
-                                top: '55%',
+                                top: '65%',
                                 width: '70%',
                                 justifyContent: 'center',
                                 alignItems: 'center',
@@ -276,7 +285,7 @@ const ReviewFlashcard = () => {
                                     fontWeight: 'bold',
                                     width: '70%',
                                     textAlign: 'start',
-                                    border: '1px solid red',
+                                    border: '2px solid red',
                                     padding: '17px',
                                     borderRadius: '5px',
                                     gap: '20px',
@@ -289,7 +298,7 @@ const ReviewFlashcard = () => {
                                     fontWeight: 'bold',
                                     width: '70%',
                                     textAlign: 'start',
-                                    border: '1px solid green',
+                                    border: '2px dotted green',
                                     padding: '17px',
                                     borderRadius: '5px',
                                     gap: '20px',
@@ -315,16 +324,7 @@ const ReviewFlashcard = () => {
                                 }}
                                 autoComplete='off'
                             />
-                            <div style={{
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                                gap: "20px",
-                                visibility: isWrongAnswerSubmitted ? 'visible' : 'hidden',
-                                position: 'fixed',
-                                height: '50px',
-                                bottom: '0',
-                            }}>
+                            <div className='continue-noti' style={{ visibility: isWrongAnswerSubmitted ? 'visible' : 'hidden' }}>
                                 <span>Nhấn phím Enter để tiếp tục</span>
                             </div>
                         </div>
