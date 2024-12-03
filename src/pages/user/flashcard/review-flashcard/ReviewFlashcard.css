@@ -1,0 +1,48 @@
+#review-flashcard-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100vh;
+    gap: 2rem;
+    color: #fff;
+}
+
+#review-flashcard-container .header {
+    width: 100%;
+}
+
+#review-flashcard-container .counters {
+    flex: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#review-flashcard-container .header .close-icon {
+    cursor: pointer;
+    border: 1px solid black;
+    border-radius: 5px;
+    border-color: #fff;
+    color: #fff;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+#review-flashcard-container .body {
+    display: flex;
+    padding: 5rem;
+    width: 70%;
+    min-height: 800px;
+    background-color: #cae0e2;
+    color: #465b67;
+}
+
+.continue-noti {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    position: fixed;
+    height: 50px;
+    bottom: 2rem;
+}

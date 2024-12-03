@@ -90,7 +90,6 @@ const WorkShake = () => {
     const checkWordValidity = async (word) => {
         const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
         const data = await response.json();
-        console.log(data);
 
         return response.ok && data.length > 0;
     };
@@ -110,7 +109,7 @@ const WorkShake = () => {
         if (selectedWord) {
             const isValid = await checkWordValidity(selectedWord);
 
-            if (isValid) {
+            if (isValid && selectedWord.length > 1) {
                 if (words.includes(selectedWord)) {
                     alert('Word already exists!');
                     setSelectedWord('');
@@ -122,10 +121,12 @@ const WorkShake = () => {
                 setSelectedCellIds([]);
                 setPoints(points + selectedWord.length); // Simple point logic
             } else {
-                alert('Word is not valid!');
                 setCheckAnswer('invalid');
                 setSelectedWord('');
                 setSelectedCellIds([]);
+                setTimeout(() => {
+                    setCheckAnswer('');
+                }, 1000);
             }
         }
     };
@@ -255,7 +256,15 @@ const WorkShake = () => {
                                             marginRight: '10px',
                                         }} />
                                         Word is not valid!
-                                    </div> : null
+                                    </div> : <div style={{
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        backgroundColor: '#fff',
+                                        height: '50px',
+                                    }}>
+                                        Enter a word and press Enter
+                                    </div>
                                 }
                                 <div className="selected-word">
                                     {selectedWord.toUpperCase()}

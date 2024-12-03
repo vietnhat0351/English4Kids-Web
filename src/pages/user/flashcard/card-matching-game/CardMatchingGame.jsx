@@ -23,8 +23,20 @@ const CardMatchingGame = () => {
 
     // "prepare" || "playing" || "finished"
     const [gameState, setGameState] = useState("prepare");
-
     const [count, setCount] = useState(0);
+
+    const [isWrongPair, setIsWrongPair] = useState(false);
+
+    const [borderColor, setBorderColor] = useState('3px solid green');
+
+    useEffect(() => {
+        if (isWrongPair) {
+            setBorderColor('3px solid red');
+        } else {
+            setBorderColor('3px solid green');
+        }
+    }, [isWrongPair]);
+
 
     useEffect(() => {
         let timer
@@ -142,8 +154,10 @@ const CardMatchingGame = () => {
                 setSelectedCards([]);
             }
             else {
+                setIsWrongPair(true);
                 setTimeout(() => {
                     setSelectedCards([]);
+                    setIsWrongPair(false);
                 }, 1000);
             }
 
@@ -229,7 +243,7 @@ const CardMatchingGame = () => {
                                             justifyContent: 'center',
                                             alignItems: 'center',
                                             fontSize: '30px',
-                                            border: selectedCards.includes(index) ? '3px solid green' : 'none',
+                                            border: selectedCards.includes(index) ? borderColor : 'none',
                                             cursor: 'pointer',
                                             backgroundColor: '#f0f8ff',
                                         }}>
