@@ -89,12 +89,11 @@ const Login = () => {
             console.log(response.data);
             dispatch(setUserProfile(response.data));
             // window.location.href = "/";
-            if(response.data.role==='ADMIN'){
-              navigate('/admin')
-            }else{
-              navigate('/')
+            if (response.data.role === "ADMIN") {
+              navigate("/admin/lesson");
+            } else {
+              navigate("/learn");
             }
-            
           })
           .catch((error) => {
             console.error(error);
@@ -106,108 +105,141 @@ const Login = () => {
   };
 
   return (
-    <div style={{
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      height: "100vh",
-      flexDirection: "row",
-      overflow: "hidden",
-      scrollbarWidth: "none",
-    }}>
-      <div className="imgLogin">
+    <div className="login-container">
+      <div className="login-header">
+        <div className="login-logo">
+          <button
+            style={{
+              backgroundColor: "transparent",
+              border: "none",
+              cursor: "pointer",
+              outline: "none",
+              textAlign: "center",
+              padding: "0",
+              margin: "0",
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              gap: "1rem",
+            }}
+          >
+            <img src={LOGO} alt="logo" style={{ width: "5%", height: "5%" }} />
+            <h4 className="title">English4Kids</h4>
+          </button>
+        </div>
+      </div>
+      <div className="login-body">
+        <div className="login-image">
+         
+
+          <img
+            src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/image-home.png"
+            alt="login"
+            style={{ width: "50%", height: "50%" }}
+          />
+        </div>
+        <div className="login-form">
+          {" "}
+          <div className="loginContainer">
+            <div className="loginHeader">
+              <h1
+                style={{
+                  fontFamily: "NotoSan",
+                  fontSize: "1.5rem",
+                }}
+              >
+                Log in
+              </h1>
+            </div>
+            <div className="loginBody">
+              <FormControl sx={{ m: 1, width: "50ch" }} variant="outlined">
+                <InputLabel htmlFor="outlined-adornment-password">
+                  Email
+                </InputLabel>
+                <OutlinedInput
+                  id="outlined-adornment-password"
+                  type="email"
+                  label="Email"
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </FormControl>
+              <FormControl sx={{ m: 1, width: "50ch" }} variant="outlined">
+                <InputLabel htmlFor="outlined-adornment-password">
+                  Password
+                </InputLabel>
+                <OutlinedInput
+                  id="outlined-adornment-password"
+                  type={showPassword ? "text" : "password"}
+                  onChange={(e) => setPassword(e.target.value)}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={handleClickShowPassword}
+                        onMouseDown={handleMouseDownPassword}
+                        onMouseUp={handleMouseUpPassword}
+                        edge="end"
+                      >
+                        {showPassword ? (
+                          <MdOutlineVisibility />
+                        ) : (
+                          <MdOutlineVisibilityOff />
+                        )}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                  label="Password"
+                />
+              </FormControl>
+            </div>
+            <div className="loginFooter">
+              <Button
+                variant="contained"
+                onClick={handleLogin}
+                style={{ margin: "1rem 0" }}
+              >
+                Log in
+              </Button>
+              <p
+                style={{
+                  color: "#818181",
+                  fontFamily: "Arial, sans-serif",
+                }}
+              >
+                Don't have an account? <a href="/signup">Sign In</a>
+              </p>
+            </div>
+
+            <div className="loginGoogle">
+              <div className="dash"></div>
+              <div>Or continue with</div>
+              <div
+                style={{
+                  flex: 1,
+                  borderBottom: "1px solid #ccc",
+                }}
+              ></div>
+            </div>
+            <FcGoogle
+              style={{
+                fontSize: "3rem",
+                margin: "1rem 0",
+                cursor: "pointer",
+              }}
+              onClick={openLoginPopup}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* <div className="imgLogin">
         <img
-          src={LOGO}
+          src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/image-home.png"
           alt="login"
           style={{ width: "100%", height: "100%" }}
         />
       </div>
-      <div className="loginContainer">
-        <div className="loginHeader">
-          <h1
-            style={{
-              fontFamily: "NotoSan",
-            }}
-          >
-            Đăng nhập
-          </h1>
-        </div>
-        <div className="loginBody">
-          <FormControl sx={{ m: 1, width: "50ch" }} variant="outlined">
-            <InputLabel htmlFor="outlined-adornment-password">Email</InputLabel>
-            <OutlinedInput
-              id="outlined-adornment-password"
-              type="email"
-              label="Email"
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </FormControl>
-          <FormControl sx={{ m: 1, width: "50ch" }} variant="outlined">
-            <InputLabel htmlFor="outlined-adornment-password">
-              Mật khẩu
-            </InputLabel>
-            <OutlinedInput
-              id="outlined-adornment-password"
-              type={showPassword ? "text" : "password"}
-              onChange={(e) => setPassword(e.target.value)}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={handleClickShowPassword}
-                    onMouseDown={handleMouseDownPassword}
-                    onMouseUp={handleMouseUpPassword}
-                    edge="end"
-                  >
-                    {showPassword ? (
-                      <MdOutlineVisibility />
-                    ) : (
-                      <MdOutlineVisibilityOff />
-                    )}
-                  </IconButton>
-                </InputAdornment>
-              }
-              label="Password"
-            />
-          </FormControl>
-        </div>
-        <div className="loginFooter">
-          <Button
-            variant="contained"
-            onClick={handleLogin}
-            style={{ margin: "1rem 0" }}
-          >
-            Đăng nhập
-          </Button>
-          <p
-            style={{
-              color: "#818181",
-              fontFamily: "Arial, sans-serif",
-            }}
-          >
-            Chưa có tài khoản? <a href="/signup">Đăng ký</a>
-          </p>
-        </div>
-
-        <div className="loginGoogle">
-          <div className="dash"></div>
-          <div>Hoặc tiếp tục với</div>
-          <div
-            style={{
-              flex: 1,
-              borderBottom: "1px solid #ccc",
-            }}
-          ></div>
-        </div>
-        <FcGoogle
-          style={{
-            fontSize: "3rem",
-            margin: "1rem 0",
-            cursor: "pointer",
-          }}
-          onClick={openLoginPopup}
-        />
-      </div>
+ */}
       {/* <div className="loginContainer">
         <div
           style={{

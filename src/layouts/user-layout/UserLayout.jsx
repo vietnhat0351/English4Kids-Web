@@ -42,6 +42,7 @@ const UserLayout = () => {
         })
         .then((response) => {
           console.log(response.data);
+
           const today = new Date();
           const todayISO = today.toISOString().split("T")[0];
 
@@ -49,37 +50,26 @@ const UserLayout = () => {
           yesterday.setDate(today.getDate() - 1);
           const yesterdayISO = yesterday.toISOString().split("T")[0];
 
-          // Tìm ngày bắt đầu của tuần hiện tại (tuần bắt đầu từ Thứ Hai)
-          const dayOfWeek = today.getDay();
-          const startOfWeek = new Date(today);
-          startOfWeek.setDate(
-            today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1)
-          ); // Nếu là Chủ Nhật (0), lùi về Thứ Hai tuần trước
+          const lastSunday = new Date(today);
+          lastSunday.setDate(today.getDate() - today.getDay()); // Lấy ngày Chủ Nhật tuần trước
 
-          // Tìm ngày kết thúc của tuần hiện tại
-          const endOfWeek = new Date(startOfWeek);
-          endOfWeek.setDate(startOfWeek.getDate() + 6); // Ngày cuối tuần (Chủ Nhật)
+          const { lastLearningDate, weeklyPoints, streak } = response.data;
 
-          // Chuyển đổi lastLearningDate sang định dạng ngày
-          const lastLearningDate = response.data.lastLearningDate.split("T")[0];
-          console.log(lastLearningDate !== yesterdayISO);
+          // Chuyển đổi lastLearningDate sang kiểu Date
+          const lastLearningDateObj = new Date(lastLearningDate);
 
-          if (lastLearningDate !== todayISO) {
+          if (lastLearningDateObj.toISOString().split("T")[0] !== todayISO) {
             response.data.dailyPoints = 0;
           }
 
-          if (
-            !lastLearningDate >= startOfWeek &&
-            !lastLearningDate <= endOfWeek
-          ) {
+          // Kiểm tra nếu lastLearningDate là trước tuần hiện tại
+          if (lastLearningDateObj < lastSunday) {
             response.data.weeklyPoints = 0;
           }
-          if (lastLearningDate !== yesterdayISO) {
-            console.log("streak");
+
+          // Kiểm tra nếu lastLearningDate là trước ngày hôm qua
+          if (lastLearningDateObj < new Date(yesterdayISO)) {
             response.data.streak = 0;
-          }
-          if (lastLearningDate === todayISO && response.data.dailyPoints > 0) {
-            response.data.streak = 1;
           }
 
           dispatch(setUserProfile(response.data));
@@ -148,7 +138,7 @@ const UserLayout = () => {
               style={{ width: "40px", height: "40px" }} // Thay đổi kích thước tại đây
               onDragStart={(e) => e.preventDefault()}
             />
-            <strong>BÀI HỌC</strong>
+            <strong>LESSON</strong>
           </div>
         </button>
         <button
@@ -164,7 +154,7 @@ const UserLayout = () => {
               style={{ width: "40px", height: "40px" }} // Thay đổi kích thước tại đây
               onDragStart={(e) => e.preventDefault()}
             />
-            <strong>THẺ GHI NHỚ</strong>
+            <strong>FLASHCARD</strong>
           </div>
         </button>
 
@@ -178,14 +168,14 @@ const UserLayout = () => {
             <img
               src={
                 selectedButton === 6
-                  ? "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/dumbbell.png"
-                  : "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/dumbbell.gif"
+                  ? "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/cubes.png"
+                  : "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/cubes.gif"
               }
               alt="My GIF"
               style={{ width: "40px", height: "40px" }} // Thay đổi kích thước tại đây
               onDragStart={(e) => e.preventDefault()}
             />
-            <strong>TRÒ CHƠI</strong>
+            <strong>GAMES</strong>
           </div>
         </button>
         <button
@@ -205,7 +195,7 @@ const UserLayout = () => {
               style={{ width: "40px", height: "40px" }} // Thay đổi kích thước tại đây
               onDragStart={(e) => e.preventDefault()}
             />
-            <strong>BẢNG XẾP HẠNG</strong>
+            <strong>LEADERBOARDS</strong>
           </div>
         </button>
         <button
@@ -225,7 +215,7 @@ const UserLayout = () => {
               style={{ width: "40px", height: "40px" }} // Thay đổi kích thước tại đây
               onDragStart={(e) => e.preventDefault()}
             />
-            <strong>HỒ SƠ</strong>
+            <strong>PROFILE</strong>
           </div>
         </button>
       </div>
@@ -233,6 +223,21 @@ const UserLayout = () => {
         <Outlet />
       </div>
       <div className="rightContainer">
+        <div className="top-header">
+          {user && (
+            <>
+              <img
+                src={user.avatar}
+                alt=""
+                style={{ width: "50px", height: "50px", borderRadius: "50%" }}
+              />
+
+              <strong>
+                {user.firstName} {user.lastName}
+              </strong>
+            </>
+          )}
+        </div>
         <div className="right-header">
           <img
             src={
@@ -241,7 +246,7 @@ const UserLayout = () => {
                 : "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/fire.png"
             }
             alt="My GIF"
-            style={{ width: "100px", height: "100px" }}
+            style={{ width: "50px", height: "50px" }}
             onDragStart={(e) => e.preventDefault()}
           />
           <div
@@ -262,15 +267,19 @@ const UserLayout = () => {
         </div>
 
         <div className="points-container">
-          <strong className="points-title">Điểm kiếm được</strong>
+          <strong className="points-title">XP earned</strong>
           <div className="points-content">
             <p className="points-item">
-              <span className="points-label">Điểm hôm nay:</span>
-              <span className="points-value">{user && user.dailyPoints}</span>
+              <span className="points-label">Today:</span>
+              <span className="points-value">
+                {user && user.dailyPoints} XP
+              </span>
             </p>
             <p className="points-item">
-              <span className="points-label">Điểm tuần này:</span>
-              <span className="points-value">{user && user.weeklyPoints}</span>
+              <span className="points-label">Week:</span>
+              <span className="points-value">
+                {user && user.weeklyPoints} XP
+              </span>
             </p>
           </div>
         </div>

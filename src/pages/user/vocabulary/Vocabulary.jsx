@@ -13,6 +13,8 @@ function Vocabulary() {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
 
+  const [uniqueVocabularies, setUniqueVocabularies] = useState([]);
+
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -37,6 +39,17 @@ function Vocabulary() {
     fetchData();
   }, [location.pathname, dispatch]);
 
+  useEffect(() => {
+    if (selectedLesson?.vocabularies) {
+      // Loại bỏ từ trùng lặp dựa trên thuộc tính "word"
+      const filteredVocabularies = selectedLesson.vocabularies.filter(
+        (vocabulary, index, self) =>
+          index === self.findIndex((v) => v.word === vocabulary.word)
+      );
+      setUniqueVocabularies(filteredVocabularies);
+    }
+  }, [selectedLesson]);
+
   return (
     <div className="v-container">
       {loading ? (
@@ -52,9 +65,21 @@ function Vocabulary() {
               }}
             />
           </button>
+          <div style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+            justifyContent: "center",
+            alignItems: "center",
+          }}>
+            <h1 style={{
+              fontSize: "2rem",
+              // fontFamily: "GBS",
+            }}>{selectedLesson.title}</h1>
+          </div>
           <div>
             {" "}
-            <FlashCardList vocabulary={selectedLesson.vocabularies} />
+            <FlashCardList vocabulary={uniqueVocabularies} />
           </div>
         </div>
       )}

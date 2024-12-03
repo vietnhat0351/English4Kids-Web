@@ -7,13 +7,15 @@
   background-image: url('https://english-for-kids.s3.ap-southeast-1.amazonaws.com/2ecfee2c89491f71b156accd878b6e8e25df3e13207752152fbad2a6f106708b.png');
   background-size: cover;
   background-position: center;
-  background-repeat: no-repeat;
-  height: 100vh;
+  background-repeat: repeat;
+  height: auto;
 }
 
 .lesson-list {
-  display: flex;
-  gap: 20px;
+
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 5 cột, mỗi cột chia đều không gian */
+  gap: 30px;
 }
 
 .lesson-card {
@@ -24,13 +26,14 @@
   background-color: lightskyblue;
   border-radius: 15px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  width: 250px;
+  width: 300px;
   padding: 20px;
   color: #333;
   display: flex;
   flex-direction: column;
   transition: transform 0.2s;
   cursor: pointer;
+  border: 1px solid lightskyblue;
 }
 .lesson-card-complete {
   /* background-image: url('https://english-for-kids.s3.ap-southeast-1.amazonaws.com/5418aa07d5330b9a0c0f21ff947a5f3b779cff018a48c3e4659b90e4beba03c0.png');
@@ -40,13 +43,27 @@
   background-color: #ffd41c;
   border-radius: 15px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  width: 250px;
+  width: 300px;
   padding: 20px;
   color: #333;
   display: flex;
   flex-direction: column;
   transition: transform 0.2s;
   cursor: pointer;
+  border: 1px solid #ffd41c;
+}
+.lesson-card-disabled{
+  background-color: lightgray;
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 300px;
+  padding: 20px;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s;
+  cursor: pointer;
+  border: 1px solid lightgray;
 }
 
 .lesson-card:hover {
@@ -61,22 +78,30 @@
   height: auto;
   border-radius: 10px;
   margin-bottom: 15px;
-  height: 200px;
+  height: 250px;
   border: 1px solid #dcdcdc;
   background-color: white;
   box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
 }
-
+.lesson-content{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
 
 
 .lesson-title {
-  font-size: 18px;
+  font-size: 28px;
   font-weight: bold;
   color: #333;
   margin: 10px 0;
+  
 }
 
 .lesson-description {
-  font-size: 14px;
+  font-size: 20px;
   color: #555;
 }
+

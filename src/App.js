@@ -33,6 +33,7 @@ import EditFlashcardSet from "./pages/user/flashcard/edit-flashcard-set/EditFlas
 
 import Question from "./pages/admin/lesson-management/question/Question";
 import LearnSession from "./pages/user/learn/LearnSessin/LearnSession";
+import LearnQuestionTest from "./pages/user/learn/learnQuestion/LearnQuestionTest";
 
 import axios from "axios";
 import { useDispatch } from "react-redux";
@@ -73,6 +74,7 @@ const router = createBrowserRouter(
             <Route path=":lessonId" element={<LearnSession />} />
             <Route path="question/:lessonId" element={<LearnQuestion />} />
             <Route path="vocabulary/:lessonId" element={<Vocabulary />} />
+            <Route path="question-test/:lessonId" element={<LearnQuestionTest />} />
           </Route>
 
           <Route path="flashcard">

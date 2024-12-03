@@ -15,25 +15,17 @@ const style = {
   borderRadius: 2,
 };
 
-const ModalResult = ({
+const ModalResultFail = ({
   open,
   handleClose,
   countCorrect,
   totalQuestions,
-  time,
-  type,
 }) => {
   const handleCloseModal = (event) => {
     // Ngừng việc đóng modal khi người dùng click vào background (click ngoài modal)
     event.stopPropagation();
   };
-  const formatTime = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${String(minutes).padStart(2, "0")}:${String(
-      remainingSeconds
-    ).padStart(2, "0")}`;
-  };
+
   return (
     <Modal
       open={open}
@@ -49,37 +41,39 @@ const ModalResult = ({
     >
       <Box sx={style} onClick={handleCloseModal}>
         <div className="l-bar-finish">
+          <div
+            style={{
+              fontSize: "2rem",
+              fontWeight: "bold",
+            }}
+          >
+            Test failed. Don't give up, try again!
+          </div>
           <img
-            src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/cat.png"
+            src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/sad.png"
             alt=""
             width={400}
             height={400}
           />
-          <div className="l-bar-finish-body">
+          {/* <div className="l-bar-finish-body">
             <div className="l-bar-finish-body-1">
-              Total Points:
-              {type === "QUIZ" ? (
-                <div className="l-bar-finish-body-3">
-                  {countCorrect * 15} XP
-                </div>
-              ) : (
-                <div className="l-bar-finish-body-3">{countCorrect *10} XP</div>
-              )}
+              Tổng điểm KN:
+              <div className="l-bar-finish-body-3">
+                {countCorrect * 10} điểm
+              </div>
             </div>
             <div className="l-bar-finish-body-2">
-              Total right answers:
-              <div className="l-bar-finish-body-3">{countCorrect} </div>
+              Quyết tâm!
+              <div className="l-bar-finish-body-3">
+                {countCorrect}/{totalQuestions} câu đúng
+              </div>
             </div>
-            <div className="l-bar-finish-body-4">
-              Time:
-              <div className="l-bar-finish-body-3">{formatTime(time)}</div>
-            </div>
-          </div>
+          </div> */}
 
           <button onClick={handleClose} className="l-bar-button-close">
             {" "}
             {/* Chỉ đóng modal khi click vào nút "Close" */}
-            Continue
+            Countinue
           </button>
         </div>
       </Box>
@@ -87,4 +81,4 @@ const ModalResult = ({
   );
 };
 
-export default ModalResult;
+export default ModalResultFail;

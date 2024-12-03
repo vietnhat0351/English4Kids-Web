@@ -76,6 +76,7 @@
   border-radius: 5px;
   cursor: pointer;
   transition: 0.2s;
+  color: rgb(109, 109, 109);
   border: 1px solid lightblue;
   box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
   gap: 20px;
@@ -104,4 +105,24 @@
 .saction-button-complete:hover {
   background-color: #ffd41c;
   scale: 1.05;
+}
+.button-back{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 20px;
+  /* background-color: lightcyan; */
+  color: darkgrey;
+  font-weight: bold;
+  font-size: 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+  /* box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3); */
+  gap: 10px;
+}
+.button-back:hover {
+  background-color: #ffd41c;
+  scale: 1.05;
+  color: white;
 }

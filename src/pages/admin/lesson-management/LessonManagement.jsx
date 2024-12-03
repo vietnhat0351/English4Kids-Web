@@ -8,7 +8,19 @@ import Table from "@mui/material/Table";
 import TablePagination from "@mui/material/TablePagination";
 import EnhancedTableHead from "../../../../src/utils/enhancedTable/EnhancedTableHead";
 import EnhancedTableToolbar from "../../../../src/utils/enhancedTable/EnhancedTableToolbar";
-import { TableBody, TableCell, TableRow } from "@mui/material";
+import {
+  Alert,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Snackbar,
+  TableBody,
+  TableCell,
+  TableRow,
+} from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import customFetch from "../../../utils/customFetch";
 import { setLessons } from "../../../redux/slices/lessonSlice";
@@ -19,6 +31,7 @@ import { FaAngleDoubleRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { setLessonSelected } from "../../../redux/slices/clessonSlice";
 import ModalAddLesson from "./tool/ModalAddLesson";
+import ModalUpdateLesson from "./tool/ModalUpdateLesson";
 
 const LessonManagement = () => {
   //=========================================================================================================
@@ -31,6 +44,7 @@ const LessonManagement = () => {
   //=========================================================================================================
 
   const lessons = useSelector((state) => state.lessons);
+  const lessonSelected = useSelector((state) => state.lessonSelected);
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -42,7 +56,7 @@ const LessonManagement = () => {
     try {
       const response = await customFetch.get("/api/v1/lessons/get-all");
       if (response.status === 200) {
-        dispatch(setLessons(response.data));
+        dispatch(setLessons(response.data.sort((a, b) => a.id - b.id)));
       }
       setHasFetched(true); // Mark that we've attempted to fetch data
     } catch (error) {
@@ -66,43 +80,43 @@ const LessonManagement = () => {
       id: "STT",
       numeric: true,
       disablePadding: true,
-      label: "",
+      label: "No.",
     },
     {
       id: "tilte",
       numeric: false,
       disablePadding: false,
-      label: "Tên bài học",
+      label: "Title",
     },
     {
       id: "image",
       numeric: false,
       disablePadding: false,
-      label: "Hình ảnh",
+      label: "Image",
     },
     {
       id: "decription",
       numeric: false,
       disablePadding: false,
-      label: "Mô tả",
+      label: "Description",
     },
     {
       id: "vocabulary",
       numeric: true,
       disablePadding: false,
-      label: "Số từ vựng",
+      label: "Vocabulary Count",
     },
     {
       id: "question",
       numeric: true,
       disablePadding: false,
-      label: "Số câu hỏi",
+      label: "Question Count",
     },
     {
       id: "action",
       numeric: false,
       disablePadding: false,
-      label: "Hành động",
+      label: "Actions",
     },
   ];
 
@@ -166,8 +180,84 @@ const LessonManagement = () => {
 
   const [openModalAddLesson, setOpenModalAddLesson] = useState(false);
 
-  const handleOpenModalAddLesson = () => setOpenModalAddLesson(true);
-  const handleCloseModalAddLesson = () => setOpenModalAddLesson(false);
+  const [openA, setOpenA] = React.useState(false);
+  const [messageA, setMessageA] = React.useState("");
+  const [typeA, setTypeA] = React.useState("success");
+
+  const handleCloseA = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenA(false);
+  };
+
+  const handleModalResultA = (success, message, type) => {
+    setOpenModalAddLesson(false);
+
+    setMessageA(message);
+    setTypeA(type);
+    setOpenA(true);
+  };
+
+  //=========================================================================================================
+
+  const [openModalUpdateLesson, setOpenModalUpdateLesson] =
+    React.useState(false);
+  const [openS, setOpenS] = React.useState(false);
+  const [messageS, setMessageS] = React.useState("");
+  const [typeS, setTypeS] = React.useState("success");
+
+  const handleCloseS = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenS(false);
+  };
+
+  // Callback để xử lý kết quả từ Modal
+  const handleModalResult = (success) => {
+    setOpenModalUpdateLesson(false); // Đóng modal
+    if (success) {
+      setMessageS("Update lesson successfully!"); // Hiển thị thông báo
+      setTypeS("success");
+    } else {
+      setMessageS("Cancel!");
+      setTypeS("error");
+    }
+    setOpenS(true); // Hiển thị Snackbar
+  };
+
+  ///=========================================================================================================
+  const [openD, setOpenD] = React.useState(false);
+
+  const handleClickOpenD = () => {
+    setOpenD(true);
+  };
+
+  const handleCloseD = () => {
+    setOpenD(false);
+  };
+
+  //=========================================================================================================
+  const handleDeleteLesson = async (id) => {
+    setLoading(true);
+    try {
+      const response = await customFetch.post(`/api/v1/lessons/delete/${id}`);
+      if (response.status === 200) {
+        console.log("Lesson deleted successfully!", response.data);
+        await customFetch.get("/api/v1/lessons/get-all").then((response) => {
+          dispatch(setLessons(response.data));
+        });
+        setMessageA("Delete lesson successfully!");
+        setTypeA("success");
+        setOpenA(true);
+      }
+      setLoading(false);
+    } catch (error) {
+      console.error("There was an error deleting the lesson!", error);
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="a-l-container">
@@ -179,7 +269,14 @@ const LessonManagement = () => {
           </button>
         </div> */}
         <div>
-          <button onClick={handleOpenModalAddLesson} className="a-l-button">Thêm bài học</button>
+          <button
+            onClick={() => {
+              setOpenModalAddLesson(true);
+            }}
+            className="a-l-button"
+          >
+            Create lesson
+          </button>
         </div>
         {/* <div>
           <button className="a-l-button">Nhập bài học</button>
@@ -189,8 +286,8 @@ const LessonManagement = () => {
         {!loading ? (
           <Box sx={{ width: "100%" }}>
             <Paper sx={{ width: "100%", mb: 2 }}>
-              <EnhancedTableToolbar titleLesson="Quản lí bài học" />
-              <TableContainer>
+              <EnhancedTableToolbar titleLesson="Lesson management" />
+              <TableContainer sx={{  overflowY: "auto", height:520}}>
                 <Table
                   sx={{ minWidth: 750 }}
                   aria-labelledby="tableTitle"
@@ -226,7 +323,9 @@ const LessonManagement = () => {
                             scope="row"
                             padding="none"
                             align="right"
-                          ></TableCell>
+                          >
+                            {index + 1}
+                          </TableCell>
                           <TableCell align="left">{row.title}</TableCell>
                           <TableCell align="left">
                             <img
@@ -245,7 +344,13 @@ const LessonManagement = () => {
                             {row.description}
                           </TableCell>
                           <TableCell align="right">
-                            {row.vocabularies.length}
+                            {Array.isArray(row.vocabularies)
+                              ? new Set(
+                                  row.vocabularies.map(
+                                    (vocabulary) => vocabulary.word
+                                  )
+                                ).size
+                              : 0}
                           </TableCell>
                           <TableCell align="right">
                             {row.questions.length}
@@ -260,13 +365,52 @@ const LessonManagement = () => {
                             >
                               <button
                                 className="a-l-button-action-update"
-                                onClick={() => {}}
+                                onClick={() => {
+                                  dispatch(setLessonSelected(row));
+                                  setOpenModalUpdateLesson(true);
+                                }}
                               >
                                 <MdEdit />
                               </button>
-                              <button className="a-l-button-action-delete">
+                              <button
+                                className="a-l-button-action-delete"
+                                onClick={handleClickOpenD}
+                              >
                                 <MdDelete />
                               </button>
+                              <Dialog
+                                open={openD}
+                                onClose={handleCloseD}
+                                aria-labelledby="alert-dialog-title"
+                                aria-describedby="alert-dialog-description"
+                              >
+                                <DialogTitle id="alert-dialog-title">
+                                  {"Delete Lesson"}
+                                </DialogTitle>
+                                <DialogContent>
+                                  <DialogContentText id="alert-dialog-description">
+                                    Are you sure you want to delete this lesson?
+                          
+                                  </DialogContentText>
+                                </DialogContent>
+                                <DialogActions>
+                                  <Button
+                                    onClick={() => {
+                                      handleDeleteLesson(row.id);
+                                      handleCloseD();
+                                    }}
+                                  >
+                                    Agree
+                                  </Button>
+                                  <Button
+                                    variant="error"
+                                    onClick={handleCloseD}
+                                    autoFocus
+                                  >
+                                    Disagree
+                                  </Button>
+                                </DialogActions>
+                              </Dialog>
                               <button
                                 className="a-l-button-action-detail"
                                 onClick={() => {
@@ -274,7 +418,7 @@ const LessonManagement = () => {
                                   navigate(`/admin/lesson/${row.id}`);
                                 }}
                               >
-                                Xem chi tiết <FaAngleDoubleRight />
+                                Details <FaAngleDoubleRight />
                               </button>
                             </div>
                           </TableCell>
@@ -292,7 +436,7 @@ const LessonManagement = () => {
                 </Table>
               </TableContainer>
               <TablePagination
-                // rowsPerPageOptions={[5, 10, 25]}
+                rowsPerPageOptions={[5]}
                 component="div"
                 count={lessons.length}
                 rowsPerPage={rowsPerPage}
@@ -303,13 +447,48 @@ const LessonManagement = () => {
             </Paper>
           </Box>
         ) : (
-          <div>Đang tải ....</div>
+          <div>Loading ....</div>
         )}
       </div>
       <ModalAddLesson
         open={openModalAddLesson}
-        handleClose={handleCloseModalAddLesson}
+        handleClose={handleModalResultA}
       />
+      <ModalUpdateLesson
+        open={openModalUpdateLesson}
+        handleClose={handleModalResult}
+        data={lessonSelected}
+      />
+      <Snackbar
+        open={openS}
+        autoHideDuration={6000}
+        onClose={handleCloseS}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert
+          onClose={handleCloseS}
+          severity={typeS}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {messageS}
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={openA}
+        autoHideDuration={6000}
+        onClose={handleCloseA}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert
+          onClose={handleCloseA}
+          severity={typeA}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {messageA}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

@@ -26,7 +26,22 @@ import { useDispatch, useSelector } from "react-redux";
 import { setVocabularies } from "../../../redux/slices/vocabularySlice";
 import { useEffect } from "react";
 // import { FaSearch } from "react-icons/fa";
-import { TextField } from "@mui/material";
+import {
+  Alert,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Snackbar,
+  TablePagination,
+  TextField,
+} from "@mui/material";
 import { useState, useMemo } from "react";
 import { useRef } from "react";
 import ModalUpdateVocabulary from "./tool/ModalUpdateVocabulary";
@@ -47,20 +62,31 @@ const VocabularyManagement = () => {
   const [loadingImport, setLoadingImport] = useState(false);
   const [disibleResult, setDisibleResult] = useState(true);
 
+  const [selectedRow, setSelectedRow] = useState(null);
+
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+
+  const [fillter, setFillter] = useState("All");
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
   const headCells = [
-    { id: "id", numeric: true, disablePadding: true, label: "" },
-    { id: "word", numeric: false, disablePadding: false, label: "Từ" },
-    { id: "meaning", numeric: false, disablePadding: false, label: "Nghĩa" },
+    { id: "id", numeric: true, disablePadding: true, label: "No." },
+    { id: "word", numeric: false, disablePadding: false, label: "Word" },
+    { id: "meaning", numeric: false, disablePadding: false, label: "Meaning" },
     {
       id: "pronunciation",
       numeric: false,
       disablePadding: false,
-      label: "Phát âm",
+      label: "Pronunciation",
     },
-    { id: "type", numeric: false, disablePadding: false, label: "Loại từ" },
-    { id: "image", numeric: false, disablePadding: false, label: "Hình ảnh" },
-    { id: "audio", numeric: false, disablePadding: false, label: "Âm thanh" },
-    { id: "action", numeric: false, disablePadding: false, label: "Tùy chọn" },
+    { id: "type", numeric: false, disablePadding: false, label: "Type" },
+    { id: "image", numeric: false, disablePadding: false, label: "Image" },
+    { id: "audio", numeric: false, disablePadding: false, label: "Audio" },
+    { id: "action", numeric: false, disablePadding: false, label: "Action" },
   ];
   const rowRefs = useRef({});
 
@@ -72,7 +98,6 @@ const VocabularyManagement = () => {
       const data = await ReadExcel(file);
       console.log("Excel Data:", data);
       // duyệt qua từng dòng trong file excel
-
       setDisibleResult(false);
       setPassImport(0);
       setLack(0);
@@ -81,7 +106,6 @@ const VocabularyManagement = () => {
 
       for (let i = 0; i < data.length; i++) {
         setPercent(Math.ceil(((i + 1) / data.length) * 100));
-
         if (
           !data[i].word ||
           !data[i].meaning ||
@@ -96,24 +120,20 @@ const VocabularyManagement = () => {
         }
 
         const response = await customFetch.get(
-          `/api/v1/vocabulary/find-word-fast/${data[i].word}`
+          `/api/v1/vocabulary/find-word-fast/${data[i].word.trim()}`
         );
-
         if (response.data) {
-          if (!response.data.inDatabase) {
+          if (response.data.inDatabase) {
+            setDuplicate((prev) => prev + 1);
+            continue;
+          } else {
             const res = await customFetch.post(
               "/api/v1/vocabulary/create-vocabulary",
               data[i]
             );
-
-            if (res.status === 200) {
+            if (res.data) {
               setPassImport((prev) => prev + 1);
-            } else {
-              setLack((prev) => prev + 1);
             }
-          }
-          if (response.data.inDatabase) {
-            setDuplicate((prev) => prev + 1);
           }
         }
       }
@@ -138,20 +158,48 @@ const VocabularyManagement = () => {
     }
   };
 
-  const handleSearch = () => {
-    const matchingRow = vocabularies.find((row) => row.word === searchTerm);
-    if (matchingRow) {
-      setSelected([matchingRow.id]);
+  // const handleSearch = () => {
+  //   const matchingRow = vocabularies.find((row) => row.word === searchTerm);
+  //   if (matchingRow) {
+  //     setSelected([matchingRow.id]);
 
-      // Scroll the selected row into view
-      if (rowRefs.current[matchingRow.id]) {
-        rowRefs.current[matchingRow.id].scrollIntoView({
+  //     // Scroll the selected row into view
+  //     if (rowRefs.current[matchingRow.id]) {
+  //       rowRefs.current[matchingRow.id].scrollIntoView({
+  //         behavior: "smooth",
+  //         block: "center",
+  //       });
+  //     }
+  //   } else {
+  //     setSelected([]);
+  //   }
+  // };
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const handleSearch = () => {
+    if (!searchTerm) {
+      setSelected([]);
+      return;
+    }
+    const matchingRowIndex = vocabularies.findIndex(
+      (row) => row.word === searchTerm || row.meaning === searchTerm
+    );
+
+    if (matchingRowIndex !== -1) {
+      const matchingRow = vocabularies[matchingRowIndex];
+      setSelected([matchingRow.id]);
+      const matchingPage = Math.floor(matchingRowIndex / rowsPerPage);
+      setPage(matchingPage);
+
+      // Scroll dòng được chọn vào giữa nếu tồn tại ref
+      setTimeout(() => {
+        rowRefs.current[matchingRow.id]?.scrollIntoView({
           behavior: "smooth",
           block: "center",
         });
-      }
+      }, 0);
     } else {
       setSelected([]);
+      setSnackbarOpen(true); // Hiển thị Snackbar
     }
   };
 
@@ -190,10 +238,23 @@ const VocabularyManagement = () => {
       : (a, b) => -descendingComparator(a, b, orderBy);
   }
 
-  const visibleRows = useMemo(
-    () => [...vocabularies].sort(getComparator(order, orderBy)),
-    [vocabularies, order, orderBy]
-  );
+  // const visibleRows = useMemo(
+  //   () =>
+  //     [...vocabularies]
+  //       .sort(getComparator(order, orderBy))
+  //       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
+  //   [vocabularies, order, orderBy, page, rowsPerPage]
+  // );
+  const visibleRows = useMemo(() => {
+    const filteredVocabularies =
+      fillter && fillter !== "All"
+        ? vocabularies.filter((vocabulary) => vocabulary.type === fillter)
+        : vocabularies;
+
+    return [...filteredVocabularies]
+      .sort(getComparator(order, orderBy))
+      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  }, [vocabularies, order, orderBy, page, rowsPerPage, fillter]);
 
   const [hasFetched, setHasFetched] = useState(false);
 
@@ -236,6 +297,80 @@ const VocabularyManagement = () => {
   const handleCloseModalUpdateVocabulary = () =>
     setOpenModalUpdateVocabulary(false);
 
+  const [openA, setOpenA] = React.useState(false);
+  const [messageA, setMessageA] = React.useState("");
+  const [typeA, setTypeA] = React.useState("success");
+
+  const handleCloseA = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenA(false);
+  };
+
+  const handleModalResultA = (success, message, type) => {
+    setOpenModalAddVocabulary(false);
+
+    setMessageA(message);
+    setTypeA(type);
+    setOpenA(true);
+  };
+
+  const handleCloseU = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenA(false);
+  };
+
+  const handleModalResultU = (success, message, type) => {
+    setOpenModalUpdateVocabulary(false);
+
+    setMessageA(message);
+    setTypeA(type);
+    setOpenA(true);
+  };
+  const [openD, setOpenD] = React.useState(false);
+
+  const handleClickOpenD = () => {
+    setOpenD(true);
+  };
+
+  const handleCloseD = () => {
+    setOpenD(false);
+  };
+  const handleDeleteVoca = async (id) => {
+    const voca = {
+      vocabularyId: id,
+    };
+    console.log("ID:", voca);
+    try {
+      setLoading(true);
+      const response = await customFetch.post(
+        "/api/v1/vocabulary/delete-vocabulary",
+        voca
+      );
+      if (response.status === 200) {
+        const fetchData = async () => {
+          const response = await customFetch.get(
+            "/api/v1/vocabulary/vocabularies"
+          );
+          console.log("Data:", response.data);
+          dispatch(setVocabularies(response.data));
+        };
+        fetchData();
+        setMessageA("Word deleted successfully");
+        setTypeA("success");
+        setOpenA(true);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+      setOpenD(false);
+    }
+  };
+
   const ProgressInfo = ({ percent, passImport, lack, duplicate }) => {
     return (
       <div
@@ -270,7 +405,7 @@ const VocabularyManagement = () => {
               color: "#007bff",
             }}
           >
-            Tiến trình {percent}%
+            Progress {percent}%
           </span>
         </p>
         <div style={{ display: "flex", gap: "15px" }}>
@@ -282,7 +417,7 @@ const VocabularyManagement = () => {
               color: "#4caf50",
             }}
           >
-            <CheckCircleIcon /> Thành công: {passImport}
+            <CheckCircleIcon /> Success: {passImport}
           </span>
           <span
             style={{
@@ -292,7 +427,7 @@ const VocabularyManagement = () => {
               color: "#f44336",
             }}
           >
-            <ErrorIcon /> Lỗi: {lack}
+            <ErrorIcon /> Error: {lack}
           </span>
           <span
             style={{
@@ -302,7 +437,7 @@ const VocabularyManagement = () => {
               color: "#ff9800",
             }}
           >
-            <RepeatIcon /> Trùng lặp: {duplicate}
+            <RepeatIcon /> Duplicate: {duplicate}
           </span>
         </div>
       </div>
@@ -310,15 +445,7 @@ const VocabularyManagement = () => {
   };
   const ProgressBar = ({ percent, passImport, lack, duplicate }) => {
     return (
-      <div
-        style={{
-          width: "40%",
-          marginBottom: "10px",
-          display: "flex",
-          gap: "10px",
-          flexDirection: "column",
-        }}
-      >
+      <div>
         {/* Display progress text */}
         <ProgressInfo
           percent={percent}
@@ -364,67 +491,115 @@ const VocabularyManagement = () => {
     return () => clearInterval(interval);
   }, [percent]);
 
+  const handleDownload = async () => {
+    const fileUrl =
+      "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/vocabulary-sample.xlsx";
+    const link = document.createElement("a");
+    link.href = fileUrl;
+    link.download = "question-sample.xlsx";
+    link.click();
+  };
   return (
     <div className="ad-p-container">
       <div className="ad-p-content">
         <div className="ad-p-content-header">
           <TextField
             id="outlined-basic"
-            label="Từ cần tìm"
+            label="Word or meaning"
             variant="outlined"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          {/* <button className="a-l-button">
-            <FaSearch />
-          </button> */}
-          <div className="a-l-search"></div>
-
           <div
             style={{
               display: "flex",
-              justifyContent: "space-between",
-              gap: "50px",
+              alignItems: "center",
+              gap: "10px",
+              width: "200px",
             }}
           >
-            <button
-              className="a-l-button"
-              onClick={handleOpenModalAddVocabulary}
-            >
-              <IoMdAdd />
-              Thêm từ vựng
-            </button>
+            {" "}
+            <FormControl fullWidth>
+              <InputLabel id="demo-simple-select-label">Type</InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={fillter}
+                label="Type"
+                onChange={(e) => setFillter(e.target.value)}
+              >
+                <MenuItem value={"All"}>All</MenuItem>
+                <MenuItem value={"NOUN"}>NOUN</MenuItem>
+                <MenuItem value={"VERB"}>VERB</MenuItem>
+                <MenuItem value={"ADJECTIVE"}>ADJECTIVE</MenuItem>
+                <MenuItem value={"ADVERB"}>ADVERB</MenuItem>
+                <MenuItem value={"PRONOUN"}>PRONOUN</MenuItem>
+                <MenuItem value={"PREPOSITION"}>PREPOSITION</MenuItem>
+                <MenuItem value={"CONJUNCTION"}>CONJUNCTION</MenuItem>
+                <MenuItem value={"INTERJECTION"}>INTERJECTION</MenuItem>
+                <MenuItem value={"EXCLAMATION"}>EXCLAMATION</MenuItem>
+              </Select>
+            </FormControl>
           </div>
-          <div>
-            {/* <button
-              "
-              onClick={() => document.getElementById("filexcel").click()}
+          {/* <button className="a-l-button">
+            <FaSearch />
+          </button> */}
+          <div className="a-l-search">
+            <div>
+              {" "}
+              <button
+                className="a-l-button"
+                onClick={handleOpenModalAddVocabulary}
+              >
+                <IoMdAdd />
+                Add vocabulary
+              </button>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "10px",
+                alignItems: "center",
+              }}
             >
-              <CiImport /> */}
-            {/* Nhập từ vựng (excel) */}
-            <FileInput
-              handleFileSelect={handleFileSelect}
-              content={loadingImport ? "Đang tải dữ liệu" : "Nhập file (Excel)"}
-            />
-            {/* 
-            </button> */}
+              <FileInput
+                handleFileSelect={handleFileSelect}
+                content={loadingImport ? "Loading..." : "Import vocabulary"}
+              />
+              <button className="btn-download-sample" onClick={handleDownload}>
+                Download sample
+              </button>
+            </div>
+
+            <div
+              style={{
+                width: "60%",
+                marginBottom: "10px",
+                display: "flex",
+                gap: "10px",
+                flexDirection: "column",
+              }}
+            >
+              {!disibleResult && (
+                <ProgressBar
+                  percent={percent}
+                  passImport={passImport}
+                  lack={lack}
+                  duplicate={duplicate}
+                />
+              )}
+            </div>
           </div>
-          {!disibleResult && (
-            <ProgressBar
-              percent={percent}
-              passImport={passImport}
-              lack={lack}
-              duplicate={duplicate}
-            />
-          )}
         </div>
         <div className="ad-p-content-body">
           {!loading ? (
             <div className="a-p-content-left">
               <Box sx={{ width: "100%" }}>
                 <Paper sx={{ width: "100%", overflow: "hidden" }}>
-                  <EnhancedTableToolbar titleLesson="Quản lí từ vựng" />
-                  <TableContainer sx={{ maxHeight: 600, overflowY: "auto" }}>
+                  <EnhancedTableToolbar titleLesson="Vocabulary management" />
+                  <TableContainer sx={{ overflowY: "auto", height: 520 }}>
                     <Table stickyHeader aria-label="sticky table">
                       <EnhancedTableHead
                         headCells={headCells}
@@ -458,7 +633,10 @@ const VocabularyManagement = () => {
                                 scope="row"
                                 padding="none"
                                 align="right"
-                              ></TableCell>
+                              >
+                                {" "}
+                                {index + 1}
+                              </TableCell>
                               <TableCell align="left">{row.word}</TableCell>
                               <TableCell align="left">{row.meaning}</TableCell>
                               <TableCell align="left">
@@ -488,13 +666,55 @@ const VocabularyManagement = () => {
                                 >
                                   <button
                                     className="a-l-button-action-update"
-                                    onClick={handleOpenModalUpdateVocabulary}
+                                    onClick={() => {
+                                      setSelectedRow(row);
+                                      handleOpenModalUpdateVocabulary();
+                                    }}
                                   >
                                     <MdEdit />
                                   </button>
-                                  <button className="a-l-button-action-delete">
+                                  <button
+                                    className="a-l-button-action-delete"
+                                    onClick={() => {
+                                      setSelectedRow(row);
+                                      handleClickOpenD();
+                                    }}
+                                  >
                                     <MdDelete />
                                   </button>
+                                  <Dialog
+                                    open={openD}
+                                    onClose={handleCloseD}
+                                    aria-labelledby="alert-dialog-title"
+                                    aria-describedby="alert-dialog-description"
+                                    BackdropProps={{
+                                      style: {
+                                        background: "rgba(0, 0, 0, 0.1)", // Nền đen mờ
+                                      },
+                                    }}
+                                  >
+                                    <DialogTitle id="alert-dialog-title">
+                                      {"Confirm delete this word?"}
+                                    </DialogTitle>
+                                    <DialogContent>
+                                      <DialogContentText id="alert-dialog-description">
+                                        Deleting this word cannot be undone.
+                                      </DialogContentText>
+                                    </DialogContent>
+                                    <DialogActions>
+                                      <Button
+                                        onClick={() => {
+                                          setSelectedRow(row);
+                                          handleDeleteVoca(selectedRow.id);
+                                        }}
+                                      >
+                                        Delete
+                                      </Button>
+                                      <Button onClick={handleCloseD}>
+                                        Cancel
+                                      </Button>
+                                    </DialogActions>
+                                  </Dialog>
                                 </div>
                               </TableCell>
                             </TableRow>
@@ -503,6 +723,14 @@ const VocabularyManagement = () => {
                       </TableBody>
                     </Table>
                   </TableContainer>
+                  <TablePagination
+                    rowsPerPageOptions={[5]}
+                    component="div"
+                    count={vocabularies.length}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    onPageChange={handleChangePage}
+                  />
                 </Paper>
               </Box>
             </div>
@@ -513,12 +741,34 @@ const VocabularyManagement = () => {
       </div>
       <ModalAddVocabulary
         open={openModalAddVocabulary}
-        handleClose={handleCloseModalAddVocabulary}
+        handleClose={handleModalResultA}
       />
       <ModalUpdateVocabulary
         open={openModalUpdateVocabulary}
-        handleClose={handleCloseModalUpdateVocabulary}
-        rowData={vocabularies.find((row) => row.id === selected[0])}
+        handleClose={handleModalResultU}
+        rowData={selectedRow}
+      />
+      <Snackbar
+        open={openA}
+        autoHideDuration={6000}
+        onClose={handleCloseA}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert
+          onClose={handleCloseA}
+          severity={typeA}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {messageA}
+        </Alert>
+      </Snackbar>
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        message="Word not found"
       />
     </div>
   );

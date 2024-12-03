@@ -154,5 +154,12 @@
     background-color: #30883e;
     cursor: pointer;
     box-shadow: 1px 1px 0px 0px gray;
+    color: white;
+
     
 }
+.m-add-question-button:hover{
+    background-color: #30883e;
+    scale: 1.1;
+}
+
