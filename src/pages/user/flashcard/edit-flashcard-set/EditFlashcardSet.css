@@ -1,0 +1,21 @@
+#EditFlashcardSet {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 1rem;
+}
+
+#EditFlashcardSet .header {
+    display: flex;
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
+#EditFlashcardSet .header .return-btn {
+    font-size: 1.5rem;
+    cursor: pointer;
+    justify-self: flex-start;
+    align-self: flex-start;
+    position: absolute;
+}

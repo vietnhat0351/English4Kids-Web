@@ -1,36 +1,36 @@
-import React, { useEffect, useState } from "react";
+import {
+  Button,
+  FormControl,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
+  Paper
+} from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { MobileTimePicker } from "@mui/x-date-pickers/MobileTimePicker";
-import {
-  Button,
-  IconButton,
-  InputAdornment,
-  OutlinedInput,
-  TextField,
-} from "@mui/material";
-import customFetch from "../../../utils/customFetch";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setUserProfile } from "../../../redux/slices/userSlice";
+import customFetch from "../../../utils/customFetch";
 
 import { MdModeEdit } from "react-icons/md";
 
 import axios from "axios";
 
-import "./style.css";
-import { setLessons } from "../../../redux/slices/lessonSlice";
-import ModalResult from "../learn/learnQuestion/ModalResult";
-import ModalUpdateUser from "./tool/ModalUpdateUser";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import dayjs from "dayjs";
 import { useSnackbar } from "notistack";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { setLessons } from "../../../redux/slices/lessonSlice";
+import "./style.css";
+import ModalUpdateUser from "./tool/ModalUpdateUser";
+import { useNavigate } from "react-router-dom";
 
 function Profile() {
   const user = useSelector((state) => state.user.profile);
   const lessons = useSelector((state) => state.lessons);
   const dispatch = useDispatch();
-
-  const [loginType, setLoginType] = useState(localStorage.getItem("loginType"));
 
   const { enqueueSnackbar } = useSnackbar();
   const handleClickVariant = (variant, message) => {
@@ -43,6 +43,8 @@ function Profile() {
   const [numOfVocab, setNumOfVocab] = useState(0);
   const [openModal, setOpenModal] = useState(false);
   const [selectedDate, handleDateChange] = useState(new Date());
+
+  const navigate = useNavigate();
 
   const handleOpenModal = () => {
     setOpenModal(true);
@@ -102,7 +104,7 @@ function Profile() {
           const lastSunday = new Date(today);
           lastSunday.setDate(today.getDate() - today.getDay()); // Lấy ngày Chủ Nhật tuần trước
 
-          const { lastLearningDate, weeklyPoints, streak } = response.data;
+          const { lastLearningDate } = response.data;
 
           // Chuyển đổi lastLearningDate sang kiểu Date
           const lastLearningDateObj = new Date(lastLearningDate);
@@ -176,9 +178,17 @@ function Profile() {
     return regex.test(password);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken");
+    dispatch(setUserProfile(null));
+    navigate("/login");
+  }
+
   const handleChangePassword = () => {
     const oldPassword = document.getElementById("outlined-old-password").value;
     const newPassword = document.getElementById("outlined-new-password").value;
+    const confirmPassword = document.getElementById("outlined-confirm-password").value;
+
     console.log(oldPassword, newPassword);
     if (!oldPassword || !newPassword) {
       handleClickVariant("error", "Please fill in all fields");
@@ -191,6 +201,10 @@ function Profile() {
       );
       return;
     }
+    if (newPassword !== confirmPassword) {
+      handleClickVariant("error", "New password and confirm password do not match");
+      return;
+    }
     customFetch
       .post("/api/v1/user/change-password", {
         oldPassword,
@@ -198,6 +212,7 @@ function Profile() {
       })
       .then((data) => {
         handleClickVariant("success", "Password changed successfully!");
+        handleLogout();
       })
       .catch((error) => {
         console.error(error);
@@ -276,112 +291,124 @@ function Profile() {
               padding: "10px",
               display: "flex",
               flexDirection: "column",
-              gap: "10px",
+              gap: "30px",
             }}
           >
-            <div
-              style={{
-                fontSize: "25px",
-                fontWeight: "bold",
-              }}
-            >
-              Statistics
-            </div>
-            <div className="profile-info-container">
-              <div className="profile-info">
-                <img
-                  src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/fire.png"
-                  width={60}
-                  height={60}
-                  alt=""
-                />
-                <div>
-                  <div>
-                    <div
-                      style={{
-                        fontSize: "30px",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {user.streak + " "}
-                    </div>{" "}
-                    Day streak{" "}
-                  </div>
-                </div>
-              </div>
-              <div className="profile-info">
-                <img
-                  src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/MedalProfile.png"
-                  width={60}
-                  height={60}
-                  alt=""
-                />
-                <div>
-                  <div>
-                    <div
-                      style={{
-                        fontSize: "30px",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {countCompleted + " "}
-                    </div>{" "}
-                    Lesson completed{" "}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="profile-info-container">
-              <div className="profile-info">
-                <img
-                  src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/thunder.png"
-                  width={60}
-                  height={60}
-                  alt=""
-                />
-                <div>
-                  <div>
-                    <div
-                      style={{
-                        fontSize: "30px",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {user.totalPoints + " "}
-                    </div>{" "}
-                    Total XP{" "}
-                  </div>
-                </div>
-              </div>
-              <div className="profile-info">
-                <img
-                  src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/dictionary.png"
-                  width={60}
-                  height={60}
-                  alt=""
-                />
-                <div>
-                  <div>
-                    <div
-                      style={{
-                        fontSize: "30px",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {numOfVocab + " "}
-                    </div>{" "}
-                    Vocabulary learned{" "}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div
+            <Paper
               style={{
                 display: "flex",
-                // justifyContent: "center",
-                // alignItems: "center",
+                flexDirection: "column",
+                backgroundColor: "rgba(50, 145, 250, 0.3)",
+                borderRadius: "30px",
+                padding: "20px",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "25px",
+                  fontWeight: "bold",
+                }}
+              >
+                Statistics
+              </div>
+              <div className="profile-info-container">
+                <div className="profile-info">
+                  <img
+                    src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/fire.png"
+                    width={60}
+                    height={60}
+                    alt=""
+                  />
+                  <div>
+                    <div>
+                      <div
+                        style={{
+                          fontSize: "30px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {user.streak + " "}
+                      </div>{" "}
+                      Day streak{" "}
+                    </div>
+                  </div>
+                </div>
+                <div className="profile-info">
+                  <img
+                    src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/MedalProfile.png"
+                    width={60}
+                    height={60}
+                    alt=""
+                  />
+                  <div>
+                    <div>
+                      <div
+                        style={{
+                          fontSize: "30px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {countCompleted + " "}
+                      </div>{" "}
+                      Lesson completed{" "}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="profile-info-container">
+                <div className="profile-info">
+                  <img
+                    src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/thunder.png"
+                    width={60}
+                    height={60}
+                    alt=""
+                  />
+                  <div>
+                    <div>
+                      <div
+                        style={{
+                          fontSize: "30px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {user.totalPoints + " "}
+                      </div>{" "}
+                      Total XP{" "}
+                    </div>
+                  </div>
+                </div>
+                <div className="profile-info">
+                  <img
+                    src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/dictionary.png"
+                    width={60}
+                    height={60}
+                    alt=""
+                  />
+                  <div>
+                    <div>
+                      <div
+                        style={{
+                          fontSize: "30px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {numOfVocab + " "}
+                      </div>{" "}
+                      Vocabulary learned{" "}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Paper>
+
+            <Paper
+              style={{
+                display: "flex",
                 gap: "20px",
                 flexDirection: "column",
+                backgroundColor: "rgba(50, 145, 250, 0.3)",
+                borderRadius: "30px",
+                padding: "20px",
               }}
             >
               <span
@@ -390,71 +417,108 @@ function Profile() {
                   fontWeight: "bold",
                 }}
               >
-                Old password
+                Chage Password
               </span>
-              <OutlinedInput
-                id="outlined-old-password"
-                type={showOldPassword ? "text" : "password"}
-                // disabled={loginType && loginType === 'google'}
-                sx={{ width: "80%", alignSelf: "center", backgroundColor: "white"}}
-                endAdornment={
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label={
-                        showOldPassword
-                          ? "hide the password"
-                          : "display the password"
-                      }
-                      onClick={handleClickShowOldPassword}
-                      onMouseDown={handleMouseDownPassword}
-                      onMouseUp={handleMouseUpPassword}
-                      edge="end"
-                    >
-                      {showOldPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                }
-              />
-              <span
-                style={{
-                  fontSize: "25px",
-                  fontWeight: "bold",
+              <FormControl
+                sx={{
+                  width: "80%",
+                  alignSelf: "center",
+                  backgroundColor: "white",
+                  borderRadius: "5px"
                 }}
+                variant="outlined"
               >
-                New password
-              </span>
-              <OutlinedInput
-                id="outlined-new-password"
-                type={showPassword ? "text" : "password"}
-                // disabled={loginType && loginType === 'google'}
-                sx={{ width: "80%", alignSelf: "center", backgroundColor: "white"}}
-                endAdornment={
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label={
-                        showPassword
-                          ? "hide the password"
-                          : "display the password"
-                      }
-                      onClick={handleClickShowPassword}
-                      onMouseDown={handleMouseDownPassword}
-                      onMouseUp={handleMouseUpPassword}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                }
-              />
+                <InputLabel htmlFor="outlined-old-password">Old Password</InputLabel>
+                <OutlinedInput
+                  id="outlined-old-password"
+                  type={showOldPassword ? 'text' : 'password'}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label={showOldPassword ? 'hide the password' : 'display the password'}
+                        onClick={handleClickShowOldPassword}
+                        onMouseDown={handleMouseDownPassword}
+                        onMouseUp={handleMouseUpPassword}
+                        edge="end"
+                      >
+                        {showOldPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                  label="---------------"
+                />
+              </FormControl>
+              <FormControl
+                sx={{
+                  width: "80%",
+                  alignSelf: "center",
+                  backgroundColor: "white",
+                  borderRadius: "5px"
+                }}
+                variant="outlined"
+              >
+                <InputLabel htmlFor="outlined-new-password">New Password</InputLabel>
+                <OutlinedInput
+                  id="outlined-new-password"
+                  type={showPassword ? 'text' : 'password'}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label={
+                          showPassword ? 'hide the password' : 'display the password'
+                        }
+                        onClick={handleClickShowPassword}
+                        onMouseDown={handleMouseDownPassword}
+                        onMouseUp={handleMouseUpPassword}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                  label="--------------"
+                />
+              </FormControl>
+              <FormControl
+                sx={{
+                  width: "80%",
+                  alignSelf: "center",
+                  backgroundColor: "white",
+                  borderRadius: "5px"
+                }}
+                variant="outlined"
+              >
+                <InputLabel htmlFor="outlined-confirm-password">Confirm Password</InputLabel>
+                <OutlinedInput
+                  id="outlined-confirm-password"
+                  type={showPassword ? 'text' : 'password'}
+                  endAdornment={
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label={
+                          showPassword ? 'hide the password' : 'display the password'
+                        }
+                        onClick={handleClickShowPassword}
+                        onMouseDown={handleMouseDownPassword}
+                        onMouseUp={handleMouseUpPassword}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                  label="---------------------"
+                />
+              </FormControl>
               <Button
                 variant="contained"
-                color="primary"
-                style={{ alignSelf: "center", marginTop: "30px" }}
+                color="success"
+                style={{ alignSelf: "center" }}
                 onClick={handleChangePassword}
               >
-                Save
+                Change Password
               </Button>
-            </div>
+            </Paper>
           </div>
           <ModalUpdateUser open={openModal} handleClose={handleCloseModal} />
         </div>

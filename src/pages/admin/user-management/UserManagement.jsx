@@ -1,33 +1,23 @@
-import * as React from "react";
 import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
+import * as React from "react";
 import customFetch from "../../../../src/utils/customFetch";
-import AudioPlayer from "../../../../src/utils/AudioPlayer";
 import EnhancedTableHead from "../../../../src/utils/enhancedTable/EnhancedTableHead";
 import EnhancedTableToolbar from "../../../../src/utils/enhancedTable/EnhancedTableToolbar";
 
-import FileInput from "../../../../src/utils/ReadExcelFile/FileInput";
-import ReadExcel from "../../../../src/utils/ReadExcelFile/ReadExcel";
 
-import { IoMdAdd } from "react-icons/io";
-import { MdEdit } from "react-icons/md";
-import { MdDelete } from "react-icons/md";
-import { IoInformation } from "react-icons/io5";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import ErrorIcon from "@mui/icons-material/Error";
-import RepeatIcon from "@mui/icons-material/Repeat";
-import "./style.css";
-import { useDispatch, useSelector } from "react-redux";
-import { setVocabularies } from "../../../redux/slices/vocabularySlice";
 import { useEffect } from "react";
+import { IoInformation } from "react-icons/io5";
+import { MdDelete } from "react-icons/md";
+import { useDispatch, useSelector } from "react-redux";
+import "./style.css";
 // import { FaSearch } from "react-icons/fa";
 import {
-  Alert,
   Avatar,
   Button,
   Dialog,
@@ -37,15 +27,13 @@ import {
   DialogTitle,
   Snackbar,
   TablePagination,
-  TextField,
+  TextField
 } from "@mui/material";
-import { useState, useMemo } from "react";
-import { useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { setUserProcess } from "../../../redux/slices/userProcess";
 import ModalInforUser from "./ModalInforUser";
 
 const UserManagement = () => {
-  const vocabularies = useSelector((state) => state.vocabularies);
   const listUser = useSelector((state) => state.userProcess);
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);

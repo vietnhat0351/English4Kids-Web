@@ -10,6 +10,10 @@ import { FaSearch } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import SearchIcon from '@mui/icons-material/Search';
 
+import { FaArrowLeft } from "react-icons/fa";
+
+import './EditFlashcardSet.css';
+
 const CreateFlashcardForm = (props) => {
     const { flashcards, setFlashcards, index, setModalShow, setChoosingFlashcard, setKeyword } = props;
     const updatedFlashcards = [...flashcards];
@@ -58,8 +62,7 @@ const CreateFlashcardForm = (props) => {
 
     return (
         <div key={index} style={{
-            // border: '1px solid black',
-            backgroundColor: 'lightgray',
+            backgroundColor: "rgba(50, 145, 250, 0.3)",
             borderRadius: '0.5rem',
             margin: '0.5rem',
         }}>
@@ -340,27 +343,54 @@ const EditFlashcardSet = () => {
     }
 
     return (
-        <div style={{
-            padding: '1rem',
-            display: 'flex',
-            flexDirection: 'column',
+        <div id='EditFlashcardSet' style={{
+            backgroundImage: 'url("https://english-for-kids.s3.ap-southeast-1.amazonaws.com/41d186051d1991a4ebf11f8d81f438fb85eb390f669dcb48298ea8d1e24ff188.png")',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            height: '100vh',
         }}>
-            <h1>Chỉnh sửa bộ Flashcard</h1>
-            <div>
+            <div className='header'>
+                <FaArrowLeft className='return-btn'
+                    onClick={() => {
+                        window.history.back();
+                    }}
+                />
+                <div style={{
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                }}>
+                    <Paper style={{
+                        textAlign: 'center',
+                        fontSize: '2rem',
+                        padding: '0.5rem',
+                        backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                    }}>Edit Flashcard Set</Paper>
+                </div>
+            </div>
+            <div style={{
+                display: 'flex',
+                flexDirection: 'row',
+                gap: '1rem',
+                width: '100%',
+            }}>
                 <TextField id="standard-basic" label="Tên Bộ Flashcard" variant="standard"
                     value={flashcardSet.name ? flashcardSet.name : ''}
                     onChange={(e) => setFlashcardSet({
                         ...flashcardSet,
                         name: e.target.value
-                    })} />
-            </div>
-            <div>
+                    })}
+                    sx={{ width: '30%' }}
+                />
                 <TextField id="standard-basic" label="Mô Tả" variant="standard"
                     value={flashcardSet.description ? flashcardSet.description : ''}
                     onChange={(e) => setFlashcardSet({
                         ...flashcardSet,
                         description: e.target.value
-                    })} />
+                    })}
+                    sx={{ width: '70%' }}
+                />
             </div>
             {
                 flashcards.map((_, index) => (

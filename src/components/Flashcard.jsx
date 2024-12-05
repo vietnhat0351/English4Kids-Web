@@ -55,7 +55,8 @@ function Flashcard({ flashcard }) {
 
   return (
     <div
-      className={`flashcard ${flip ? 'flip' : ''}`}
+      id='flashcard'
+      className={`${flip ? 'flip' : ''}`}
       onClick={() => setFlip(!flip)}
     >
       <div className="front">

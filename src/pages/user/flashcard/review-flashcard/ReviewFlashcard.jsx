@@ -99,10 +99,14 @@ const ReviewFlashcard = () => {
                 gap: "20px",
                 height: "100%",
                 width: "100%",
+                fontSize: "1.5rem",
             }}>
-                <h1>Kết quả</h1>
-                <p>Số câu đúng: {question - inCorrectFlashcards.length} / {total}</p>
-                <p>Số câu sai: {inCorrectFlashcards.length}</p>
+                {/* <h1>Kết quả</h1> */}
+                <h1>Result</h1>
+                {/* <p>Số câu đúng: {question - inCorrectFlashcards.length} / {total}</p> */}
+                <p>Number of correct answers: {question - inCorrectFlashcards.length} / {total}</p>
+                {/* <p>Số câu sai: {inCorrectFlashcards.length}</p> */}
+                <p>Number of wrong answers: {inCorrectFlashcards.length}</p>
                 <div>
                     {
                         question - inCorrectFlashcards.length === total ? <Button variant="contained" color="primary" onClick={() => {
@@ -110,13 +114,19 @@ const ReviewFlashcard = () => {
                             setInCorrectFlashcards([]);
                             setFlashcards(flashcards1.sort(() => Math.random() - 0.5));
                             setTotal(flashcards1.length);
-                        }}>Làm Lại Từ Đầu</Button> : 
+                        }}>
+                            {/* Làm Lại Từ Đầu */}
+                            Restart
+                        </Button> : 
                         <Button variant="contained" color="primary" onClick={() => {
                             setQuestion(0);
                             setFlashcards(inCorrectFlashcards);
                             setTotal(inCorrectFlashcards.length);
                             setInCorrectFlashcards([]);
-                        }}>Làm Lại Câu Sai</Button>
+                        }}>
+                            {/* Làm Lại Câu Sai */}
+                            Retry Wrong Answers
+                        </Button>
                     }
 
                 </div>
@@ -213,14 +223,16 @@ const ReviewFlashcard = () => {
                                     display: "flex",
                                     justifyContent: "space-evenly",
                                     alignItems: "center",
-                                    fontSize: "50px",
                                     flex: 6,
                                     height: "100%",
                                     flexDirection: "column",
-
                                 }}>
-                                    <p>Định Nghĩa</p>
-                                    <p>{flashcards[question].meaning}</p>
+                                    <h1 style={{
+                                        fontSize: "1.5rem",
+                                    }}>Definition</h1>
+                                    <p style={{
+                                        fontSize: "1.5rem",
+                                    }}>{flashcards[question].meaning}</p>
                                 </div>
                                 <div style={{
                                     display: "flex",
@@ -252,7 +264,8 @@ const ReviewFlashcard = () => {
                                 alignItems: 'center',
                                 top: '65%',
                             }}>
-                                <p>Chính Xác! 🥳</p>
+                                {/* <p>Chính Xác! 🥳</p> */}
+                                <p>Correct! 🥳</p>
                                 <div style={{
                                     display: 'flex',
                                     gap: '20px',
@@ -307,7 +320,8 @@ const ReviewFlashcard = () => {
                             </div>
 
                             <TextField id="answer-input" variant="outlined"
-                                placeholder='Nhập Câu Trả Lời Tiếng Anh'
+                                // placeholder='Nhập Câu Trả Lời Tiếng Anh'
+                                placeholder='Enter Your Answer'
                                 inputRef={answerInput}
                                 sx={{
                                     width: '70%',
@@ -325,7 +339,10 @@ const ReviewFlashcard = () => {
                                 autoComplete='off'
                             />
                             <div className='continue-noti' style={{ visibility: isWrongAnswerSubmitted ? 'visible' : 'hidden' }}>
-                                <span>Nhấn phím Enter để tiếp tục</span>
+                                {/* <span>Nhấn phím Enter để tiếp tục</span> */}
+                                <span>
+                                    PRESS ENTER TO CONTINUE!
+                                </span>
                             </div>
                         </div>
 

@@ -1,8 +1,42 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import AudioPlayer from "../../../../utils/AudioPlayer";
+import axios from "axios";
 
-const FlashCardVocabulary = ({ data }) => {
+const LearnFlashCardVocabulary = ({ data }) => {
   const [showBack, setShowBack] = useState(false);
+
+  const [audioUrl, setAudioUrl] = useState(null);
+
+  useEffect(() => {
+    if (!data) {
+      return;
+    }
+
+    const fetchAudio = async () => {
+      try {
+
+        const token = localStorage.getItem('accessToken');
+
+        const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/v1/tts/synthesize`,
+          { text: data.word },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, // Thêm token vào header Authorization
+            },
+            responseType: "arraybuffer" // Nhận dữ liệu nhị phân (binary)
+          }
+        );
+
+        // Tạo blob từ dữ liệu nhị phân nhận được
+        const blob = new Blob([response.data], { type: "audio/mpeg" });
+        const url = URL.createObjectURL(blob);
+        setAudioUrl(url);  // Lưu URL để phát hoặc tải xuống
+      } catch (error) {
+        console.error("Error generating audio:", error);
+      }
+    }
+    fetchAudio();
+  }, [data]);
 
   const toggleCard = () => {
     setShowBack((prev) => !prev);
@@ -11,12 +45,7 @@ const FlashCardVocabulary = ({ data }) => {
   return (
     <div
       onClick={toggleCard}
-      style={{
-        width: "400px",
-        height: "600px",
-        perspective: "1000px",
-        cursor: "pointer",
-      }}
+      id="LearnFlashCardVocabulary"
     >
       <div
         style={{
@@ -61,13 +90,13 @@ const FlashCardVocabulary = ({ data }) => {
                 e.stopPropagation(); // Ngăn chặn sự kiện lật thẻ
               }}
             >
-              <AudioPlayer audioSrc={data.audio} />
+              <AudioPlayer audioSrc={audioUrl} />
             </span>
           </div>
           <div
             style={{ fontStyle: "italic", color: "#555", fontSize: "1.5rem" }}
           >
-            {data.pronunciation}
+            {data?.phonetic}
           </div>
           <div
             style={{
@@ -124,4 +153,4 @@ const FlashCardVocabulary = ({ data }) => {
   );
 };
 
-export default FlashCardVocabulary;
+export default LearnFlashCardVocabulary;
