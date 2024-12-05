@@ -62,7 +62,7 @@ function MyVerticallyCenteredModal(props) {
               onHide();
             }
           }>&times;</span>
-          <h2>Chọn Hình Ảnh Cho Flashcard </h2>
+          <h2>Choose an image for Flashcard </h2>
         </div>
         <div className="modal-body">
           <div style={{
@@ -71,7 +71,7 @@ function MyVerticallyCenteredModal(props) {
             flexDirection: 'row',
             paddingBottom: '1rem',
           }}>
-            <TextField id="outlined-basic" label="Từ Khóa" variant="outlined"
+            <TextField id="outlined-basic" label="Word" variant="outlined"
               value={keywordState && keywordState !== '' ? keywordState : keyword}
               onChange={(event) => {
                 setKeywordState(event.target.value);
@@ -80,7 +80,7 @@ function MyVerticallyCenteredModal(props) {
                 width: '80%'
               }}
             />
-            <Button variant="contained" onClick={() => fetchImages(keywordState)}>Tìm Ảnh</Button>
+            <Button variant="contained" onClick={() => fetchImages(keywordState)}>Find</Button>
           </div>
           {
             images.length > 0 ? (<div style={{

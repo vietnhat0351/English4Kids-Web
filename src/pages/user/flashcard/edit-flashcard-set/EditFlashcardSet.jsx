@@ -116,7 +116,7 @@ const CreateFlashcardForm = (props) => {
                                 placeholder="Word"
                                 inputProps={{ 'aria-label': 'Word' }}
                                 error={flashcard.isValidate && !flashcard.word}
-                                helperText={flashcard.isValidate && !flashcard.word ? 'Vui lòng nhập từ' : ''}
+                                helperText={flashcard.isValidate && !flashcard.word ? 'Please fill word' : ''}
                                 onChange={(e) => {
                                     updatedFlashcards[index] = {
                                         // ...updatedFlashcards[index],
@@ -152,8 +152,8 @@ const CreateFlashcardForm = (props) => {
                             }}
                         >
                             <InputBase
-                                placeholder="Phát Âm"
-                                inputProps={{ 'aria-label': 'Phát Âm' }}
+                                placeholder="Phonetic"
+                                inputProps={{ 'aria-label': 'Phonetic' }}
                                 onChange={(e) => {
                                     updatedFlashcards[index] = {
                                         // ...updatedFlashcards[index],
@@ -182,7 +182,7 @@ const CreateFlashcardForm = (props) => {
                             placeholder="Meaning"
                             inputProps={{ 'aria-label': 'Meaning' }}
                             error={flashcard.isValidate && !flashcard.meaning}
-                            helperText={flashcard.isValidate && !flashcard.meaning ? 'Vui lòng nhập nghĩa' : ''}
+                            helperText={flashcard.isValidate && !flashcard.meaning ? 'Please fill the meaning' : ''}
                             onChange={(e) => {
                                 updatedFlashcards[index] = {
                                     // ...updatedFlashcards[index],
@@ -241,7 +241,7 @@ const CreateFlashcardForm = (props) => {
                                 onClick={handleChooseImage}
                             >
                                 <FaImage />
-                                <h6>HÌNH ẢNH</h6>
+                                <h6>Image</h6>
                             </div>
                         )
                     }
@@ -313,7 +313,7 @@ const EditFlashcardSet = () => {
 
         for (let i = 0; i < fl.length; i++) {
             if (fl[i].isValidate) {
-                handleClickVariant('error', 'Vui lòng nhập đầy đủ thông tin cho các flashcard');
+                handleClickVariant('error', 'Please fill all the flashcards');
                 return;
             }
         }
@@ -375,7 +375,7 @@ const EditFlashcardSet = () => {
                 gap: '1rem',
                 width: '100%',
             }}>
-                <TextField id="standard-basic" label="Tên Bộ Flashcard" variant="standard"
+                <TextField id="standard-basic" label="Flashcard set name" variant="standard"
                     value={flashcardSet.name ? flashcardSet.name : ''}
                     onChange={(e) => setFlashcardSet({
                         ...flashcardSet,
@@ -383,7 +383,7 @@ const EditFlashcardSet = () => {
                     })}
                     sx={{ width: '30%' }}
                 />
-                <TextField id="standard-basic" label="Mô Tả" variant="standard"
+                <TextField id="standard-basic" label="Description" variant="standard"
                     value={flashcardSet.description ? flashcardSet.description : ''}
                     onChange={(e) => setFlashcardSet({
                         ...flashcardSet,
@@ -413,8 +413,8 @@ const EditFlashcardSet = () => {
             }}>
                 <Button variant="contained" color="primary" onClick={() => {
                     setFlashcards([...flashcards, { word: '', meaning: '', image: '', isValidate: false }]);
-                }}>Thêm Flashcard</Button>
-                <Button variant="contained" color="primary" onClick={handleSaveFlashcardSet}>Cập nhật</Button>
+                }}>New flashcard</Button>
+                <Button variant="contained" color="primary" onClick={handleSaveFlashcardSet}>Update</Button>
 
                 <MyVerticallyCenteredModal
                     show={modalShow}

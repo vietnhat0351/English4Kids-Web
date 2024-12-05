@@ -266,7 +266,7 @@ const CreateFlashcardSet = () => {
     const handleSaveFlashcardSet = async () => {
         // kiểm tra xem tên bộ flashcard có rỗng không
         if (!flashcardSet.name) {
-            handleClickVariant('error', 'Vui lòng nhập tên bộ flashcard');
+            handleClickVariant('error', 'Please enter flashcard set name');
             return;
         }
 
@@ -298,9 +298,9 @@ const CreateFlashcardSet = () => {
             flashcards: flashcards
         }).then((response) => {
             if (response.status === 200) {
-                handleClickVariant('success', 'Tạo bộ flashcard thành công');
+                handleClickVariant('success', 'Create flashcard set successfully');
             } else {
-                handleClickVariant('error', 'Tạo bộ flashcard thất bại');
+                handleClickVariant('error', 'Create flashcard set failed');
             }
         }).catch((error) => {
             console.error(error);
@@ -318,16 +318,16 @@ const CreateFlashcardSet = () => {
             backgroundRepeat: 'no-repeat',
             height: '100vh',
         }}>
-            <h1>Tạo Bộ Flashcard</h1>
+            <h1>Create flashcard set</h1>
             <div>
-                <TextField id="standard-basic" label="Tên Bộ Flashcard" variant="standard"
+                <TextField id="standard-basic" label="Flashcard set name" variant="standard"
                     onChange={(e) => setFlashcardSet({
                         ...flashcardSet,
                         name: e.target.value
                     })} />
             </div>
             <div>
-                <TextField id="standard-basic" label="Mô Tả" variant="standard" onChange={(e) => setFlashcardSet({
+                <TextField id="standard-basic" label="Description" variant="standard" onChange={(e) => setFlashcardSet({
                     ...flashcardSet,
                     description: e.target.value
                 })} />
