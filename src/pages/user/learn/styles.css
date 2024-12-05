@@ -23,6 +23,9 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat; */
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
   background-color: lightskyblue;
   border-radius: 15px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -42,6 +45,7 @@
   background-repeat: no-repeat; */
   background-color: #ffd41c;
   border-radius: 15px;
+
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   width: 300px;
   padding: 20px;
@@ -103,5 +107,6 @@
 .lesson-description {
   font-size: 20px;
   color: #555;
+  align-self: flex-start;
 }
 

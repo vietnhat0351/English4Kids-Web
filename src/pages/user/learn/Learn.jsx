@@ -79,19 +79,9 @@ const Learn = () => {
         )} */}
         {lessons && lessons.length > 0 ? (
           lessons.map((lesson, index) => {
-            const isDisabled =
-              !lesson.done &&
-              (index === 0 ? false : !lessons[index - 1].completed);
-
             return (
               <button
-                className={
-                  isDisabled
-                    ? "lesson-card-disabled"
-                    : lesson.done
-                    ? "lesson-card-complete"
-                    : "lesson-card"
-                }
+                className={lesson.done ? "lesson-card-complete" : "lesson-card"}
                 key={index}
                 onClick={() => {
                   navigate("" + lesson.id);

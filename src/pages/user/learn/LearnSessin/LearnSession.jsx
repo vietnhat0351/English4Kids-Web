@@ -44,6 +44,10 @@ const LearnSession = () => {
       remainingSeconds
     ).padStart(2, "0")}`;
   };
+  const formatDate = (dateString) => {
+    const [year, month, day] = dateString.split("-");
+    return `${day}-${month}-${year}`;
+  };
 
   return (
     <div className="lesson-page-container">
@@ -73,48 +77,102 @@ const LearnSession = () => {
           <h5 className="slesson-description">{selectedLesson.description}</h5>
           {selectedLesson.done && (
             <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between", // Căn đều hai đầu nếu cần
+              // alignItems: "center",
+              height: "100px",
+              borderRadius: "10px",
+              color: "black",
+              fontSize: "15px",
+              fontWeight: "bold",
+              width: "100%",
+              padding: "0 10px", // Thêm khoảng c
+              whiteSpace: "nowrap",
+              gap: "50px",
+            }}
+          >
+           
+            <div
               style={{
                 display: "flex",
-                justifyContent: "space-between", // Căn đều hai đầu nếu cần
-                // alignItems: "center",
-                height: "80px",
-                borderRadius: "10px",
-                color: "black",
-                fontSize: "20px",
-                fontWeight: "bold",
-                width: "100%",
-                padding: "0 10px", // Thêm khoảng c
-                whiteSpace: "nowrap",
-                gap: "50px",
+                flexDirection: "column",
+                gap: "5px",
+                alignItems: "flex-start",
+                justifyContent: "center",
+                // borderTop: "3px solid #30883e",
+                // borderLeft: "3px solid #30883e",
+                // borderRight: "0.5px solid #30883e",
+                // borderBottom: "0.5px solid #30883e",
+                padding: "5px",
+                backgroundColor: "",
+                borderRadius: "15px",
               }}
             >
-              {/* {" Score: " + Math.round(selectedLesson.score)} */}
-              {/* <div style={{
-                display: "flex",
-                gap: "10px",
-                alignItems: "center",
-                justifyContent: "flex-start",
-
-              }}>
-                Fastest Time:{" "}
+              <div
+                style={{
+                  display: "flex",
+                  gap: "10px",
+                  alignItems: "center",
+                  justifyContent: "flex-start",
+                }}
+              >
+                Highest score:{" "}
                 <p
                   style={{
                     color: "#30883e",
-                    fontSize: "20px",
+                    fontSize: "15px",
+                  }}
+                >
+                  {Math.round(selectedLesson.score)}
+                </p>
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "10px",
+                  alignItems: "center",
+                  justifyContent: "flex-start",
+                }}
+              >
+                Fastest time:{" "}
+                <p
+                  style={{
+                    color: "#30883e",
+                    fontSize: "15px",
                   }}
                 >
                   {formatTime(selectedLesson.score)}
                 </p>
-              </div> */}
-              <IoMdCheckmarkCircleOutline
-                size={{
-                  width: "10px",
-                  height: "10px",
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "10px",
+                  alignItems: "center",
+                  justifyContent: "flex-start",
                 }}
-              />
+              >
+                Last quiz:{" "}
+                <p
+                  style={{
+                    color: "#30883e",
+                    fontSize: "15px",
+                  }}
+                >
+                  {formatDate(selectedLesson.date)}
+                </p>
+              </div>
             </div>
-          )}
-        </div>
+            <IoMdCheckmarkCircleOutline
+              size={{
+                width: "10px",
+                height: "10px",
+              }}
+            />
+          </div>
+        )}
+      </div>
       </div>
 
       {/* Phần dưới - 3 nút (từ vựng, câu hỏi, luyện tập) */}

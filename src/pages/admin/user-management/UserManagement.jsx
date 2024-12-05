@@ -255,7 +255,7 @@ const UserManagement = () => {
             <div className="a-p-content-left">
               <Box sx={{ width: "100%" }}>
                 <Paper sx={{ width: "100%", overflow: "hidden" }}>
-                  <EnhancedTableToolbar titleLesson="Quản lí tài khoản" />
+                  <EnhancedTableToolbar titleLesson="User management" />
                   <TableContainer sx={{ height: 540, overflowY: "auto" }}>
                     <Table stickyHeader aria-label="sticky table">
                       <EnhancedTableHead
