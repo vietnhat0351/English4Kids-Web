@@ -82,8 +82,8 @@
   }
   
   .r-content-body-me {
-    background-color: #ffd41c;
-    border: #ffd41c;
+    background-color: lightskyblue;
+    border: lightskyblue;
     box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
      /* Màu nền nổi bật cho người dùng hiện tại */
   }

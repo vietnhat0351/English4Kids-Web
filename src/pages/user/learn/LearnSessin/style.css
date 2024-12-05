@@ -122,7 +122,7 @@
   gap: 10px;
 }
 .button-back:hover {
-  background-color: #ffd41c;
+  background-color: gray;
   scale: 1.05;
   color: white;
 }

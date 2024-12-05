@@ -50,104 +50,6 @@ import ModalAddQuestion from "./tool/ModalAddQuestion";
 import ReadExcel from "../../../../utils/ReadExcelFile/ReadExcel";
 import ModalUpdateQuestion from "./tool/ModalUpdateQuestion";
 
-const ProgressInfo = ({ percent, passImport, lack, duplicate }) => {
-  return (
-    <div
-      style={{
-        padding: "15px",
-        borderRadius: "8px",
-        backgroundColor: "#f7f8fa",
-        color: "#333",
-        fontFamily: "Arial, sans-serif",
-        alignItems: "center",
-        justifyContent: "space-between",
-        boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-        gap: "10px",
-        display: "flex",
-        width: "100%",
-      }}
-    >
-      <p
-        style={{
-          fontSize: "16px",
-          marginBottom: "10px",
-          color: "#555",
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-        }}
-      >
-        <span
-          style={{
-            fontWeight: "bold",
-            fontSize: "18px",
-            color: "#007bff",
-          }}
-        >
-          progress: {percent}%
-        </span>
-      </p>
-      <div style={{ display: "flex", gap: "15px" }}>
-        <span
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "5px",
-            color: "#4caf50",
-          }}
-        >
-          <CheckCircleIcon /> success: {passImport}
-        </span>
-        <span
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "5px",
-            color: "#f44336",
-          }}
-        >
-          <ErrorIcon /> fail: {lack}
-        </span>
-      </div>
-    </div>
-  );
-};
-
-const ProgressBar = ({ percent, passImport, lack }) => {
-  return (
-    <div
-      style={{
-        width: "60%",
-        marginBottom: "10px",
-        display: "flex",
-        gap: "10px",
-        flexDirection: "column",
-      }}
-    >
-      {/* Display progress text */}
-      <ProgressInfo percent={percent} passImport={passImport} lack={lack} />
-      <div
-        style={{
-          height: "10px",
-          width: "100%",
-          backgroundColor: "#e0e0df",
-          borderRadius: "8px",
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{
-            height: "100%",
-            width: `${percent}%`,
-            backgroundColor: percent === 100 ? "#4caf50" : "#3b82f6",
-            transition: "width 0.5s ease-in-out",
-          }}
-        ></div>
-      </div>
-    </div>
-  );
-};
-
 const Question = () => {
   const lessonCurrent = useSelector(
     (state) => state.lessonSelected || { questions: [] }
@@ -206,7 +108,113 @@ const Question = () => {
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
+  const [open, setOpen] = React.useState(false);
 
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const ProgressInfo = ({ percent, passImport, lack, duplicate }) => {
+    return (
+      <div
+        style={{
+          padding: "15px",
+          borderRadius: "8px",
+          backgroundColor: "#f7f8fa",
+          color: "#333",
+          fontFamily: "Arial, sans-serif",
+          alignItems: "center",
+          justifyContent: "space-between",
+          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+          gap: "10px",
+          display: "flex",
+          width: "100%",
+        }}
+      >
+        <p
+          style={{
+            fontSize: "16px",
+            marginBottom: "10px",
+            color: "#555",
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+          }}
+        >
+          <span
+            style={{
+              fontWeight: "bold",
+              fontSize: "18px",
+              color: "#007bff",
+            }}
+          >
+            progress: {percent}%
+          </span>
+        </p>
+        <div style={{ display: "flex", gap: "15px" }} onClick={handleClickOpen}>
+          <span
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "5px",
+              color: "#4caf50",
+            }}
+          >
+            <CheckCircleIcon /> success: {passImport}
+          </span>
+          <span
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "5px",
+              color: "#f44336",
+            }}
+          >
+            <ErrorIcon /> fail: {lack}
+          </span>
+        </div>
+      </div>
+    );
+  };
+
+  const ProgressBar = ({ percent, passImport, lack }) => {
+    return (
+      <div
+        style={{
+          width: "60%",
+          marginBottom: "10px",
+          display: "flex",
+          gap: "10px",
+          flexDirection: "column",
+        }}
+      >
+        {/* Display progress text */}
+        <ProgressInfo percent={percent} passImport={passImport} lack={lack} />
+        <div
+          style={{
+            height: "10px",
+            width: "100%",
+            backgroundColor: "#e0e0df",
+            borderRadius: "8px",
+            overflow: "hidden",
+          }}
+        >
+          <div
+            style={{
+              height: "100%",
+              width: `${percent}%`,
+              backgroundColor: percent === 100 ? "#4caf50" : "#3b82f6",
+              transition: "width 0.5s ease-in-out",
+            }}
+          ></div>
+        </div>
+      </div>
+    );
+  };
   const [openA, setOpenA] = React.useState(false);
   const [messageA, setMessageA] = React.useState("");
   const [typeA, setTypeA] = React.useState("success");
@@ -387,6 +395,8 @@ const Question = () => {
       ))}
     </Box>
   );
+  const [passList, setPassList] = useState([]);
+  const [lackList, setLackList] = useState([]);
 
   // =================================================================================================
   const handleFileSelect = async (file) => {
@@ -400,8 +410,26 @@ const Question = () => {
       setPassImport(0);
       setLack(0);
       setPercent(0);
+
+      setPassList([]);
+      setLackList([]);
+
+      const passTempList = [];
+      const lackTempList = [];
+
       for (let i = 0; i < data.length; i++) {
         setPercent(((i + 1) / data.length) * 100);
+        try {
+          const w = data[i].word.toLowerCase();
+        } catch (e) {
+          setLack((prev) => prev + 1);
+          lackTempList.push({
+            line: i + 1,
+            message: "Lack word",
+          });
+          continue;
+        }
+
         const res = await customFetch.get(
           `/api/v1/vocabulary/find-word-fast/${data[i].word.toLowerCase()}`
         );
@@ -411,6 +439,10 @@ const Question = () => {
           !res.data.inDatabase
         ) {
           setLack((prev) => prev + 1);
+          lackTempList.push({
+            line: i + 1,
+            message: "Lack content question or type question",
+          });
           continue;
         } else {
           if (
@@ -419,6 +451,10 @@ const Question = () => {
           ) {
             if (!data[i].answerContent) {
               setLack((prev) => prev + 1);
+              lackTempList.push({
+                line: i + 1,
+                message: "Lack answer content",
+              });
               console.log("Lỗi từ - nghĩa 1", data[i]);
               continue;
             } else {
@@ -429,6 +465,10 @@ const Question = () => {
               ) {
                 setLack((prev) => prev + 1);
                 console.log("Lỗi từ - nghĩa 2", data[i]);
+                lackTempList.push({
+                  line: i + 1,
+                  message: "Lack wrong answer content",
+                });
                 continue;
               }
             }
@@ -436,6 +476,11 @@ const Question = () => {
           if (data[i].typeQuestion === "WORD_SPELLING") {
             if (!data[i].answerAudio) {
               setLack((prev) => prev + 1);
+              lackTempList.push({
+                line: i + 1,
+                message: "Lack answer audio",
+              });
+
               console.log("Lỗi từ - âm 1", data[i]);
               continue;
             } else {
@@ -445,6 +490,10 @@ const Question = () => {
                 !data[i].wrongAnswerAudio3
               ) {
                 setLack((prev) => prev + 1);
+                lackTempList.push({
+                  line: i + 1,
+                  message: "Lack wrong answer audio",
+                });
                 console.log("Lỗi từ - âm 2", data[i]);
                 continue;
               }
@@ -453,11 +502,19 @@ const Question = () => {
           if (data[i].typeQuestion === "SPELLING_WORD") {
             if (!data[i].audioQuestion) {
               setLack((prev) => prev + 1);
+              lackTempList.push({
+                line: i + 1,
+                message: "Lack audio question",
+              });
               console.log("Lỗi âm - từ 1", data[i]);
               continue;
             } else {
               if (!data[i].answerContent) {
                 setLack((prev) => prev + 1);
+                lackTempList.push({
+                  line: i + 1,
+                  message: "Lack answer content",
+                });
                 console.log("Lỗi âm - từ 2", data[i]);
                 continue;
               } else {
@@ -467,6 +524,10 @@ const Question = () => {
                   !data[i].wrongAnswerContent3
                 ) {
                   setLack((prev) => prev + 1);
+                  lackTempList.push({
+                    line: i + 1,
+                    message: "Lack wrong answer content",
+                  });
                   console.log("Lỗi âm - từ 3", data[i]);
                   continue;
                 }
@@ -476,6 +537,10 @@ const Question = () => {
           if (data[i].typeQuestion === "WORD_ORDER") {
             if (data[i].contentQuestion.split(" ").length < 2) {
               setLack((prev) => prev + 1);
+              lackTempList.push({
+                line: i + 1,
+                message: "Lack word ",
+              });
               console.log("Lỗi thiết từ", data[i]);
               continue;
             }
@@ -483,6 +548,10 @@ const Question = () => {
           if (data[i].typeQuestion === "FILL_IN_FLANK") {
             if (!data[i].answerContent) {
               setLack((prev) => prev + 1);
+              lackTempList.push({
+                line: i + 1,
+                message: "Lack answer content",
+              });
               console.log("Lỗi thiếu từ 1", data[i]);
               continue;
             } else {
@@ -492,6 +561,10 @@ const Question = () => {
                 !data[i].wrongAnswerContent3
               ) {
                 setLack((prev) => prev + 1);
+                lackTempList.push({
+                  line: i + 1,
+                  message: "Lack wrong answer content",
+                });
                 console.log("Lỗi thiếu từ 2", data[i]);
                 continue;
               }
@@ -499,7 +572,6 @@ const Question = () => {
           }
 
           try {
-            console.log("data[i]", data[i]);
             let dataQuestion = {
               content: data[i].contentQuestion,
               image: data[i].imageQuestion,
@@ -557,8 +629,11 @@ const Question = () => {
               });
             }
             setPassImport((prev) => prev + 1);
+            passTempList.push({
+              line: i + 1,
+              message: "Success",
+            });
             dataQuestion = { ...dataQuestion, answers: answers };
-            console.log("dataQuestion", dataQuestion);
             const response = await customFetch.post(
               "/api/v1/questions/create",
               dataQuestion
@@ -571,6 +646,8 @@ const Question = () => {
           }
         }
       }
+      setPassList(passTempList);
+      setLackList(lackTempList);
       // Gọi data từ API tất cả từ vựng và cập nhật lại state
 
       const lastUrl = location.pathname.split("/").pop();
@@ -593,7 +670,7 @@ const Question = () => {
 
       setLoadingImport(false);
     } catch (error) {
-      console.error("Error reading Excel file:", error);
+      console.error("Error importing questions:", error);
     } finally {
       setLoadingImport(false);
     }
@@ -1011,7 +1088,7 @@ const Question = () => {
                 <TablePagination
                   rowsPerPageOptions={[5]}
                   component="div"
-                  count={lessonCurrent.questions.length}
+                  count={visibleRows.length}
                   rowsPerPage={rowsPerPage}
                   page={page}
                   onPageChange={handleChangePage}
@@ -1048,6 +1125,67 @@ const Question = () => {
           {messageA}
         </Alert>
       </Snackbar>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Import question result"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            <div>
+              {passList && passList.length > 0 ? (
+                <div>
+                  <p
+                    style={{
+                      color: "#4caf50",
+                    }}
+                  >
+                    Success import: {passImport}
+                  </p>
+                  {passList.map((item, index) => (
+                    <div key={index}>
+                      Line {item.line}: {item.message}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div></div>
+              )}
+            </div>
+            <div>
+              {lackList && lackList.length > 0 ? (
+                <div>
+                  <p
+                    style={{
+                      color: "#f44336",
+                    }}
+                  >
+                    Fail import: {lack}
+                  </p>
+                  {lackList.map((item, index) => (
+                    <div key={index} style={{
+                      color: "#f44336",
+                    }}>
+                      Line {item.line}: {item.message}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div></div>
+              )}
+            </div>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} autoFocus>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

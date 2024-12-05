@@ -105,11 +105,12 @@ const ModalAddVocabulary = ({ open, handleClose }) => {
     const response = await customFetch.get(
       `/api/v1/vocabulary/find-word/${word.toLowerCase()}`
     );
-    console.log("Response", response.data);
     if (response.data) {
       setWordFind(response.data);
       if (!response.data.inDatabase && response.data.word) {
-        setCheckWordFind("This information already exists, please double-check.");
+        setCheckWordFind(
+          "This information already exists, please double-check."
+        );
         if (response.data.word) {
           setWord(response.data.word);
         }
@@ -153,10 +154,10 @@ const ModalAddVocabulary = ({ open, handleClose }) => {
       setImage("");
       setAudio("");
     }
-    console.log("Word find", wordFind);
   };
 
   const handleSaveWord = async () => {
+    console.log("Word", wordFind);
     if (word === "") {
       setCheckWord(true);
       setCheckWordFind("");
@@ -213,24 +214,39 @@ const ModalAddVocabulary = ({ open, handleClose }) => {
         ...dataSave,
         id: wordFind.id,
       };
-    }
+      try {
+        await customFetch
+          .post(`/api/v1/vocabulary/update-vocabulary`, dataSave)
+          .then((response) => {
+            console.log("Word saved successfully!", response.data);
+          });
 
-    console.log("Data to save", dataSave);
-    try {
-      await customFetch
-        .post(`/api/v1/vocabulary/create-vocabulary`, dataSave)
-        .then((response) => {
-          console.log("Word saved successfully!", response.data);
-        });
+        await customFetch
+          .get(`/api/v1/vocabulary/vocabularies`)
+          .then((response) => {
+            dispatch(setVocabularies(response.data));
+          });
+        handleClose(true, "Word saved successfully!", "success");
+      } catch (error) {
+        console.error("Error when saving word", error);
+      }
+    } else {
+      try {
+        await customFetch
+          .post(`/api/v1/vocabulary/create-vocabulary`, dataSave)
+          .then((response) => {
+            console.log("Word saved successfully!", response.data);
+          });
 
-      await customFetch
-        .get(`/api/v1/vocabulary/vocabularies`)
-        .then((response) => {
-          dispatch(setVocabularies(response.data));
-        });
-      handleClose(true, "Word saved successfully!", "success");
-    } catch (error) {
-      console.error("Error when saving word", error);
+        await customFetch
+          .get(`/api/v1/vocabulary/vocabularies`)
+          .then((response) => {
+            dispatch(setVocabularies(response.data));
+          });
+        handleClose(true, "Word saved successfully!", "success");
+      } catch (error) {
+        console.error("Error when saving word", error);
+      }
     }
   };
 

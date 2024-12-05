@@ -39,7 +39,7 @@ function Profile() {
   };
 
   const countCompleted =
-    lessons.filter((lesson) => lesson.completed).length || 0;
+    lessons.filter((lesson) => lesson.done).length || 0;
   const [numOfVocab, setNumOfVocab] = useState(0);
   const [openModal, setOpenModal] = useState(false);
   const [selectedDate, handleDateChange] = useState(new Date());

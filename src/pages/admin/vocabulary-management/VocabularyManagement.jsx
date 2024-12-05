@@ -90,8 +90,21 @@ const VocabularyManagement = () => {
   ];
   const rowRefs = useRef({});
 
+  const [passList, setPassList] = useState([]);
+  const [lackList, setLackList] = useState([]);
+  const [duplicateList, setDuplicateList] = useState([]);
+
+  const [open, setOpen] = React.useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
   const handleFileSelect = async (file) => {
-    let count = 0;
     setLoadingImport(true);
     if (loadingImport) return;
     try {
@@ -103,6 +116,13 @@ const VocabularyManagement = () => {
       setLack(0);
       setDuplicate(0);
       setPercent(0);
+      setPassList([]);
+      setLackList([]);
+      setDuplicateList([]);
+
+      const passTempList = [];
+      const lackTempList = [];
+      const duplicateTempList = [];
 
       for (let i = 0; i < data.length; i++) {
         setPercent(Math.ceil(((i + 1) / data.length) * 100));
@@ -113,9 +133,24 @@ const VocabularyManagement = () => {
           !data[i].type ||
           !data[i].audio
         ) {
+
           setLack((prev) => prev + 1);
-          count++;
-          console.log(count);
+          // Sai định dạng file
+          if(!data[i].word && !data[i].meaning && !data[i].pronunciation && !data[i].type && !data[i].audio){
+            lackTempList.push({
+              line: i + 1,
+              word: data[i],
+              message: "File format error"
+            });
+
+          }
+          else{
+            lackTempList.push({
+              line: i + 1,
+              word: data[i],
+              message: "Lack of information"
+            });
+          }
           continue;
         }
 
@@ -125,6 +160,10 @@ const VocabularyManagement = () => {
         if (response.data) {
           if (response.data.inDatabase) {
             setDuplicate((prev) => prev + 1);
+            duplicateTempList.push({
+              line: i + 1,
+              word: data[i].word,
+            });
             continue;
           } else {
             const res = await customFetch.post(
@@ -133,10 +172,17 @@ const VocabularyManagement = () => {
             );
             if (res.data) {
               setPassImport((prev) => prev + 1);
+              passTempList.push({
+                line: i + 1,
+                word: data[i],
+              });
             }
           }
         }
       }
+      setPassList(passTempList);
+      setLackList(lackTempList);
+      setDuplicateList(duplicateTempList);
       const fetchData = async () => {
         try {
           const response = await customFetch.get(
@@ -409,36 +455,42 @@ const VocabularyManagement = () => {
           </span>
         </p>
         <div style={{ display: "flex", gap: "15px" }}>
-          <span
+          <div
             style={{
               display: "flex",
               alignItems: "center",
               gap: "5px",
               color: "#4caf50",
+              cursor: "pointer",
             }}
+            onClick={handleClickOpen}
           >
             <CheckCircleIcon /> Success: {passImport}
-          </span>
-          <span
+          </div>
+          <div
             style={{
               display: "flex",
               alignItems: "center",
               gap: "5px",
               color: "#f44336",
+              cursor: "pointer",
             }}
+            onClick={handleClickOpen}
           >
             <ErrorIcon /> Error: {lack}
-          </span>
-          <span
+          </div>
+          <div
             style={{
               display: "flex",
               alignItems: "center",
               gap: "5px",
               color: "#ff9800",
+              cursor: "pointer",
             }}
+            onClick={handleClickOpen}
           >
             <RepeatIcon /> Duplicate: {duplicate}
-          </span>
+          </div>
         </div>
       </div>
     );
@@ -726,7 +778,7 @@ const VocabularyManagement = () => {
                   <TablePagination
                     rowsPerPageOptions={[5]}
                     component="div"
-                    count={vocabularies.length}
+                    count={visibleRows.length}
                     rowsPerPage={rowsPerPage}
                     page={page}
                     onPageChange={handleChangePage}
@@ -770,6 +822,72 @@ const VocabularyManagement = () => {
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
         message="Word not found"
       />
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Word import result"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            <div>
+              {passList.length > 0 && (
+                <div>
+                  <h4 style={{ color: "#4caf50" }}>
+                    Success: {passList.length}
+                  </h4>
+                  {passList.map((item, index) => (
+                    <div key={index}>
+                      <p>
+                        Line {item.line}: {item.word.word}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {lackList.length > 0 && (
+                <div>
+                  <h4 style={{ color: "#f44336" }}>Error: {lackList.length}</h4>
+                  {lackList.map((item, index) => (
+                    <div key={index}>
+                      <span style={{
+                        display: "flex",
+                        flexDirection: "row",
+                      }}>
+                        Line {item.line}: {item.word.word} : {" "} <p style={{
+                          color: "#f44336"
+                        }}> {item.message}</p>
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {duplicateList.length > 0 && (
+                <div>
+                  <h4 style={{ color: "#ff9800" }}>
+                    Duplicate: {duplicateList.length}
+                  </h4>
+                  {duplicateList.map((item, index) => (
+                    <div key={index}>
+                      <p>
+                        Line {item.line}: {item.word}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} autoFocus>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

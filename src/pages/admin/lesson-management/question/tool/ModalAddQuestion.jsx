@@ -120,7 +120,9 @@ const ModalAddQuestion = ({ open, handleClose }) => {
     if (response.data) {
       setWordFind(response.data);
       if (!response.data.inDatabase && response.data.word) {
-        setCheckWordFind("This information already exists, please double-check.");
+        setCheckWordFind(
+          "This information already exists, please double-check."
+        );
         if (response.data.word) {
           setWord(response.data.word);
         }
@@ -167,7 +169,6 @@ const ModalAddQuestion = ({ open, handleClose }) => {
   };
 
   const handleSaveWord = async () => {
-    
     try {
       const res = await customFetch.get(
         `/api/v1/vocabulary/find-word-fast/${word.toLowerCase()}`
@@ -220,11 +221,10 @@ const ModalAddQuestion = ({ open, handleClose }) => {
       audio === "" ||
       audio === null
     ) {
-     
       handleClickSnack("Please complete all required information.", "error");
       return;
     }
-    
+
     let dataSave = {
       word: word,
       meaning: meaning,
@@ -238,25 +238,41 @@ const ModalAddQuestion = ({ open, handleClose }) => {
         ...dataSave,
         id: wordFind.id,
       };
-    }
+      try {
+        await customFetch
+          .post(`/api/v1/vocabulary/update-vocabulary`, dataSave)
+          .then((response) => {
+            console.log("Word saved successfully!", response.data);
+            setWordFind(response.data);
+          });
 
-    console.log("Data to save", dataSave);
-    try {
-      await customFetch
-        .post(`/api/v1/vocabulary/create-vocabulary`, dataSave)
-        .then((response) => {
-          console.log("Word saved successfully!", response.data);
-          setWordFind(response.data)
-        });
-        
-      await customFetch
-        .get(`/api/v1/vocabulary/vocabularies`)
-        .then((response) => {
-          dispatch(setVocabularies(response.data));
-        });
-      handleClickSnack("Word saved successfully!", "success");
-    } catch (error) {
-      console.error("Error when saving word", error);
+        await customFetch
+          .get(`/api/v1/vocabulary/vocabularies`)
+          .then((response) => {
+            dispatch(setVocabularies(response.data));
+          });
+        handleClickSnack("Word saved successfully!", "success");
+      } catch (error) {
+        console.error("Error when saving word", error);
+      }
+    } else {
+      try {
+        await customFetch
+          .post(`/api/v1/vocabulary/create-vocabulary`, dataSave)
+          .then((response) => {
+            console.log("Word saved successfully!", response.data);
+            setWordFind(response.data);
+          });
+
+        await customFetch
+          .get(`/api/v1/vocabulary/vocabularies`)
+          .then((response) => {
+            dispatch(setVocabularies(response.data));
+          });
+        handleClickSnack("Word saved successfully!", "success");
+      } catch (error) {
+        console.error("Error when saving word", error);
+      }
     }
   };
 
@@ -590,7 +606,7 @@ const ModalAddQuestion = ({ open, handleClose }) => {
   ///================================================================================================
 
   const handleSaveQuestion = async () => {
-    if(!wordFind.id){
+    if (!wordFind.id) {
       handleClickSnackQuestion("Please add vocabulary first");
       return;
     }
@@ -609,7 +625,9 @@ const ModalAddQuestion = ({ open, handleClose }) => {
           return;
         } else {
           if (!wrongAnswer1 && !wrongAnswer2 && !wrongAnswer3) {
-            handleClickSnackQuestion("Incorrect answer information is missing.");
+            handleClickSnackQuestion(
+              "Incorrect answer information is missing."
+            );
             return;
           }
         }
@@ -624,11 +642,15 @@ const ModalAddQuestion = ({ open, handleClose }) => {
           return;
         } else {
           if (!wrongAnswer1 && !wrongAnswer2 && !wrongAnswer3) {
-            handleClickSnackQuestion("Incorrect answer information is missing.");
+            handleClickSnackQuestion(
+              "Incorrect answer information is missing."
+            );
             return;
           }
           if (!wrongAnswer1Audio && !wrongAnswer2Audio && !wrongAnswer3Audio) {
-            handleClickSnackQuestion("Incorrect answer information is missing.");
+            handleClickSnackQuestion(
+              "Incorrect answer information is missing."
+            );
             return;
           }
         }
@@ -641,7 +663,9 @@ const ModalAddQuestion = ({ open, handleClose }) => {
           return;
         } else {
           if (!wrongAnswer1Audio && !wrongAnswer2Audio && !wrongAnswer3Audio) {
-            handleClickSnackQuestion("Incorrect answer information is missing.");
+            handleClickSnackQuestion(
+              "Incorrect answer information is missing."
+            );
             return;
           }
         }
@@ -657,7 +681,9 @@ const ModalAddQuestion = ({ open, handleClose }) => {
             return;
           }
           if (!wrongAnswer1 && !wrongAnswer2 && !wrongAnswer3) {
-            handleClickSnackQuestion("Incorrect answer information is missing.");
+            handleClickSnackQuestion(
+              "Incorrect answer information is missing."
+            );
             return;
           }
         }
@@ -678,7 +704,9 @@ const ModalAddQuestion = ({ open, handleClose }) => {
       if (questionType === "WORD_ORDER") {
         //Nêu câu hỏi có ít hơn 2 từ thì lỗi
         if (questionContent.split(" ").length < 2) {
-          handleClickSnackQuestion("The question must contain at least two words.");
+          handleClickSnackQuestion(
+            "The question must contain at least two words."
+          );
           return;
         }
       }
@@ -741,7 +769,6 @@ const ModalAddQuestion = ({ open, handleClose }) => {
         const fetchData = async () => {
           const lastUrl = location.pathname.split("/").pop();
           try {
-           
             const response = await customFetch.get(
               `/api/v1/lessons/${lastUrl}`
             );
@@ -978,15 +1005,9 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                 >
                   <MenuItem value={"WORD_MEANING"}>Word - Meaning</MenuItem>
                   <MenuItem value={"MEANING_WORD"}>Meaning - Word</MenuItem>
-                  <MenuItem value={"WORD_SPELLING"}>
-                    Word - Audio
-                  </MenuItem>
-                  <MenuItem value={"SPELLING_WORD"}>
-                    Audio - Word
-                  </MenuItem>
-                  <MenuItem value={"FILL_IN_FLANK"}>
-                    Fill in the blank
-                  </MenuItem>
+                  <MenuItem value={"WORD_SPELLING"}>Word - Audio</MenuItem>
+                  <MenuItem value={"SPELLING_WORD"}>Audio - Word</MenuItem>
+                  <MenuItem value={"FILL_IN_FLANK"}>Fill in the blank</MenuItem>
                   <MenuItem value={"WORD_ORDER"}>Word order</MenuItem>
                 </Select>
               </FormControl>
@@ -1040,7 +1061,7 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                         setQuestionImage("");
                       }}
                     >
-                      <MdDelete /> Xóa ảnh
+                      <MdDelete /> Delete
                     </button>
                   </div>
                 )}
@@ -1083,7 +1104,7 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                         setQuestionAudio("");
                       }}
                     >
-                      <MdDelete /> Xóa âm thanh
+                      <MdDelete /> Delete
                     </button>
                   </div>
                 )}
@@ -1159,9 +1180,7 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                                 .click()
                             }
                           >
-                            {loadingAnswerImage
-                              ? "Upload..."
-                              : "Upload Image"}
+                            {loadingAnswerImage ? "Upload..." : "Upload Image"}
                           </button>
 
                           <input
@@ -1219,9 +1238,7 @@ const ModalAddQuestion = ({ open, handleClose }) => {
                                 .click()
                             }
                           >
-                            {loadingAnswerAudio
-                              ? "Upload..."
-                              : "Upload Audio"}
+                            {loadingAnswerAudio ? "Upload..." : "Upload Audio"}
                           </button>
 
                           <input
