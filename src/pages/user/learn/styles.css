@@ -8,7 +8,7 @@
   background-size: cover;
   background-position: center;
   background-repeat: repeat;
-  height: auto;
+  height: 100vh;
 }
 
 .lesson-list {

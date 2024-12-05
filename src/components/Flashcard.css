@@ -1,25 +1,24 @@
-.flashcard {
+#flashcard {
     position: relative;
-    width: 300px;
-    height: 400px;
+    width: 450px;
+    height: 600px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    border: 1px solid #ccc;
-    background-color: white;
     cursor: pointer;
-    perspective: 1000px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* perspective: 1000px; */
+    /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
     transition: transform 0.5s;
+    font-size: 5rem;
 }
 
-.flashcard-image {
-    /* width: 100%; */
-    /* height: 200px; */
+#flashcard .flashcard-image {
     object-fit: cover;
     margin-bottom: 10px;
-    max-height: 100%;
+    max-height: 70%;
+    max-width: 100%;
+    border-radius: 5px;
 }
 
 .front button {
@@ -36,11 +35,11 @@
     background-color: #45a049;
 }
 
-.flashcard.flip .front {
+#flashcard.flip .front {
     transform: rotateY(180deg);
 }
 
-.flashcard.flip .back {
+#flashcard.flip .back {
     transform: rotateY(0);
 }
 
@@ -61,6 +60,7 @@
 
 .front {
     transform: rotateY(0);
+    background-color: #fff;
 }
 
 .back {
@@ -69,13 +69,4 @@
     color: black;
     padding: 20px;
     text-align: center;
-}
-
-/* @font-face {
-    font-family: elaris;
-    src: url(../public/Ultra-Regular.ttf);
-} */
-
-.ultra {
-    font-family: ultra;
 }

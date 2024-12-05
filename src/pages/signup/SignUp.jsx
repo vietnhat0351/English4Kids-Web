@@ -44,7 +44,7 @@ const SignUp = () => {
     //   `width=${width},height=${height},top=${top},left=${left}`);
 
     const popup = window.open(
-      "http://localhost:8080/oauth2/authorization/google",
+      `${process.env.REACT_APP_API_URL}/oauth2/authorization/google`,
       "Login with Google",
       `width=${width},height=${height},top=${top},left=${left}`
     );

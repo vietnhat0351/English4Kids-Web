@@ -107,7 +107,7 @@ function App() {
   const dispatch = useDispatch();
   useEffect(() => {
     const handleAuthMessage = (event) => {
-      const allowedOrigins = ["http://localhost:8080", "http://localhost:3000"];
+      const allowedOrigins = ["http://localhost:8080", "https://english4kids.myddns.me"];
       if (allowedOrigins.includes(event.origin)) {
         const authResponse = event.data.authResponse;
         if (authResponse) {

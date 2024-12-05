@@ -1,38 +1,41 @@
 import React, { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import "./user-styles.css";
-import imgLearn from "../../assets/graduate.png";
-import imgLearnGif from "../../assets/graduate.gif";
-import imgWord from "../../assets/book.png";
 import imgWordGif from "../../assets/book.gif";
-import imgFlashCard from "../../assets/books.png";
+import imgWord from "../../assets/book.png";
 import imgFlashCardGif from "../../assets/books.gif";
+import imgFlashCard from "../../assets/books.png";
 import imgFire from "../../assets/fire.gif";
-import imgSuccess from "../../assets/success.gif";
+import "./user-styles.css";
 
-import LOGO from "../../assets/WebLogo.png";
-import Learn from "../../pages/user/learn/Learn";
-import Flashcard from "../../pages/user/flashcard/Flashcard";
-import Vocabulary from "../../pages/user/vocabulary/Vocabulary";
-import Grammar from "../../pages/user/grammar/Grammar";
-import Ranking from "../../pages/user/ranking/Ranking";
-import Profile from "../../pages/user/profile/Profile";
-import Practice from "../../pages/practice/Practice";
-import { useDispatch, useSelector } from "react-redux";
+import { Button } from "@mui/material";
 import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import LOGO from "../../assets/WebLogo.png";
 import { setUserProfile } from "../../redux/slices/userSlice";
 
 const UserLayout = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.profile);
-  const [seletedContent, setSelectedContent] = useState("");
-
-  const currentUrl = window.location.href;
-  const lastUrl = currentUrl.split("/").pop();
+  const [selectedButton, setSelectedButton] = useState(1);
+  const [currentUrl, setCurrentUrl] = useState(window.location.href);
 
   useEffect(() => {
-    setSelectedContent(lastUrl);
+    if (currentUrl.includes("/learn")) {
+      setSelectedButton(1);
+    } else if (currentUrl.includes("/flashcard")) {
+      setSelectedButton(3);
+    } else if (currentUrl.includes("/profile")) {
+      setSelectedButton(5);
+    } else if (currentUrl.includes("/practice")) {
+      setSelectedButton(6);
+    } else if (currentUrl.includes("/ranking")) {
+      setSelectedButton(7);
+    }
+
+  }, [currentUrl]);
+
+  useEffect(() => {
     if (user === null) {
       axios
         .get(`${process.env.REACT_APP_API_URL}/api/v1/user/current`, {
@@ -78,13 +81,9 @@ const UserLayout = () => {
           console.error(error);
         });
     }
-  }, [lastUrl, user, dispatch]);
+  }, [user, dispatch]);
 
-  const [centerContent, setCenterContent] = useState(<Learn />);
-  const [selectedButton, setSelectedButton] = useState(1);
-
-  const handleButtonClick = (contentComponent, buttonIndex) => {
-    setCenterContent(contentComponent); // Cập nhật component khi nhấn nút
+  const handleButtonClick = (buttonIndex) => {
     setSelectedButton(buttonIndex); // Cập nhật nút được chọn
     if (buttonIndex === 1) navigate("/learn");
     if (buttonIndex === 2) navigate("/vocabulary");
@@ -94,9 +93,18 @@ const UserLayout = () => {
     if (buttonIndex === 6) navigate("/practice");
     if (buttonIndex === 7) navigate("/ranking");
   };
+
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken");
+    dispatch(setUserProfile(null));
+    navigate("/login");
+  }
+
   return (
     <div className="container">
-      <div className="leftContainer">
+      <div className="leftContainer" style={{
+        overflowX: "hidden",
+      }}>
         <button
           style={{
             backgroundColor: "transparent",
@@ -129,7 +137,7 @@ const UserLayout = () => {
           className={`button ${
             selectedButton === 1 ? "selected-button" : "bbton"
           }`}
-          onClick={() => handleButtonClick(<Learn />, 1)}
+          onClick={() => handleButtonClick(1)}
         >
           <div className="button-content">
             <img
@@ -145,7 +153,7 @@ const UserLayout = () => {
           className={`button ${
             selectedButton === 3 ? "selected-button" : "bbton"
           }`}
-          onClick={() => handleButtonClick(<Flashcard />, 3)}
+          onClick={() => handleButtonClick(3)}
         >
           <div className="button-content">
             <img
@@ -162,7 +170,7 @@ const UserLayout = () => {
           className={`button ${
             selectedButton === 6 ? "selected-button" : "bbton"
           }`}
-          onClick={() => handleButtonClick(<Practice />, 6)}
+          onClick={() => handleButtonClick(6)}
         >
           <div className="button-content">
             <img
@@ -182,7 +190,7 @@ const UserLayout = () => {
           className={`button ${
             selectedButton === 7 ? "selected-button" : "bbton"
           }`}
-          onClick={() => handleButtonClick(<Profile />, 7)}
+          onClick={() => handleButtonClick(7)}
         >
           <div className="button-content">
             <img
@@ -202,7 +210,7 @@ const UserLayout = () => {
           className={`button ${
             selectedButton === 5 ? "selected-button" : "bbton"
           }`}
-          onClick={() => handleButtonClick(<Profile />, 5)}
+          onClick={() => handleButtonClick(5)}
         >
           <div className="button-content">
             <img
@@ -218,6 +226,31 @@ const UserLayout = () => {
             <strong>PROFILE</strong>
           </div>
         </button>
+        <Button
+          style={{
+            position: "absolute",
+            bottom: "10px",
+            textAlign: "center",
+            padding: "10px",
+            left: "20%",
+            gap: "10px",
+          }}
+          variant="outlined"
+          color="error"
+          onClick={handleLogout}
+        >
+            <img
+              src={
+                selectedButton === 7
+                  ? "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/logout.png"
+                  : "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/logout.png"
+              }
+              alt="My GIF"
+              style={{ width: "40px", height: "40px" }}
+              onDragStart={(e) => e.preventDefault()}
+            />
+            <strong>Logout</strong>
+        </Button>
       </div>
       <div className="centerContainer">
         <Outlet />

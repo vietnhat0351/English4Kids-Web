@@ -57,8 +57,7 @@ const CreateFlashcardForm = (props) => {
 
     return (
         <div key={index} style={{
-            // border: '1px solid black',
-            backgroundColor: 'lightgray',
+            backgroundColor: "rgba(50, 145, 250, 0.3)",
             borderRadius: '0.5rem',
             margin: '0.5rem',
         }}>
@@ -313,6 +312,11 @@ const CreateFlashcardSet = () => {
             padding: '1rem',
             display: 'flex',
             flexDirection: 'column',
+            backgroundImage: 'url("https://english-for-kids.s3.ap-southeast-1.amazonaws.com/41d186051d1991a4ebf11f8d81f438fb85eb390f669dcb48298ea8d1e24ff188.png")',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            height: '100vh',
         }}>
             <h1>Tạo Bộ Flashcard</h1>
             <div>
