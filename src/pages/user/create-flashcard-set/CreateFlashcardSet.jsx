@@ -5,7 +5,7 @@ import { FaImage, FaTrash } from "react-icons/fa6";
 import MyVerticallyCenteredModal from './MyVerticallyCenteredModal';
 import customFetch from '../../../utils/customFetch';
 import axios from 'axios';
-import { FaSearch } from "react-icons/fa";
+import { FaArrowLeft, FaSearch } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import SearchIcon from '@mui/icons-material/Search';
 
@@ -111,7 +111,7 @@ const CreateFlashcardForm = (props) => {
                                 placeholder="Word"
                                 inputProps={{ 'aria-label': 'Word' }}
                                 error={flashcard.isValidate && !flashcard.word}
-                                helperText={flashcard.isValidate && !flashcard.word ? 'Vui lòng nhập từ' : ''}
+                                // helperText={flashcard.isValidate && !flashcard.word ? 'Vui lòng nhập từ' : ''}
                                 onChange={(e) => {
                                     updatedFlashcards[index] = {
                                         // ...updatedFlashcards[index],
@@ -139,31 +139,31 @@ const CreateFlashcardForm = (props) => {
                             </IconButton>
                         </Paper>
                         <Paper
-                        sx={{
-                            p: '2px 4px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            width: '50%',
-                        }}
-                    >
-                        <InputBase
-                            placeholder="Phát Âm"
-                            inputProps={{ 'aria-label': 'Phát Âm' }}
-                            onChange={(e) => {
-                                updatedFlashcards[index] = {
-                                    // ...updatedFlashcards[index],
-                                    ...flashcard,
-                                    phonetic: e.target.value
-                                }
-                                setFlashcards(updatedFlashcards);
-                            }}
-                            value={flashcard.phonetic}
-                            style={{
+                            sx={{
+                                p: '2px 4px',
+                                display: 'flex',
+                                alignItems: 'center',
                                 width: '50%',
-                                padding: '0.5rem'
                             }}
-                        />
-                    </Paper>
+                        >
+                            <InputBase
+                                placeholder="Phát Âm"
+                                inputProps={{ 'aria-label': 'Phát Âm' }}
+                                onChange={(e) => {
+                                    updatedFlashcards[index] = {
+                                        // ...updatedFlashcards[index],
+                                        ...flashcard,
+                                        phonetic: e.target.value
+                                    }
+                                    setFlashcards(updatedFlashcards);
+                                }}
+                                value={flashcard.phonetic}
+                                style={{
+                                    width: '50%',
+                                    padding: '0.5rem'
+                                }}
+                            />
+                        </Paper>
                     </div>
                     <Paper
                         sx={{
@@ -236,7 +236,9 @@ const CreateFlashcardForm = (props) => {
                                 onClick={handleChooseImage}
                             >
                                 <FaImage />
-                                <h6>HÌNH ẢNH</h6>
+                                <h6>
+                                    IMAGE
+                                </h6>
                             </div>
                         )
                     }
@@ -318,19 +320,60 @@ const CreateFlashcardSet = () => {
             backgroundRepeat: 'no-repeat',
             height: '100vh',
         }}>
-            <h1>Create flashcard set</h1>
-            <div>
-                <TextField id="standard-basic" label="Flashcard set name" variant="standard"
+            <div style={{
+                    display: 'flex',
+                    marginBottom: '1rem',
+                    width: '100%',
+            }}>
+                <FaArrowLeft 
+                    style={{
+                        fontSize: '1.5rem',
+                        cursor: 'pointer',
+                        justifySelf: 'flex-start',
+                        alignSelf: 'flex-start',
+                        position: 'absolute',
+                    }}
+                    onClick={() => {
+                        window.history.back();
+                    }}
+                />
+                <div style={{
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                }}>
+                    <Paper style={{
+                        textAlign: 'center',
+                        fontSize: '2rem',
+                        padding: '0.5rem',
+                        backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                    }}>
+                        Create Flashcard Set
+                    </Paper>
+                </div>
+            </div>
+            <div style={{
+                display: 'flex',
+                flexDirection: 'row',
+                gap: '1rem',
+                width: '100%',
+            }}>
+                <TextField id="standard-basic" label="Tên Bộ Flashcard" variant="standard"
+                    value={flashcardSet.name ? flashcardSet.name : ''}
                     onChange={(e) => setFlashcardSet({
                         ...flashcardSet,
                         name: e.target.value
-                    })} />
-            </div>
-            <div>
-                <TextField id="standard-basic" label="Description" variant="standard" onChange={(e) => setFlashcardSet({
-                    ...flashcardSet,
-                    description: e.target.value
-                })} />
+                    })}
+                    sx={{ width: '30%' }}
+                />
+                <TextField id="standard-basic" label="Mô Tả" variant="standard"
+                    value={flashcardSet.description ? flashcardSet.description : ''}
+                    onChange={(e) => setFlashcardSet({
+                        ...flashcardSet,
+                        description: e.target.value
+                    })}
+                    sx={{ width: '70%' }}
+                />
             </div>
             {
                 flashcards.map((_, index) => (
@@ -353,8 +396,12 @@ const CreateFlashcardSet = () => {
             }}>
                 <Button variant="contained" color="primary" onClick={() => {
                     setFlashcards([...flashcards, { word: '', meaning: '' }]);
-                }}>Thêm Flashcard</Button>
-                <Button variant="contained" color="primary" onClick={handleSaveFlashcardSet}>Tạo bộ Flashcard</Button>
+                }}>
+                    {/* Thêm Flashcard */}
+                    Add Flashcard
+                </Button>
+                {/* <Button variant="contained" color="primary" onClick={handleSaveFlashcardSet}>Tạo bộ Flashcard</Button> */}
+                <Button variant="contained" color="primary" onClick={handleSaveFlashcardSet}>Create Flashcard Set</Button>
 
                 <MyVerticallyCenteredModal
                     show={modalShow}
