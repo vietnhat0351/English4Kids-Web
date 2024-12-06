@@ -778,7 +778,7 @@ const VocabularyManagement = () => {
                   <TablePagination
                     rowsPerPageOptions={[5]}
                     component="div"
-                    count={visibleRows.length}
+                    count={vocabularies.length}
                     rowsPerPage={rowsPerPage}
                     page={page}
                     onPageChange={handleChangePage}
