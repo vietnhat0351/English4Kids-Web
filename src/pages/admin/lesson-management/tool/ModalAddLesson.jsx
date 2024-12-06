@@ -85,7 +85,6 @@ const ModalAddLesson = ({ open, handleClose }) => {
                 image,
             });
             if (response.status === 200) {
-                console.log("Lesson created successfully!", response.data);
                 // Reset all input fields
                 setTitle("");
                 setDescription("");

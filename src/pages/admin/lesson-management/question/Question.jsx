@@ -1088,7 +1088,7 @@ const Question = () => {
                 <TablePagination
                   rowsPerPageOptions={[5]}
                   component="div"
-                  count={visibleRows.length}
+                  count={lessonCurrent.questions.length}
                   rowsPerPage={rowsPerPage}
                   page={page}
                   onPageChange={handleChangePage}
