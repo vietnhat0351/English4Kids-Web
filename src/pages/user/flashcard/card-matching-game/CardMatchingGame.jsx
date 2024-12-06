@@ -181,8 +181,13 @@ const CardMatchingGame = () => {
             }}>
                 <div></div>
                 {
-                    gameState === "playing" ? <div style={styles.timer}>Thời Gian: {formatTime(time)}</div> :
-                        <div>{flashcardSetName}</div>
+                    gameState === "playing" ? <div style={styles.timer}>
+                        {/* Thời Gian: {formatTime(time)} */}
+                        Time: {formatTime(time)}
+                        </div> :
+                        <div style={{
+                            fontSize: '2rem',
+                        }}>{flashcardSetName}</div>
                 }
                 <IoMdClose size={35} style={{
                     cursor: 'pointer',
@@ -208,19 +213,30 @@ const CardMatchingGame = () => {
                         color: 'black',
                         gap: '20px',
                     }}>
-                        <h1>Bạn đã sẵn sàng?</h1>
-                        <p style={{
-                            maxWidth: '300px',
-                            textAlign: 'center',
+                        <h1 style={{
+                            fontSize: '2rem',
                         }}>
-                            Hãy ghép tất cả thuật ngữ với định nghĩa của chúng nhanh nhất có thể!
+                            {/* Bạn đã sẵn sàng? */}
+                            Are you ready?
+
+                        </h1>
+                        <p style={{
+                            maxWidth: '500px',
+                            textAlign: 'center',
+                            fontSize: '1.5rem',
+                        }}>
+                            {/* Hãy ghép tất cả thuật ngữ với định nghĩa của chúng nhanh nhất có thể! */}
+                            Match all the terms with their definitions as quickly as possible!
                         </p>
                         <Button variant="contained" color="primary" onClick={() => {
                             setTime(0);
                             setMatchedCards([]);
                             setSelectedCards([]);
                             setGameState("playing");
-                        }}>Bắt đầu</Button>
+                        }}>
+                            {/* Bắt đầu */}
+                            Start
+                        </Button>
                     </div>
                 ) :
                     gameState === "playing" ? (
@@ -303,17 +319,27 @@ const CardMatchingGame = () => {
                             color: 'black',
                             gap: '20px',
                         }}>
-                            <h1>Chúc mừng bạn đã hoàn thành!</h1>
-                            <p style={{
-                                maxWidth: '300px',
-                                textAlign: 'center',
+                            <h1 style={{
+                                fontSize: '2rem',
                             }}>
-                                Bạn đã hoàn thành trong {formatTime(time)} với {count} cặp.
+                                {/* Chúc mừng bạn đã hoàn thành! */}
+                                Congratulations! You have completed!
+                            </h1>
+                            <p style={{
+                                maxWidth: '500px',
+                                textAlign: 'center',
+                                fontSize: '1.5rem',
+                            }}>
+                                {/* Bạn đã hoàn thành trong {formatTime(time)} với {count} cặp. */}
+                                You have completed in {formatTime(time)} with {count} pairs.
                             </p>
                             <Button variant="contained" color="primary" onClick={() => {
                                 setGameState("prepare");
                                 setCount(0);
-                            }}>Chơi lại</Button>
+                            }}>
+                                {/* Chơi lại */}
+                                Play again
+                            </Button>
                         </div>
                     )
             }
