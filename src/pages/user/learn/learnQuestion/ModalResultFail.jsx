@@ -47,7 +47,7 @@ const ModalResultFail = ({
               fontWeight: "bold",
             }}
           >
-            Test failed. Don't give up, try again!
+            Quiz failed. Don't give up, try again!
           </div>
           <img
             src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/sad.png"

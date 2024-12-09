@@ -1,10 +1,11 @@
 
 import React from 'react'
+import "./style.css"
 
 const Grammar = () => {
   return (
-    <div>
-      Gammar
+    <div className='s-container'>
+      
     </div>
   )
 }

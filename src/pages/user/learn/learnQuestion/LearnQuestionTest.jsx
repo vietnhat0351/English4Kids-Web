@@ -16,49 +16,32 @@ import ModalResultFail from "./ModalResultFail";
 const LearnQuestionTest = () => {
   const selectedLesson = useSelector((state) => state.lessonSelected);
   const user = useSelector((state) => state.user.profile);
-  const lessons = useSelector((state) => state.lessons);
-
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
-
   const navigate = useNavigate();
-
   const location = useLocation();
   const lastUrl = location.pathname.split("/").pop();
   const audioRef = useRef(null);
-  const [isFinished, setIsFinished] = useState(false);
-
   const [lessonQuestions, setLessonQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [answerStatus, setAnswerStatus] = useState(null);
-
   const [correctAnswer, setCorrectAnswer] = useState(null);
-  const [correctAnswerStatus, setCorrectAnswerStatus] = useState(null);
-
   const [incorrectAnswers, setIncorrectAnswers] = useState([]);
-
   const [countCorrect, setCountCorrect] = useState(0);
   const [countCorrectFag, setCountCorrectFag] = useState(true);
-
-  const [nextQuestionDisable, setNextQuestionDisable] = useState(true);
   const [answeredQuestions, setAnsweredQuestions] = useState([]);
-
   const [questionIncorrect, setQuestionIncorrect] = useState([]);
-
   const totalQuestions = selectedLesson?.questions?.length || 0;
-
   const [hp, setHp] = useState(3);
-
-  const [time, setTime] = useState(0);
+  const [time, setTime] = useState(30);
   const [isRunning, setIsRunning] = useState(true);
 
   useEffect(() => {
     let interval;
     if (isRunning) {
       interval = setInterval(() => {
-        setTime((prevTime) => prevTime + 1);
+        setTime((prevTime) => prevTime - 1);
       }, 1000);
     }
     return () => clearInterval(interval);
@@ -70,9 +53,6 @@ const LearnQuestionTest = () => {
     return `${String(minutes).padStart(2, "0")}:${String(
       remainingSeconds
     ).padStart(2, "0")}`;
-  };
-  const handleStartStop = () => {
-    setIsRunning((prev) => !prev); // Bật/tắt trạng thái chạy
   };
 
   const [openModal, setOpenModal] = useState(false);
@@ -156,7 +136,6 @@ const LearnQuestionTest = () => {
             };
           }
         );
-
         setLessonQuestions(shuffledQuestionsWithAnswers.slice(0, 10));
         dispatch(setLessonSelected(response.data));
         setIsRunning(true);
@@ -202,7 +181,6 @@ const LearnQuestionTest = () => {
     setSelectedAnswer(answer.id);
     setAnswerStatus(null);
     setIsChecking(false);
-    setNextQuestionDisable(false);
 
     if (audioRef.current) {
       audioRef.current.pause();
@@ -212,6 +190,62 @@ const LearnQuestionTest = () => {
       const audio = new Audio(answer.audio);
       audioRef.current = audio;
       audio.play();
+    }
+  };
+  const finishQuiz = async () => {
+    console.log("Starting finishQuiz");
+    setCountCorrectFag(false);
+    setIsRunning(false);
+    try {
+      const dataSave = {
+        userId: user.id,
+        lessonId: selectedLesson.id,
+        type: "QUIZ",
+        time: time,
+        date: new Date(),
+        done: true,
+      };
+      console.log("Data to save:", dataSave);
+  
+      if (!selectedLesson.completed) {
+        dataSave.score = Math.round(countCorrect * 15);
+      } else {
+        dataSave.score = Math.round(countCorrect * 10);
+      }
+      console.log("Updated dataSave:", dataSave);
+  
+      if (!selectedLesson.completed) {
+        await customFetch.post("/api/v1/lessons/add-user-lesson", dataSave);
+        console.log("Lesson saved");
+      }
+  
+      const todayISO = new Date().toISOString().split("T")[0];
+      let userUpdate = {
+        ...user,
+        dailyPoints: user.dailyPoints + dataSave.score,
+        weeklyPoints: user.weeklyPoints + dataSave.score,
+        totalPoints: user.totalPoints + dataSave.score,
+        lastLearningDate: todayISO,
+      };
+  
+      if (user.lastLearningDate !== todayISO || user.streak === 0) {
+        userUpdate.streak = user.streak + 1;
+      }
+      console.log("User Update:", userUpdate);
+  
+      await customFetch.post(`/api/v1/user/update-user-point`, userUpdate);
+      console.log("User points updated");
+  
+      dispatch(setUserProfile(userUpdate));
+      handleOpenModal();
+      const audio = new Audio(
+        "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/piglevelwin2mp3-14800.mp3"
+      );
+      audio.play().catch((error) => {
+        console.error("Audio play error:", error);
+      });
+    } catch (error) {
+      console.error("Error in finishQuiz:", error);
     }
   };
 
@@ -237,7 +271,6 @@ const LearnQuestionTest = () => {
           question.answers.find((a) => a.id === selectedAnswer)?.correct;
         setAnswerStatus(isCorrect ? "correct" : "incorrect");
         setCorrectAnswer(question.answers.find((a) => a.correct).id);
-        setCorrectAnswerStatus("correct");
       }
 
       if (isCorrect) {
@@ -286,73 +319,85 @@ const LearnQuestionTest = () => {
       if (currentQuestionIndex < lessonQuestions.length - 1) {
         setCurrentQuestionIndex(currentQuestionIndex + 1);
       } else {
-        setCountCorrectFag(false);
+        // setCountCorrectFag(false);
+        // setIsRunning(false);
+        // try {
+        //   const dataSave = {
+        //     userId: user.id,
+        //     lessonId: selectedLesson.id,
 
-        // if (questionIncorrect.length > 0) {
-        //   setLessonQuestions(questionIncorrect);
-        //   setQuestionIncorrect([]);
-        //   setCurrentQuestionIndex(0);
-        // } else {
-        setIsRunning(false);
-        try {
-          const dataSave = {
-            userId: user.id,
-            lessonId: selectedLesson.id,
-            score: Math.round(countCorrect * 15),
-            type: "QUIZ",
-            time: time,
-            date: new Date(),
-            done: true,
-          };
-          console.log(dataSave);
-          if (!selectedLesson.completed) {
-            await customFetch.post("/api/v1/lessons/add-user-lesson", dataSave);
-          }
-          const today = new Date();
-          const todayISO = today.toISOString().split("T")[0];
-          // Nếu ngày học cuối cùng là hôm qua
+        //     type: "QUIZ",
+        //     time: time,
+        //     date: new Date(),
+        //     done: true,
+        //   };
+        //   if (!selectedLesson.completed) {
+        //     dataSave = {
+        //       ...dataSave,
+        //       score: Math.round(countCorrect * 15),
+        //     };
+        //   } else {
+        //     dataSave = {
+        //       ...dataSave,
+        //       score: Math.round(countCorrect * 10),
+        //     };
+        //   }
+        //   console.log(dataSave);
+        //   if (!selectedLesson.completed) {
+        //     await customFetch.post("/api/v1/lessons/add-user-lesson", dataSave);
+        //   }
+        //   const today = new Date();
+        //   const todayISO = today.toISOString().split("T")[0];
+        //   // Nếu ngày học cuối cùng là hôm qua
 
-          let userUpdate = {
-            ...user,
-            dailyPoints: user.dailyPoints + dataSave.score,
-            weeklyPoints: user.weeklyPoints + dataSave.score,
-            totalPoints: user.totalPoints + dataSave.score,
-            lastLearningDate: todayISO,
-          };
+        //   let userUpdate = {
+        //     ...user,
+        //     dailyPoints: user.dailyPoints + dataSave.score,
+        //     weeklyPoints: user.weeklyPoints + dataSave.score,
+        //     totalPoints: user.totalPoints + dataSave.score,
+        //     lastLearningDate: todayISO,
+        //   };
 
-          if (user.lastLearningDate !== todayISO || user.streak === 0) {
-            userUpdate = {
-              ...userUpdate,
-              streak: user.streak + 1,
-            };
-          }
-          await customFetch.post(`/api/v1/user/update-user-point`, userUpdate);
-          dispatch(setUserProfile(userUpdate));
+        //   if (user.lastLearningDate !== todayISO || user.streak === 0) {
+        //     userUpdate = {
+        //       ...userUpdate,
+        //       streak: user.streak + 1,
+        //     };
+        //   }
+        //   await customFetch.post(`/api/v1/user/update-user-point`, userUpdate);
+        //   dispatch(setUserProfile(userUpdate));
 
-          handleOpenModal();
-          const audio = new Audio(
-            "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/piglevelwin2mp3-14800.mp3"
-          );
-          audio.play().catch((error) => {
-            console.error("Không thể phát audio:", error);
-          });
-
-          // return () => {
-          //   audio.pause();
-          //   audio.currentTime = 0;
-          // };
-        } catch (error) {}
-        // }
+        //   handleOpenModal();
+        //   const audio = new Audio(
+        //     "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/piglevelwin2mp3-14800.mp3"
+        //   );
+        //   audio.play().catch((error) => {
+        //     console.error("Không thể phát audio:", error);
+        //   });
+        // } catch (error) {}
+        finishQuiz();
       }
-      setNextQuestionDisable(true);
       setSelectedAnswer(null);
       setAnswerStatus(null);
       setCorrectAnswer(null);
-      setCorrectAnswerStatus(null);
       setIsChecking(false);
       setIncorrectAnswers([]);
     }
   };
+
+  
+  
+  useEffect(() => {
+    if (time === 0) {
+      setIsRunning(false);
+      if (countCorrect < 7) {
+        handleOpenModalF();
+      } else {
+        console.log("finish");
+        finishQuiz();
+      }
+    }
+  }, [time]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -400,113 +445,42 @@ const LearnQuestionTest = () => {
         <div
           style={{
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
             fontSize: 20,
             fontWeight: "bold",
             color: "black",
             padding: "10px",
             gap: 10,
             alignItems: "center",
+            width: "100%",
           }}
         >
-          {hp > 2 ? (
-            <div
-              style={{
-                display: "flex",
-                gap: 10,
-                alignItems: "center",
-                justifyContent: "center",
-                borderRadius: 50,
-                border: "1px solid gray",
-                padding: "5px",
-                backgroundColor: "white",
-              }}
-            >
-              <img
-                src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/hp1.gif"
-                width={35}
-                height={35}
-                alt="heart"
-              />
-            </div>
-          ) : (
-            <img
-              src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/hp2.png"
-              width={35}
-              height={35}
-              alt="heart"
-            />
-          )}
-          {hp > 1 ? (
-            <div
-              style={{
-                display: "flex",
-                gap: 10,
-                alignItems: "center",
-                justifyContent: "center",
-                borderRadius: 50,
-                border: "1px solid gray",
-                padding: "5px",
-                backgroundColor: "white",
-              }}
-            >
-              <img
-                src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/hp1.gif"
-                width={35}
-                height={35}
-                alt="heart"
-              />
-            </div>
-          ) : (
-            <img
-              src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/hp2.png"
-              width={35}
-              height={35}
-              alt="heart"
-            />
-          )}
-          {hp > 0 ? (
-            <div
-              style={{
-                display: "flex",
-                gap: 10,
-                alignItems: "center",
-                justifyContent: "center",
-                borderRadius: 50,
-                border: "1px solid gray",
-                padding: "5px",
-                backgroundColor: "white",
-              }}
-            >
-              <img
-                src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/hp1.gif"
-                width={35}
-                height={35}
-                alt="heart"
-              />
-            </div>
-          ) : (
-            <img
-              src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/hp2.png"
-              width={35}
-              height={35}
-              alt="heart"
-            />
-          )}
-
           <div
             style={{
               display: "flex",
               gap: 10,
               alignItems: "center",
-              justifyContent: "center",
-              border: "1px solid gray",
-              padding: "10px",
-              borderRadius: 10,
-              backgroundColor: "lightskyblue",
-            }}
-          ></div>
+              justifyContent: "flex-start",
 
+              width: "20%",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                gap: 10,
+                alignItems: "center",
+                justifyContent: "flex-end",
+                borderRadius: 10,
+                border: "1px solid gray",
+                padding: "5px",
+                backgroundColor: "white",
+              }}
+            >
+              {"Question:  "}
+              {currentQuestionIndex + 1}/{10}
+            </div>
+          </div>
           <div
             style={{
               display: "flex",
@@ -527,111 +501,110 @@ const LearnQuestionTest = () => {
               display: "flex",
               gap: 10,
               alignItems: "center",
-              justifyContent: "center",
-              border: "1px solid gray",
-              padding: "10px",
-              borderRadius: 10,
-              backgroundColor: "lightskyblue",
-            }}
-          ></div>
-          <div
-            style={{
-              display: "flex",
-              gap: 10,
-              alignItems: "center",
-              justifyContent: "center",
-              border: "1px solid gray",
-              padding: "10px",
-              borderRadius: 10,
-              backgroundColor: "white",
+              justifyContent: "flex-end",
+              width: "20%",
             }}
           >
-            {" "}
-            {currentQuestionIndex + 1}/{10}
+            {hp > 2 ? (
+              <div
+                style={{
+                  display: "flex",
+                  gap: 10,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: 50,
+                  border: "1px solid gray",
+                  padding: "5px",
+                  backgroundColor: "white",
+                }}
+              >
+                <img
+                  src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/hp1.gif"
+                  width={35}
+                  height={35}
+                  alt="heart"
+                />
+              </div>
+            ) : (
+              <img
+                src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/hp2.png"
+                width={35}
+                height={35}
+                alt="heart"
+              />
+            )}
+            {hp > 1 ? (
+              <div
+                style={{
+                  display: "flex",
+                  gap: 10,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: 50,
+                  border: "1px solid gray",
+                  padding: "5px",
+                  backgroundColor: "white",
+                }}
+              >
+                <img
+                  src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/hp1.gif"
+                  width={35}
+                  height={35}
+                  alt="heart"
+                />
+              </div>
+            ) : (
+              <img
+                src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/hp2.png"
+                width={35}
+                height={35}
+                alt="heart"
+              />
+            )}
+            {hp > 0 ? (
+              <div
+                style={{
+                  display: "flex",
+                  gap: 10,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: 50,
+                  border: "1px solid gray",
+                  padding: "5px",
+                  backgroundColor: "white",
+                }}
+              >
+                <img
+                  src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/hp1.gif"
+                  width={35}
+                  height={35}
+                  alt="heart"
+                />
+              </div>
+            ) : (
+              <img
+                src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/hp2.png"
+                width={35}
+                height={35}
+                alt="heart"
+              />
+            )}
           </div>
-          {/* <div
-            style={{
-              display: "flex",
-              gap: 10,
-              alignItems: "center",
-              justifyContent: "center",
-              border: "1px solid gray",
-              padding: "10px",
-              borderRadius: 10,
-              backgroundColor: "lightblue",
-            }}
-          ></div>
-          <div
-            style={{
-              display: "flex",
-              gap: 10,
-              alignItems: "center",
-              justifyContent: "center",
-              border: "1px solid gray",
-              padding: "10px",
-              borderRadius: 10,
-              backgroundColor: "lightblue",
-            }}
-          ></div> */}
-          {/* <div
-            style={{
-              display: "flex",
-              gap: 10,
-              alignItems: "center",
-              justifyContent: "center",
-              border: "1px solid gray",
-              padding: "10px",
-              borderRadius: 10,
-              backgroundColor: "lightgreen",
-            }}
-          >
-            <p>correct: {countCorrect}</p>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              gap: 10,
-              alignItems: "center",
-              justifyContent: "center",
-              border: "1px solid gray",
-              padding: "10px",
-              borderRadius: 10,
-              backgroundColor: "lightcoral",
-            }}
-          >
-            <p>incorrect: {questionIncorrect.length}</p>
-          </div> */}
         </div>
       </div>
 
       <div className="lq-queston-content-container">
         <div className="lq-question-title-container">
-          <div>
-            {!countCorrectFag && (
-              <div
-                style={{
-                  display: "flex",
-                  color: "red",
-                  fontSize: 20,
-                  fontWeight: "bold",
-                  color: "red",
-                  padding: "10px",
-                }}
-              >
-                Redo wrong questions
-              </div>
-            )}
-            <h2 className="lq-question-title">
-              {{
-                WORD_MEANING: "Choose the meaning of the word",
-                MEANING_WORD: "Choose the word",
-                WORD_SPELLING: "Choose the correct pronunciation",
-                SPELLING_WORD: "Listen and choose the correct word",
-                FILL_IN_BLANK: "Fill in the blank",
-                WORD_ORDER: "Arrange the words",
-              }[question.type] || "Please select an answer"}
-            </h2>
-          </div>
+          <h2 className="lq-question-title">
+            {{
+              WORD_MEANING: "Choose the meaning of the word",
+              MEANING_WORD: "Choose the word",
+              WORD_SPELLING: "Choose the correct pronunciation",
+              SPELLING_WORD: "Listen and choose the correct word",
+              FILL_IN_BLANK: "Fill in the blank",
+              WORD_ORDER: "Arrange the words",
+            }[question.type] || "Please select an answer"}
+          </h2>
           <div
             style={{
               display: "flex",
@@ -951,7 +924,7 @@ const LearnQuestionTest = () => {
         handleClose={handleCloseModal}
         countCorrect={countCorrect}
         totalQuestions={totalQuestions}
-        time={time}
+        time={120 - time}
         type={"QUIZ"}
       />
       <ModalResultFail
