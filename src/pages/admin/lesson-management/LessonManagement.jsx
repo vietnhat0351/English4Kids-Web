@@ -172,7 +172,9 @@ const LessonManagement = () => {
     () =>
       [...lessons]
         .sort(getComparator(order, orderBy))
-        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
+        .slice(page * rowsPerPage,
+          //  page * rowsPerPage + rowsPerPage
+          ),
     [order, orderBy, page, rowsPerPage, lessons]
   );
 
@@ -435,7 +437,7 @@ const LessonManagement = () => {
                   </TableBody>
                 </Table>
               </TableContainer>
-              <TablePagination
+              {/* <TablePagination
                 rowsPerPageOptions={[5]}
                 component="div"
                 count={lessons.length}
@@ -443,7 +445,7 @@ const LessonManagement = () => {
                 page={page}
                 onPageChange={handleChangePage}
                 // onRowsPerPageChange={handleChangeRowsPerPage}
-              />
+              /> */}
             </Paper>
           </Box>
         ) : (
