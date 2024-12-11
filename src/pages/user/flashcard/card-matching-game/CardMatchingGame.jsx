@@ -7,6 +7,10 @@ import { Button, Paper } from '@mui/material';
 import { IoMdClose } from 'react-icons/io';
 import { useSelector } from 'react-redux';
 
+import { PiSpeakerHighFill } from "react-icons/pi";
+import bgMusic from '../../../../assets/bg-card-matching.mp3'
+import correctSound from '../../../../assets/ws-correct.wav'
+
 const CardMatchingGame = () => {
     const [cards, setCards] = useState([]);
     const [selectedCards, setSelectedCards] = useState([]);
@@ -19,7 +23,22 @@ const CardMatchingGame = () => {
 
     const [flashcardSetName, setFlashcardSetName] = useState("");
 
+    const [isBackgroundMusicOn, setIsBackgroundMusicOn] = useState(false);
+
     const user = useSelector((state) => state.user.profile);
+
+    useEffect(() => {
+        const audio = new Audio(bgMusic);
+        audio.loop = true;
+        audio.volume = 0.2;
+        if (isBackgroundMusicOn) {
+            audio.play();
+        } else {
+            audio.pause();
+        }
+
+        return () => audio.pause();
+    }, [isBackgroundMusicOn]);
 
     // "prepare" || "playing" || "finished"
     const [gameState, setGameState] = useState("prepare");
@@ -67,7 +86,7 @@ const CardMatchingGame = () => {
                         word: flashcard.word,
                         type: 'front'
                     }, {
-                        id: flashcard.id,
+                        id: flashcard?.id,
                         meaning: flashcard.meaning,
                         image: flashcard.image,
                         type: 'back'
@@ -81,7 +100,7 @@ const CardMatchingGame = () => {
             })
 
         if (user) {
-            customFetch.get(`/api/v1/flashcards/get-user-card-matching-record/${user.id}`)
+            customFetch.get(`/api/v1/flashcards/get-user-card-matching-record/${user?.id}`)
                 .then(response => {
                     console.log(response.data);
                     setUserRecords(response.data);
@@ -104,26 +123,27 @@ const CardMatchingGame = () => {
 
     useEffect(() => {
         if (gameState === "finished") {
-            const record = userRecords.find(record => record.flashcardSetId.toString() === flashcardSetId);
-            customFetch.post(`/api/v1/flashcards/update-card-matching-record/${flashcardSetId}`, {
-                id: record.id,
-                userId: user.id,
-                timeRecord: time > record.timeRecord ? record.timeRecord : time,
-                playCount: record.playCount + 1,
-            })
-                .then(response => {
-                    customFetch.get(`/api/v1/flashcards/get-user-card-matching-record/${user.id}`)
-                        .then(response => {
-                            console.log(response.data);
-                            setUserRecords(response.data);
-                        })
-                        .catch(error => {
-                            console.error(error);
-                        });
-                })
-                .catch(error => {
-                    console.error(error);
-                });
+            // const record = userRecords.find(record => record.flashcardSetId.toString() === flashcardSetId);
+            // customFetch.post(`/api/v1/flashcards/update-card-matching-record/${flashcardSetId}`, {
+            //     id: record?.id,
+            //     userId: user?.id,
+            //     timeRecord: time > record.timeRecord ? record.timeRecord : time,
+            //     playCount: record.playCount + 1,
+            // })
+            //     .then(response => {
+            //         customFetch.get(`/api/v1/flashcards/get-user-card-matching-record/${user?.id}`)
+            //             .then(response => {
+            //                 console.log(response.data);
+            //                 setUserRecords(response.data);
+            //             })
+            //             .catch(error => {
+            //                 console.error(error);
+            //             });
+            //     })
+            //     .catch(error => {
+            //         console.error(error);
+            //     });
+            setIsBackgroundMusicOn(false);
         }
     }, [gameState]);
 
@@ -148,7 +168,7 @@ const CardMatchingGame = () => {
 
         if (newSelectedCards.length === 2) {
             const [firstCardId, secondCardId] = newSelectedCards;
-            if (cards[firstCardId].id === cards[secondCardId].id && cards[firstCardId].type !== cards[secondCardId].type) {
+            if (cards[firstCardId]?.id === cards[secondCardId]?.id && cards[firstCardId].type !== cards[secondCardId].type) {
                 setCount(count + 1);
                 setMatchedCards([...matchedCards, firstCardId, secondCardId]);
                 setSelectedCards([]);
@@ -201,6 +221,16 @@ const CardMatchingGame = () => {
                         window.location.href = `/flashcard/${flashcardSetId}`;
                     }}
                 />
+                <PiSpeakerHighFill size={40} style={{
+                        cursor: 'pointer',
+                        position: 'absolute',
+                        right: '20px',
+                        right: '30px',
+                        bottom: '10px', 
+                        color: isBackgroundMusicOn ? 'green' : 'red',
+                    }} onClick={() => {
+                        setIsBackgroundMusicOn(!isBackgroundMusicOn);
+                    }}/>
             </div>
             {
                 gameState === "prepare" ? (
@@ -233,6 +263,7 @@ const CardMatchingGame = () => {
                             setMatchedCards([]);
                             setSelectedCards([]);
                             setGameState("playing");
+                            setIsBackgroundMusicOn(true);
                         }}>
                             {/* Bắt đầu */}
                             Start
