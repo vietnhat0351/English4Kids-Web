@@ -6,6 +6,10 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  padding: 10px;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
 }
 .s-header {
   display: flex;
@@ -20,4 +24,19 @@
   font-size: 2rem;
   padding: 20px;
   font-weight: bold;
+}
+.s-container-left{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 60%;
+  border-bottom: 1px solid black;
+}
+.s-container-right{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 60%;
 }

@@ -128,6 +128,7 @@
   justify-content: space-between;
   gap: 20px;
   height: 70%;
+  padding-top: 20px;
   align-items: center;
 }
 .lq-next-button-disabled {

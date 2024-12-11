@@ -84,7 +84,7 @@ const router = createBrowserRouter(
             <Route path=":flashcardSetId/edit" element={<EditFlashcardSet />} />
           </Route>
           <Route path="profile" element={<Profile />} />
-          <Route path="grammar" element={<Grammar />} />
+          <Route path="statistic" element={<Grammar />} />
           <Route path="ranking" element={<Ranking />} />
         </Route>
       </Route>

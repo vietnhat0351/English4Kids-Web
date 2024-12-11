@@ -31,6 +31,8 @@ const UserLayout = () => {
       setSelectedButton(6);
     } else if (currentUrl.includes("/ranking")) {
       setSelectedButton(7);
+    } else if (currentUrl.includes("/statistic")) {
+      setSelectedButton(8);
     }
 
   }, [currentUrl]);
@@ -92,6 +94,7 @@ const UserLayout = () => {
     if (buttonIndex === 5) navigate("/profile");
     if (buttonIndex === 6) navigate("/practice");
     if (buttonIndex === 7) navigate("/ranking");
+    if (buttonIndex === 8) navigate("/statistic");
   };
 
   const handleLogout = () => {
@@ -204,6 +207,26 @@ const UserLayout = () => {
               onDragStart={(e) => e.preventDefault()}
             />
             <strong>LEADERBOARDS</strong>
+          </div>
+        </button>
+        <button
+          className={`button ${
+            selectedButton === 8 ? "selected-button" : "bbton"
+          }`}
+          onClick={() => handleButtonClick(8)}
+        >
+          <div className="button-content">
+            <img
+              src={
+                selectedButton === 8
+                  ? "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/statistics.png"
+                  : "https://english-for-kids.s3.ap-southeast-1.amazonaws.com/statistics.gif"
+              }
+              alt="My GIF"
+              style={{ width: "40px", height: "40px" }} // Thay đổi kích thước tại đây
+              onDragStart={(e) => e.preventDefault()}
+            />
+            <strong>STATISTICS</strong>
           </div>
         </button>
         <button

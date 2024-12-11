@@ -133,22 +133,25 @@ const VocabularyManagement = () => {
           !data[i].type ||
           !data[i].audio
         ) {
-
           setLack((prev) => prev + 1);
           // Sai định dạng file
-          if(!data[i].word && !data[i].meaning && !data[i].pronunciation && !data[i].type && !data[i].audio){
+          if (
+            !data[i].word &&
+            !data[i].meaning &&
+            !data[i].pronunciation &&
+            !data[i].type &&
+            !data[i].audio
+          ) {
             lackTempList.push({
               line: i + 1,
               word: data[i],
-              message: "File format error"
+              message: "File format error",
             });
-
-          }
-          else{
+          } else {
             lackTempList.push({
               line: i + 1,
               word: data[i],
-              message: "Lack of information"
+              message: "Lack of information",
             });
           }
           continue;
@@ -291,6 +294,8 @@ const VocabularyManagement = () => {
   //       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
   //   [vocabularies, order, orderBy, page, rowsPerPage]
   // );
+  const [pagecount, setPagecount] = useState(0);
+
   const visibleRows = useMemo(() => {
     const filteredVocabularies =
       fillter && fillter !== "All"
@@ -301,6 +306,14 @@ const VocabularyManagement = () => {
       .sort(getComparator(order, orderBy))
       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
   }, [vocabularies, order, orderBy, page, rowsPerPage, fillter]);
+
+  useEffect(() => {
+    if (fillter === "All") {
+      setPagecount(vocabularies.length);
+    } else {
+      setPagecount(visibleRows.length);
+    }
+  }, [visibleRows]);
 
   const [hasFetched, setHasFetched] = useState(false);
 
@@ -608,26 +621,17 @@ const VocabularyManagement = () => {
               </button>
             </div>
 
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "10px",
-                alignItems: "center",
-              }}
-            >
-              <FileInput
-                handleFileSelect={handleFileSelect}
-                content={loadingImport ? "Loading..." : "Import vocabulary"}
-              />
-              <button className="btn-download-sample" onClick={handleDownload}>
-                Download sample
-              </button>
-            </div>
+            <FileInput
+              handleFileSelect={handleFileSelect}
+              content={loadingImport ? "Loading..." : "Import vocabulary"}
+            />
 
+            <button className="btn-download-sample" onClick={handleDownload}>
+              Download sample
+            </button>
             <div
               style={{
-                width: "60%",
+                // width: "40%",
                 marginBottom: "10px",
                 display: "flex",
                 gap: "10px",
@@ -778,7 +782,7 @@ const VocabularyManagement = () => {
                   <TablePagination
                     rowsPerPageOptions={[5]}
                     component="div"
-                    count={vocabularies.length}
+                    count={pagecount}
                     rowsPerPage={rowsPerPage}
                     page={page}
                     onPageChange={handleChangePage}
@@ -853,13 +857,21 @@ const VocabularyManagement = () => {
                   <h4 style={{ color: "#f44336" }}>Error: {lackList.length}</h4>
                   {lackList.map((item, index) => (
                     <div key={index}>
-                      <span style={{
-                        display: "flex",
-                        flexDirection: "row",
-                      }}>
-                        Line {item.line}: {item.word.word} : {" "} <p style={{
-                          color: "#f44336"
-                        }}> {item.message}</p>
+                      <span
+                        style={{
+                          display: "flex",
+                          flexDirection: "row",
+                        }}
+                      >
+                        Line {item.line}: {item.word.word} :{" "}
+                        <p
+                          style={{
+                            color: "#f44336",
+                          }}
+                        >
+                          {" "}
+                          {item.message}
+                        </p>
                       </span>
                     </div>
                   ))}
