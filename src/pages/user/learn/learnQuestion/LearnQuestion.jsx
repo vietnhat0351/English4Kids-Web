@@ -13,40 +13,31 @@ import { setLessons } from "../../../../redux/slices/lessonSlice";
 import { FaCheck } from "react-icons/fa";
 import { ImCancelCircle } from "react-icons/im";
 const LearnQuestion = () => {
+
+  const changeLater = 5;
+
   const selectedLesson = useSelector((state) => state.lessonSelected);
   const user = useSelector((state) => state.user.profile);
-  const lessons = useSelector((state) => state.lessons);
-
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
-
   const navigate = useNavigate();
-
   const location = useLocation();
   const lastUrl = location.pathname.split("/").pop();
   const audioRef = useRef(null);
-  const [isFinished, setIsFinished] = useState(false);
 
   const [lessonQuestions, setLessonQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [answerStatus, setAnswerStatus] = useState(null);
-
   const [correctAnswer, setCorrectAnswer] = useState(null);
-  const [correctAnswerStatus, setCorrectAnswerStatus] = useState(null);
-
   const [incorrectAnswers, setIncorrectAnswers] = useState([]);
-
   const [countCorrect, setCountCorrect] = useState(0);
   const [countCorrectFag, setCountCorrectFag] = useState(true);
-
-  const [nextQuestionDisable, setNextQuestionDisable] = useState(true);
   const [answeredQuestions, setAnsweredQuestions] = useState([]);
-
   const [questionIncorrect, setQuestionIncorrect] = useState([]);
 
-  const totalQuestions = selectedLesson?.questions?.length || 0;
+  const totalQuestions = selectedLesson?.questions?.slice(0,changeLater).length || 0;
 
   const [time, setTime] = useState(0);
   const [isRunning, setIsRunning] = useState(true);
@@ -102,6 +93,7 @@ const LearnQuestion = () => {
 
   const progress =
     totalQuestions > 0 ? (currentQuestionIndex / totalQuestions) * 100 : 0;
+
   const [isChecking, setIsChecking] = useState(false);
 
   const shuffleArray = (array) => {
@@ -134,7 +126,7 @@ const LearnQuestion = () => {
           }
         );
 
-        setLessonQuestions(shuffledQuestionsWithAnswers);
+        setLessonQuestions(shuffledQuestionsWithAnswers.slice(0, changeLater));
         dispatch(setLessonSelected(response.data));
         setIsRunning(true);
       } catch (error) {
@@ -179,7 +171,6 @@ const LearnQuestion = () => {
     setSelectedAnswer(answer.id);
     setAnswerStatus(null);
     setIsChecking(false);
-    setNextQuestionDisable(false);
 
     if (audioRef.current) {
       audioRef.current.pause();
@@ -214,7 +205,6 @@ const LearnQuestion = () => {
           question.answers.find((a) => a.id === selectedAnswer)?.correct;
         setAnswerStatus(isCorrect ? "correct" : "incorrect");
         setCorrectAnswer(question.answers.find((a) => a.correct).id);
-        setCorrectAnswerStatus("correct");
       }
 
       if (isCorrect) {
@@ -323,11 +313,9 @@ const LearnQuestion = () => {
           } catch (error) {}
         }
       }
-      setNextQuestionDisable(true);
       setSelectedAnswer(null);
       setAnswerStatus(null);
       setCorrectAnswer(null);
-      setCorrectAnswerStatus(null);
       setIsChecking(false);
       setIncorrectAnswers([]);
     }
@@ -379,7 +367,7 @@ const LearnQuestion = () => {
         <div
           style={{
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
             fontSize: 20,
             fontWeight: "bold",
             color: "black",
@@ -393,13 +381,25 @@ const LearnQuestion = () => {
               display: "flex",
               gap: 10,
               alignItems: "center",
+              
+              justifyContent: "flex-start",
+              width: "20%",
+            }}
+          >
+            <div style={{
+              display: "flex",
+              gap: 10,
+              alignItems: "center",
               justifyContent: "center",
               border: "1px solid gray",
               padding: "10px",
               borderRadius: 10,
-              backgroundColor: "lightblue",
-            }}
-          ></div>
+              backgroundColor: "white",
+            }}>
+              {"Question: "}
+              {currentQuestionIndex + 1}/{totalQuestions}
+            </div>
+          </div>
           <div
             style={{
               display: "flex",
@@ -415,84 +415,44 @@ const LearnQuestion = () => {
             {" "}
             {formatTime(time)}
           </div>
+
           <div
             style={{
               display: "flex",
               gap: 10,
               alignItems: "center",
-              justifyContent: "center",
-              border: "1px solid gray",
-              padding: "10px",
-              borderRadius: 10,
-              backgroundColor: "lightblue",
-            }}
-          ></div>
-          <div
-            style={{
-              display: "flex",
-              gap: 10,
-              alignItems: "center",
-              justifyContent: "center",
-              border: "1px solid gray",
-              padding: "10px",
-              borderRadius: 10,
-              backgroundColor: "lightblue",
+              justifyContent: "flex-end",
+              width: "20%",
             }}
           >
-            {" "}
-            {currentQuestionIndex + 1}/{totalQuestions}
-          </div>
-          <div
-            style={{
-              display: "flex",
-              gap: 10,
-              alignItems: "center",
-              justifyContent: "center",
-              border: "1px solid gray",
-              padding: "10px",
-              borderRadius: 10,
-              backgroundColor: "lightblue",
-            }}
-          ></div>
-          <div
-            style={{
-              display: "flex",
-              gap: 10,
-              alignItems: "center",
-              justifyContent: "center",
-              border: "1px solid gray",
-              padding: "10px",
-              borderRadius: 10,
-              backgroundColor: "lightblue",
-            }}
-          ></div>
-          <div
-            style={{
-              display: "flex",
-              gap: 10,
-              alignItems: "center",
-              justifyContent: "center",
-              border: "1px solid gray",
-              padding: "10px",
-              borderRadius: 10,
-              backgroundColor: "lightgreen",
-            }}
-          >
-            <p>correct: {countCorrect}</p>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              gap: 10,
-              alignItems: "center",
-              justifyContent: "center",
-              border: "1px solid gray",
-              padding: "10px",
-              borderRadius: 10,
-              backgroundColor: "lightcoral",
-            }}
-          >
-            <p>incorrect: {questionIncorrect.length}</p>
+            <div
+              style={{
+                display: "flex",
+                gap: 10,
+                alignItems: "center",
+                justifyContent: "center",
+                border: "1px solid gray",
+                padding: "10px",
+                borderRadius: 10,
+                backgroundColor: "lightgreen",
+              }}
+            >
+              <p>correct: {countCorrect}</p>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                gap: 10,
+                alignItems: "center",
+                justifyContent: "center",
+                border: "1px solid gray",
+                padding: "10px",
+                borderRadius: 10,
+                backgroundColor: "lightcoral",
+              }}
+            >
+              <p>incorrect: {questionIncorrect.length}</p>
+            </div>
           </div>
         </div>
       </div>

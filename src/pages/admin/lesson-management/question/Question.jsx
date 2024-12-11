@@ -104,6 +104,7 @@ const Question = () => {
   const [openModalAddQuestion, setOpenModalAddQuestion] = useState(false);
 
   const [fillter, setFillter] = useState("All");
+  // const [countPage, setCountPage] = useState(0);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -185,7 +186,7 @@ const Question = () => {
     return (
       <div
         style={{
-          width: "60%",
+          width: "40%",
           marginBottom: "10px",
           display: "flex",
           gap: "10px",
@@ -326,9 +327,12 @@ const Question = () => {
         ? questions.filter((question) => question.type === fillter)
         : questions;
 
+    // setCountPage(filteredVocabularies.length);
     return [...filteredVocabularies]
       .sort(getComparator(order, orderBy))
-      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+      .slice(page * rowsPerPage, 
+        // page * rowsPerPage + rowsPerPage
+      );
   }, [questions, order, orderBy, page, rowsPerPage, fillter]);
 
   const styles = {
@@ -804,10 +808,11 @@ const Question = () => {
                 handleFileSelect={handleFileSelect}
                 content={loadingImport ? "Loading..." : "Import question"}
               />
-              <button className="btn-download-sample" onClick={handleDownload}>
+             
+            </div>
+            <button className="btn-download-sample" onClick={handleDownload}>
                 Download sample
               </button>
-            </div>
             {!disibleResult && (
               <ProgressBar
                 percent={percent}
@@ -1085,15 +1090,15 @@ const Question = () => {
                     </TableBody>
                   </Table>
                 </TableContainer>
-                <TablePagination
+                {/* <TablePagination
                   rowsPerPageOptions={[5]}
                   component="div"
-                  count={lessonCurrent.questions.length}
+                  count={countPage}
                   rowsPerPage={rowsPerPage}
                   page={page}
                   onPageChange={handleChangePage}
                   // onRowsPerPageChange={handleChangeRowsPerPage}
-                />
+                /> */}
               </Paper>
             </Box>
           </div>
