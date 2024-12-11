@@ -4,7 +4,13 @@ import './WorkShake.css'
 import bgImage from '../../assets/workshake-bg-image.png'
 import prepareBG from '../../assets/wordshake.jpg'
 import bgheader from '../../assets/wordshake-header.png'
+
+import bgMusic from '../../assets/background-music1.mp3'
+import correctSound from '../../assets/ws-correct.wav'
+
 import { FaQuestion } from 'react-icons/fa6'
+import { IoMdClose } from 'react-icons/io'
+import { PiSpeakerHighFill } from "react-icons/pi";
 
 const WorkShake = () => {
 
@@ -13,10 +19,24 @@ const WorkShake = () => {
     const [selectedWord, setSelectedWord] = useState('');
     const [words, setWords] = useState([]);
     const [points, setPoints] = useState(0);
-
     const [isGameActive, setIsGameActive] = useState(false);
-
     const [checkAnswer, setCheckAnswer] = useState('');
+    const [isValidWord, setIsValidWord] = useState(false);
+
+    const [isBackgroundMusicOn, setIsBackgroundMusicOn] = useState(false);
+
+    useEffect(() => {
+        const audio = new Audio(bgMusic);
+        audio.loop = true;
+        audio.volume = 0.2;
+        if (isBackgroundMusicOn) {
+            audio.play();
+        } else {
+            audio.pause();
+        }
+
+        return () => audio.pause();
+    }, [isBackgroundMusicOn]);
 
     useEffect(() => {
         // Initialize random letters
@@ -120,6 +140,16 @@ const WorkShake = () => {
                 setSelectedWord('');
                 setSelectedCellIds([]);
                 setPoints(points + selectedWord.length); // Simple point logic
+
+                setCheckAnswer('correct');
+
+                const audio = new Audio(correctSound);
+                // audio.volume = 0.2; 
+                audio.play();
+                setTimeout(() => {
+                    setCheckAnswer('');
+                }, 1000);
+
             } else {
                 setCheckAnswer('invalid');
                 setSelectedWord('');
@@ -152,15 +182,41 @@ const WorkShake = () => {
     };
 
     return (
-        <div>
+        <div style={{
+            backgroundColor: '#903779',
+        }}>
+            <IoMdClose size={35} style={{
+                cursor: 'pointer',
+                border: '1px solid black',
+                borderRadius: '5px',
+                borderColor: '#fff',
+                color: '#fff',
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                right: '20px',
+                position: 'absolute',
+            }}
+                onClick={() => {
+                    window.location.href = '/'
+                }}
+            />
             {
                 isGameActive ? <div className="ws-App" style={{
                     backgroundImage: `url(${bgImage})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat',
-                    backgroundSize: '100% 100%',
+                    backgroundSize: '85% 85%',
                 }}>
+                    <PiSpeakerHighFill size={40} style={{
+                        cursor: 'pointer',
+                        position: 'relative',
+                        right: '20px',
+                        // top: '10px',
+                        bottom: '10px', 
+                        color: isBackgroundMusicOn ? 'green' : 'red',
+                    }} onClick={() => {
+                        setIsBackgroundMusicOn(!isBackgroundMusicOn);
+                    }}/>
                     <div style={{
                         backgroundImage: `url(${bgheader})`,
                         backgroundSize: 'cover',
@@ -179,15 +235,15 @@ const WorkShake = () => {
                             alignItems: 'center',
                         }}><div className="time">{formatTime(time)}</div></div>
                         <div style={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                height: '100%',
-                                flex: 6,
-                                alignItems: 'center',
-                            }}>
-                                <div className="new-game-btn" onClick={handleNewGame}>New game</div>
-                                <div className="home-btn">Home</div>
-                            </div>
+                            display: 'flex',
+                            justifyContent: 'center',
+                            height: '100%',
+                            flex: 6,
+                            alignItems: 'center',
+                        }}>
+                            <div className="new-game-btn" onClick={handleNewGame}>New game</div>
+                            {/* <div className="home-btn">Home</div> */}
+                        </div>
                     </div>
                     <div className="game-area">
                         <div style={{
@@ -248,9 +304,10 @@ const WorkShake = () => {
                                         display: 'flex',
                                         justifyContent: 'center',
                                         alignItems: 'center',
-                                        backgroundColor: '#f00',
-                                        color: '#fff',
+                                        backgroundColor: '#fff',
+                                        color: 'red',
                                         height: '50px',
+                                        marginBottom: '10px',
                                     }}>
                                         <FaQuestion style={{
                                             marginRight: '10px',
@@ -262,8 +319,18 @@ const WorkShake = () => {
                                         alignItems: 'center',
                                         backgroundColor: '#fff',
                                         height: '50px',
+                                        marginBottom: '10px',
                                     }}>
-                                        Enter a word and press Enter
+                                        {
+                                            checkAnswer === 'correct' ? <div style={{
+                                                color: 'green',
+                                            }}>
+                                                Correct!
+                                            </div> : <div>
+                                                Enter a word
+                                            </div>
+
+                                        }
                                     </div>
                                 }
                                 <div className="selected-word">
@@ -285,7 +352,7 @@ const WorkShake = () => {
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                             backgroundRepeat: 'no-repeat',
-                            backgroundSize: '100% 100%',
+                            backgroundSize: '85% 85%',
                             height: '100vh',
                             display: 'flex',
                             overflow: 'hidden',
@@ -302,7 +369,10 @@ const WorkShake = () => {
                             position: 'relative',
                             top: '180px',
                         }}>
-                            <button onClick={() => setIsGameActive(true)}
+                            <button onClick={() => {
+                                setIsGameActive(true);
+                                setIsBackgroundMusicOn(true);
+                            }}
                                 style={{
                                     padding: '10px',
                                     backgroundColor: '#2f4554',
@@ -315,7 +385,7 @@ const WorkShake = () => {
                                     width: '200px',
                                     height: '50px',
                                 }}
-                                >Start Game</button>
+                            >Start Game</button>
                         </div>
                     </div>
                 )

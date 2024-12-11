@@ -59,9 +59,9 @@
     color: #fff;
 }
 
-.grid-cell:hover {
+/* .grid-cell:hover {
     background-color: #4a426f;
-}
+} */
 
 .controls {
     display: flex;
@@ -121,7 +121,7 @@
 }
 
 .ws-table tbody tr:nth-of-type(even) {
-    background-color: #26203d;
+    background-color: #f1f1f0;
 }
 
 .ws-table th, .ws-table td {

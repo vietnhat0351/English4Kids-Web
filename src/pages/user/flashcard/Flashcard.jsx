@@ -42,31 +42,31 @@ const headCells = [
     id: 'stt',
     numeric: false,
     disablePadding: true,
-    label: 'STT',
+    label: 'NO',
   },
   {
     id: 'name',
     numeric: true,
     disablePadding: false,
-    label: 'Tên',
+    label: 'Name',
   },
   {
     id: 'quantity',
     numeric: false,
     disablePadding: false,
-    label: 'Số Lượng',
+    label: 'Quantity',
   },
   {
     id: 'description',
     numeric: false,
     disablePadding: false,
-    label: 'Mô Tả',
+    label: 'Description',
   },
   {
     id: 'createdAt',
     numeric: false,
     disablePadding: false,
-    label: 'Ngày Tạo',
+    label: 'Created At',
   },
 ];
 
@@ -150,7 +150,8 @@ function EnhancedTableToolbar(props) {
           id="tableTitle"
           component="div"
         >
-          Danh sách bộ Flashcard
+          {/* Danh sách bộ Flashcard */}
+          Flashcard Sets
         </Typography>
       )}
 

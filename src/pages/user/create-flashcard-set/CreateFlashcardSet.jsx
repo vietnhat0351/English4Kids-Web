@@ -147,8 +147,8 @@ const CreateFlashcardForm = (props) => {
                             }}
                         >
                             <InputBase
-                                placeholder="Phát Âm"
-                                inputProps={{ 'aria-label': 'Phát Âm' }}
+                                placeholder="Phonetic"
+                                inputProps={{ 'aria-label': 'Phonetic' }}
                                 onChange={(e) => {
                                     updatedFlashcards[index] = {
                                         // ...updatedFlashcards[index],
@@ -358,7 +358,7 @@ const CreateFlashcardSet = () => {
                 gap: '1rem',
                 width: '100%',
             }}>
-                <TextField id="standard-basic" label="Tên Bộ Flashcard" variant="standard"
+                <TextField id="standard-basic" label="Name" variant="standard"
                     value={flashcardSet.name ? flashcardSet.name : ''}
                     onChange={(e) => setFlashcardSet({
                         ...flashcardSet,
@@ -366,7 +366,7 @@ const CreateFlashcardSet = () => {
                     })}
                     sx={{ width: '30%' }}
                 />
-                <TextField id="standard-basic" label="Mô Tả" variant="standard"
+                <TextField id="standard-basic" label="Descriptions" variant="standard"
                     value={flashcardSet.description ? flashcardSet.description : ''}
                     onChange={(e) => setFlashcardSet({
                         ...flashcardSet,
