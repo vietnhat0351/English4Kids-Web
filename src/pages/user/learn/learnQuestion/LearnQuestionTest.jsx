@@ -201,7 +201,7 @@ const LearnQuestionTest = () => {
         userId: user.id,
         lessonId: selectedLesson.id,
         type: "QUIZ",
-        time: time,
+        time: 120-time,
         date: new Date(),
         done: true,
       };
