@@ -210,7 +210,7 @@ const Login = () => {
               </p>
             </div>
 
-            <div className="loginGoogle">
+            {/* <div className="loginGoogle">
               <div className="dash"></div>
               <div>Or continue with</div>
               <div
@@ -227,7 +227,7 @@ const Login = () => {
                 cursor: "pointer",
               }}
               onClick={openLoginPopup}
-            />
+            /> */}
           </div>
         </div>
       </div>

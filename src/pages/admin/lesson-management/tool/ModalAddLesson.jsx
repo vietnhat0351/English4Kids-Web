@@ -78,30 +78,32 @@ const ModalAddLesson = ({ open, handleClose }) => {
       handleClickSnack();
       return;
     } else {
-        try{
-            const response = await customFetch.post("/api/v1/lessons/create", {
-                title,
-                description,
-                image,
-            });
-            if (response.status === 200) {
-                // Reset all input fields
-                setTitle("");
-                setDescription("");
-                setImage("");
-                
-
-                await customFetch.get("/api/v1/lessons/get-all").then((response) => {
-                    dispatch(setLessons(response.data.sort((a, b) => a.id - b.id)));
-                });
-                handleClose(true, "Create lesson successfully!", "success");
-
-            }
+      const dataSave = {
+        title: title,
+        description: description,
+        image: image,
+      };
+      try {
+        const response = await customFetch.post(
+          "/api/v1/lessons/create",
+          dataSave
+        );
+        if (response.status === 200) {
+          await customFetch.get("/api/v1/lessons/get-all").then((response) => {
+            dispatch(setLessons(response.data.sort((a, b) => a.id - b.id)));
+          });
+          handleClose(true, "Create lesson successfully!", "success");
         }
-        catch (error) {
-            console.error("There was an error creating the lesson!", error);
-            handleClose(false, " Error! ", "error");
-        }
+      } catch (error) {
+        console.error("There was an error creating the lesson!", error);
+        await customFetch.get("/api/v1/lessons/get-all").then((response) => {
+          dispatch(setLessons(response.data.sort((a, b) => a.id - b.id)));
+        });
+        handleClose(true, " Success! ", "success");
+      }
+      setTitle("");
+      setDescription("");
+      setImage("");
     }
   };
 
