@@ -345,10 +345,10 @@ const EditFlashcardSet = () => {
     return (
         <div id='EditFlashcardSet' style={{
             backgroundImage: 'url("https://english-for-kids.s3.ap-southeast-1.amazonaws.com/41d186051d1991a4ebf11f8d81f438fb85eb390f669dcb48298ea8d1e24ff188.png")',
-            backgroundSize: 'cover',
+            backgroundSize: '100% auto',
             backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            height: '100vh',
+            backgroundRepeat: 'repeat-y',
+            minHeight: '100vh',
         }}>
             <div className='header'>
                 <FaArrowLeft className='return-btn'

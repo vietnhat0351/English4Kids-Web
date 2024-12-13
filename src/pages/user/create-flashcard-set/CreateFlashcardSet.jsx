@@ -8,6 +8,7 @@ import axios from 'axios';
 import { FaArrowLeft, FaSearch } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import SearchIcon from '@mui/icons-material/Search';
+import { useNavigate } from 'react-router-dom';
 
 const CreateFlashcardForm = (props) => {
     const { flashcards, setFlashcards, index, setModalShow, setChoosingFlashcard, setKeyword } = props;
@@ -265,6 +266,8 @@ const CreateFlashcardSet = () => {
         enqueueSnackbar(message, { variant });
     };
 
+    const navigate = useNavigate();
+
     const handleSaveFlashcardSet = async () => {
         // kiểm tra xem tên bộ flashcard có rỗng không
         if (!flashcardSet.name) {
@@ -301,6 +304,7 @@ const CreateFlashcardSet = () => {
         }).then((response) => {
             if (response.status === 200) {
                 handleClickVariant('success', 'Create flashcard set successfully');
+                navigate('/flashcard');
             } else {
                 handleClickVariant('error', 'Create flashcard set failed');
             }
@@ -315,10 +319,10 @@ const CreateFlashcardSet = () => {
             display: 'flex',
             flexDirection: 'column',
             backgroundImage: 'url("https://english-for-kids.s3.ap-southeast-1.amazonaws.com/41d186051d1991a4ebf11f8d81f438fb85eb390f669dcb48298ea8d1e24ff188.png")',
-            backgroundSize: 'cover',
+            backgroundSize: '100% auto',
             backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            height: '100vh',
+            backgroundRepeat: 'repeat-y',
+            minHeight: '100vh',
         }}>
             <div style={{
                     display: 'flex',
