@@ -606,10 +606,14 @@ const ModalAddQuestion = ({ open, handleClose }) => {
   ///================================================================================================
 
   const handleSaveQuestion = async () => {
-    if (!wordFind.id) {
+    if (!wordFind) {
+      handleClickSnackQuestion("Please add vocabulary first");
+      return;
+    }else if (!wordFind.id){
       handleClickSnackQuestion("Please add vocabulary first");
       return;
     }
+
     if (!questionContent || !questionType || !wordFind) {
       handleClickSnackQuestion("All question details must be filled out.");
       return;
