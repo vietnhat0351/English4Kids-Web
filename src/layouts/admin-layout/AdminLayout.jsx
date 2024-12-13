@@ -68,6 +68,14 @@ const AdminLayout = () => {
             <img src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/management.png" width={30} height={30} alt="user" />
             User 
           </NavLink>
+
+          <NavLink
+            className={`ad-menu-item ${selectedContent === "analysis" ? "ad-menu-item-selected" : "ad-menu-item-none"}`}
+            to="/admin/analysis"
+          >
+            <img src="https://english-for-kids.s3.ap-southeast-1.amazonaws.com/management.png" width={30} height={30} alt="user" />
+            Data Analysis 
+          </NavLink>
         </div>
 
         <div className="ad-header-right">

@@ -1,10 +1,14 @@
-import { Avatar, Box, Modal, TextField } from "@mui/material";
+import { Avatar, Box, FormControl, InputLabel, MenuItem, Modal, Select, TextField } from "@mui/material";
 import React, { useEffect, useState } from "react";
 
 import "./style.css";
 import { useDispatch, useSelector } from "react-redux";
 import customFetch from "../../../../utils/customFetch";
 import { setUserProfile } from "../../../../redux/slices/userSlice";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from "dayjs";
 
 const style = {
   position: "absolute",
@@ -23,6 +27,8 @@ const ModalUpdateUser = ({ open, handleClose }) => {
   const dispatch = useDispatch();
   const [firstName, setFirstName] = useState(user.firstName || "");
   const [lastName, setLastName] = useState(user.lastName || "");
+  const [dob, setDob] = useState(user.dob || "");
+  const [gender, setGender] = useState(user.gender || "");
   const [avatar, setAvatar] = useState(user.avatar || "");
   const listAvatar = [
     "https://assets.quizlet.com/static/i/animals/108.3b3090077134db3.jpg",
@@ -57,6 +63,8 @@ const ModalUpdateUser = ({ open, handleClose }) => {
       firstName,
       lastName,
       avatar,
+      dob,
+      gender
     };
     try {
       const res = await customFetch.post("/api/v1/user/update-user-info", data);
@@ -68,6 +76,10 @@ const ModalUpdateUser = ({ open, handleClose }) => {
       console.log(error);
     }
     console.log(data);
+  };
+
+  const handleChange = (event) => {
+    setGender(event.target.value);
   };
 
   return (
@@ -111,22 +123,63 @@ const ModalUpdateUser = ({ open, handleClose }) => {
             </div>
           </div>
           <div className="modal-update-user-content">
-            <TextField
-              id="outlined-basic"
-              label="First Name"
-              variant="outlined"
-              fullWidth
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-            />
-            <TextField
-              id="outlined-basic"
-              label="Last Name"
-              fullWidth
-              variant="outlined"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-            />
+            <div style={{
+              display: "flex",
+              flexDirection: "row",
+              gap: "20px",
+            }}>
+              <TextField
+                id="outlined-basic"
+                label="First Name"
+                variant="outlined"
+                fullWidth
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+              />
+              <TextField
+                id="outlined-basic"
+                label="Last Name"
+                fullWidth
+                variant="outlined"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+              />
+            </div>
+            <div style={{
+              display: "flex",
+              flexDirection: "row",
+              gap: "20px",
+            }}>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker label="Date of Birth"
+                  format="DD/MM/YYYY"
+                  sx={{
+                    width: "100%",
+                  }} 
+                  value={dob && dayjs(dob)}
+                  onChange={(newValue) => {
+                    setDob(newValue);
+                  }}
+                />
+              </LocalizationProvider>
+              <FormControl fullWidth>
+                <InputLabel id="demo-simple-select-label">Gender</InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={gender}
+                  label="Gender"
+                  onChange={handleChange}
+                >
+                  <MenuItem value={"male"}>
+                    Male
+                  </MenuItem>
+                  <MenuItem value={"female"}>
+                    Female
+                  </MenuItem>
+                </Select>
+              </FormControl>
+            </div>
           </div>
           <div className="modal-update-user-footer">
             <button

@@ -11,6 +11,8 @@ import correctSound from '../../assets/ws-correct.wav'
 import { FaQuestion } from 'react-icons/fa6'
 import { IoMdClose } from 'react-icons/io'
 import { PiSpeakerHighFill } from "react-icons/pi";
+import customFetch from '../../utils/customFetch'
+import { Button } from '@mui/material'
 
 const WorkShake = () => {
 
@@ -19,11 +21,12 @@ const WorkShake = () => {
     const [selectedWord, setSelectedWord] = useState('');
     const [words, setWords] = useState([]);
     const [points, setPoints] = useState(0);
-    const [isGameActive, setIsGameActive] = useState(false);
+    const [gameState, setGameState] = useState('idle');
     const [checkAnswer, setCheckAnswer] = useState('');
     const [isValidWord, setIsValidWord] = useState(false);
-
     const [isBackgroundMusicOn, setIsBackgroundMusicOn] = useState(false);
+
+    const [highScores, setHighScores] = useState(null);
 
     useEffect(() => {
         const audio = new Audio(bgMusic);
@@ -51,9 +54,40 @@ const WorkShake = () => {
     }, []);
 
     useEffect(() => {
+        // fetch high scores
+        customFetch.get("/api/v1/wordshake/get-high-score")
+            .then(res => {
+                console.log(res.data);
+                setHighScores(res.data);
+            })
+            .catch(err => {
+                console.log(err);
+            });
+    }, []);
+
+    useEffect(() => {
         if (time === 0) {
-            alert('Game Over! Your score is: ' + points);
-            handleNewGame();
+            setGameState('game-over');
+            const audio = new Audio(correctSound);
+            audio.volume = 0.1;
+            audio.play();
+            if (points > highScores.highScore) {
+                customFetch.post(`/api/v1/wordshake/update-high-score?highScore=${points}`)
+                    .then(res => {
+                        console.log(res.data);
+                        customFetch.get("/api/v1/wordshake/get-high-score")
+                            .then(res => {
+                                console.log(res.data);
+                                setHighScores(res.data);
+                            })
+                            .catch(err => {
+                                console.log(err);
+                            });
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    });
+            }
         }
     }, [time]);
 
@@ -144,7 +178,7 @@ const WorkShake = () => {
                 setCheckAnswer('correct');
 
                 const audio = new Audio(correctSound);
-                // audio.volume = 0.2; 
+                audio.volume = 0.1;
                 audio.play();
                 setTimeout(() => {
                     setCheckAnswer('');
@@ -173,6 +207,7 @@ const WorkShake = () => {
         setPoints(0);
         setSelectedWord('');
         setSelectedCellIds([]);
+        setGameState('playing');
     };
 
     const formatTime = (seconds) => {
@@ -184,6 +219,7 @@ const WorkShake = () => {
     return (
         <div style={{
             backgroundColor: '#903779',
+            height: '100vh',
         }}>
             <IoMdClose size={35} style={{
                 cursor: 'pointer',
@@ -200,195 +236,290 @@ const WorkShake = () => {
                 }}
             />
             {
-                isGameActive ? <div className="ws-App" style={{
-                    backgroundImage: `url(${bgImage})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
-                    backgroundSize: '85% 85%',
-                }}>
-                    <PiSpeakerHighFill size={40} style={{
-                        cursor: 'pointer',
-                        position: 'relative',
-                        right: '20px',
-                        // top: '10px',
-                        bottom: '10px', 
-                        color: isBackgroundMusicOn ? 'green' : 'red',
-                    }} onClick={() => {
-                        setIsBackgroundMusicOn(!isBackgroundMusicOn);
-                    }}/>
-                    <div style={{
-                        backgroundImage: `url(${bgheader})`,
+                gameState === 'playing' ?
+                    <div className="ws-App" style={{
+                        backgroundImage: `url(${bgImage})`,
                         backgroundSize: 'cover',
                         backgroundPosition: 'center',
                         backgroundRepeat: 'no-repeat',
-                        backgroundSize: '100% 100%',
-                        height: '90px',
-                        width: '1130px',
-                        display: 'flex',
-                        flexDirection: 'row',
+                        backgroundSize: '85% 85%',
                     }}>
+                        <PiSpeakerHighFill size={40} style={{
+                            cursor: 'pointer',
+                            position: 'relative',
+                            right: '20px',
+                            // top: '10px',
+                            bottom: '10px',
+                            color: isBackgroundMusicOn ? 'green' : 'red',
+                        }} onClick={() => {
+                            setIsBackgroundMusicOn(!isBackgroundMusicOn);
+                        }} />
                         <div style={{
-                            display: 'flex',
-                            flex: 6,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                        }}><div className="time">{formatTime(time)}</div></div>
-                        <div style={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            height: '100%',
-                            flex: 6,
-                            alignItems: 'center',
-                        }}>
-                            <div className="new-game-btn" onClick={handleNewGame}>New game</div>
-                            {/* <div className="home-btn">Home</div> */}
-                        </div>
-                    </div>
-                    <div className="game-area">
-                        <div style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            gap: '1rem',
-                        }}>
-
-                            <div className="grid">
-                                {letters.map((letter, index) => (
-                                    <div key={index}
-                                        className={selectedCellIds.includes(index) ? 'grid-cell-clicked' : 'grid-cell'}
-                                        onClick={() => handleCellClick(letter, index)}>
-                                        {letter}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                        <div style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            height: '100%',
-                            width: '100%',
-                        }}>
-                            <div style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'space-between',
-                                height: '100%',
-                                border: '1px solid #ccc',
-                                width: '100%',
-                                backgroundColor: '#cae0e2'
-                            }}>
-                                <div className="scrollable-table">
-                                    <table className='ws-table'>
-                                        <thead>
-                                            <tr>
-                                                <th>Word</th>
-                                                <th>Points</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody style={{
-                                            backgroundColor: '#fff',
-                                        }}>
-                                            {words.map((word, index) => (
-                                                <tr key={index}>
-                                                    <td>{word}</td>
-                                                    <td>{word.length}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                                {
-                                    checkAnswer === 'invalid' ? <div style={{
-                                        display: 'flex',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        backgroundColor: '#fff',
-                                        color: 'red',
-                                        height: '50px',
-                                        marginBottom: '10px',
-                                    }}>
-                                        <FaQuestion style={{
-                                            marginRight: '10px',
-                                        }} />
-                                        Word is not valid!
-                                    </div> : <div style={{
-                                        display: 'flex',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        backgroundColor: '#fff',
-                                        height: '50px',
-                                        marginBottom: '10px',
-                                    }}>
-                                        {
-                                            checkAnswer === 'correct' ? <div style={{
-                                                color: 'green',
-                                            }}>
-                                                Correct!
-                                            </div> : <div>
-                                                Enter a word
-                                            </div>
-
-                                        }
-                                    </div>
-                                }
-                                <div className="selected-word">
-                                    {selectedWord.toUpperCase()}
-                                </div>
-
-                                <div className="controls">
-                                    <button className="cancel-btn" onClick={handleCancel}>Cancel</button>
-                                    <button className="enter-btn" onClick={handleEnter}>Enter</button>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                </div> : (
-                    <div style={
-                        {
-                            backgroundImage: `url(${prepareBG})`,
+                            backgroundImage: `url(${bgheader})`,
                             backgroundSize: 'cover',
                             backgroundPosition: 'center',
                             backgroundRepeat: 'no-repeat',
-                            backgroundSize: '85% 85%',
-                            height: '100vh',
+                            backgroundSize: '100% 100%',
+                            height: '90px',
+                            width: '1130px',
                             display: 'flex',
-                            overflow: 'hidden',
-                        }
-                    }>
-                        <div style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            gap: '1rem',
-                            height: '100%',
-                            width: '100%',
-                            position: 'relative',
-                            top: '180px',
+                            flexDirection: 'row',
                         }}>
-                            <button onClick={() => {
-                                setIsGameActive(true);
-                                setIsBackgroundMusicOn(true);
-                            }}
-                                style={{
-                                    padding: '10px',
-                                    backgroundColor: '#2f4554',
+                            <div style={{
+                                display: 'flex',
+                                flex: 6,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}><div className="time">{formatTime(time)}</div></div>
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-evenly',
+                                height: '100%',
+                                flex: 6,
+                                alignItems: 'center',
+                            }}>
+                                <span style={{
                                     color: '#fff',
-                                    border: 'none',
-                                    borderRadius: '5px',
-                                    cursor: 'pointer',
-                                    fontSize: '1.5rem',
-                                    fontWeight: 'bold',
-                                    width: '200px',
-                                    height: '50px',
-                                }}
-                            >Start Game</button>
+                                    fontSize: '1.5rem'
+                                }}>Record: {highScores ? highScores.highScore : 0} points</span>
+                                <div className="new-game-btn" onClick={handleNewGame}>New game</div>
+                                {/* <div className="home-btn">Home</div> */}
+                            </div>
                         </div>
-                    </div>
-                )
+                        <div className="game-area">
+                            <div style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                gap: '1rem',
+                            }}>
+
+                                <div className="grid">
+                                    {letters.map((letter, index) => (
+                                        <div key={index}
+                                            className={selectedCellIds.includes(index) ? 'grid-cell-clicked' : 'grid-cell'}
+                                            onClick={() => handleCellClick(letter, index)}>
+                                            {letter}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                height: '100%',
+                                width: '100%',
+                            }}>
+                                <div style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'space-between',
+                                    height: '100%',
+                                    border: '1px solid #ccc',
+                                    width: '100%',
+                                    backgroundColor: '#cae0e2'
+                                }}>
+                                    <div className="scrollable-table">
+                                        <table className='ws-table'>
+                                            <thead>
+                                                <tr>
+                                                    <th>Word</th>
+                                                    <th>Points</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody style={{
+                                                backgroundColor: '#fff',
+                                            }}>
+                                                {words.map((word, index) => (
+                                                    <tr key={index}>
+                                                        <td>{word}</td>
+                                                        <td>{word.length}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {
+                                        checkAnswer === 'invalid' ? <div style={{
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            backgroundColor: '#fff',
+                                            color: 'red',
+                                            height: '50px',
+                                            marginBottom: '10px',
+                                        }}>
+                                            <FaQuestion style={{
+                                                marginRight: '10px',
+                                            }} />
+                                            Word is not valid!
+                                        </div> : <div style={{
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            backgroundColor: '#fff',
+                                            height: '50px',
+                                            marginBottom: '10px',
+                                        }}>
+                                            {
+                                                checkAnswer === 'correct' ? <div style={{
+                                                    color: 'green',
+                                                }}>
+                                                    Correct!
+                                                </div> : <div>
+                                                    Enter a word
+                                                </div>
+
+                                            }
+                                        </div>
+                                    }
+                                    <div className="selected-word">
+                                        {selectedWord.toUpperCase()}
+                                    </div>
+
+                                    <div className="controls">
+                                        <button className="cancel-btn" onClick={handleCancel}>Cancel</button>
+                                        <button className="enter-btn" onClick={handleEnter}>Enter</button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div> :
+                    gameState === 'idle' ?
+                        (
+                            <div style={
+                                {
+                                    backgroundImage: `url(${prepareBG})`,
+                                    backgroundSize: 'cover',
+                                    backgroundPosition: 'center',
+                                    backgroundRepeat: 'no-repeat',
+                                    backgroundSize: '85% 85%',
+                                    height: '100vh',
+                                    display: 'flex',
+                                    overflow: 'hidden',
+                                }
+                            }>
+                                <div style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    gap: '1rem',
+                                    height: '100%',
+                                    width: '100%',
+                                    position: 'relative',
+                                    top: '180px',
+                                }}>
+                                    <button onClick={() => {
+                                        setGameState('playing');
+                                        setIsBackgroundMusicOn(true);
+                                    }}
+                                        style={{
+                                            padding: '10px',
+                                            backgroundColor: '#2f4554',
+                                            color: '#fff',
+                                            border: 'none',
+                                            borderRadius: '5px',
+                                            cursor: 'pointer',
+                                            fontSize: '1.5rem',
+                                            fontWeight: 'bold',
+                                            width: '200px',
+                                            height: '50px',
+                                        }}
+                                    >Start Game</button>
+                                </div>
+                            </div>
+                        ) : (
+                            <div style={{
+                                display: 'flex',
+                                overflow: 'hidden',
+                                flexDirection: 'column',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                height: '100vh',
+                                backgroundImage: `url(${bgImage})`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                                backgroundRepeat: 'no-repeat',
+                                backgroundSize: '85% 85%',
+                            }}>
+                                <div style={{
+                                    backgroundImage: `url(${bgheader})`,
+                                    backgroundSize: 'cover',
+                                    backgroundPosition: 'center',
+                                    backgroundRepeat: 'no-repeat',
+                                    backgroundSize: '100% 100%',
+                                    height: '150px',
+                                    width: '1130px',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}>
+                                    <span style={{
+                                        color: '#fff',
+                                        fontSize: '2rem',
+                                        fontWeight: 'bold',
+                                    }}>
+                                        Your score: {points} points
+                                    </span>
+                                </div>
+                                <div style={{
+                                    backgroundColor: '#cae0e2',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    height: '500px',
+                                    width: '1130px',
+                                    padding: '50px',
+                                }}>
+                                    <div style={{
+                                        height: '80%',
+                                        backgroundColor: '#fff'
+                                    }}>
+                                        <div className="scrollable-table">
+                                            <table className='ws-table' >
+                                                <thead>
+                                                    <tr>
+                                                        <th>Word</th>
+                                                        <th>Points</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody style={{
+                                                    backgroundColor: '#fff',
+                                                }}>
+                                                    {words.map((word, index) => (
+                                                        <tr key={index}>
+                                                            <td>{word}</td>
+                                                            <td>{word.length}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div style={{
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            padding: '30px',
+                                        }}>
+                                            <Button onClick={handleNewGame} style={{
+                                                backgroundColor: '#2f4554',
+                                                color: '#fff',
+                                                border: 'none',
+                                                borderRadius: '5px',
+                                                cursor: 'pointer',
+                                                fontSize: '1.5rem',
+                                                fontWeight: 'bold',
+                                                width: '200px',
+                                                height: '50px',
+                                                marginTop: '20px',
+                                            }}>New game</Button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )
             }
         </div>
     )

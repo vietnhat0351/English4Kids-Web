@@ -62,7 +62,7 @@ const router = createBrowserRouter(
           <Route path="vocabulary" element={<VocabularyManagement />} />
           <Route path="user" element={<UserManagement />} />
           <Route path="test" element={<TestManagement />} />
-          <Route path="data" element={<DataAnalysis />} />
+          <Route path="analysis" element={<DataAnalysis />} />
         </Route>
       </Route>
 
