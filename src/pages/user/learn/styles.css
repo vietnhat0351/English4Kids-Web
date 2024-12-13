@@ -10,6 +10,7 @@
   background-repeat: repeat;
   height: auto;
   width: 100%;
+  min-height: 100vh;
 }
 
 .lesson-list {

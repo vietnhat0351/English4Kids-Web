@@ -127,7 +127,7 @@ const LearnSession = () => {
                   {Math.round(selectedLesson.score)}
                 </p>
               </div>
-              <div
+              {/* <div
                 style={{
                   display: "flex",
                   gap: "10px",
@@ -142,9 +142,9 @@ const LearnSession = () => {
                     fontSize: "15px",
                   }}
                 >
-                  {formatTime(selectedLesson.score)}
+                  {formatTime(selectedLesson.time)}
                 </p>
-              </div>
+              </div> */}
               <div
                 style={{
                   display: "flex",
