@@ -1422,6 +1422,9 @@ const ModalUpdateQuestion = ({ open, handleClose, dataQuestion }) => {
                           className="m-add-answer-button-add-answer-close"
                           onClick={() => {
                             setWrongAnswer1Disiable(true);
+                            setWrongAnswer1Image("");
+                            setWrongAnswer1Audio("");
+                            setWrongAnswer1("");
                           }}
                         >
                           Delete answer
@@ -1584,6 +1587,9 @@ const ModalUpdateQuestion = ({ open, handleClose, dataQuestion }) => {
                           className="m-add-answer-button-add-answer-close"
                           onClick={() => {
                             setWrongAnswer2Disiable(true);
+                            setWrongAnswer2("");
+                            setWrongAnswer2Image("");
+                            setWrongAnswer2Audio("");
                           }}
                         >
                           Delete answer
@@ -1746,6 +1752,9 @@ const ModalUpdateQuestion = ({ open, handleClose, dataQuestion }) => {
                           className="m-add-answer-button-add-answer-close"
                           onClick={() => {
                             setWrongAnswer3Disiable(true);
+                            setWrongAnswer3("");
+                            setWrongAnswer3Image("");
+                            setWrongAnswer3Audio("");
                           }}
                         >
                           Delete answer

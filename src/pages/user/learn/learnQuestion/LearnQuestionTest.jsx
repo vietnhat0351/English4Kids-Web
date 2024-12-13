@@ -34,8 +34,22 @@ const LearnQuestionTest = () => {
   const [questionIncorrect, setQuestionIncorrect] = useState([]);
   const totalQuestions = selectedLesson?.questions?.length || 0;
   const [hp, setHp] = useState(3);
-  const [time, setTime] = useState(30);
+  const [time, setTime] = useState(120);
   const [isRunning, setIsRunning] = useState(true);
+
+
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      event.preventDefault();
+      event.returnValue = ""; // Hiển thị thông báo xác nhận mặc định của trình duyệt
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, []);
 
   useEffect(() => {
     let interval;

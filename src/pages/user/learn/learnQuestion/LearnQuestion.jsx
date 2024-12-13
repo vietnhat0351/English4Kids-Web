@@ -14,7 +14,7 @@ import { FaCheck } from "react-icons/fa";
 import { ImCancelCircle } from "react-icons/im";
 const LearnQuestion = () => {
 
-  const changeLater = 5;
+  const changeLater = 20;
 
   const selectedLesson = useSelector((state) => state.lessonSelected);
   const user = useSelector((state) => state.user.profile);

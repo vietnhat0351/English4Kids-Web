@@ -45,6 +45,7 @@ import {
 import { useState, useMemo } from "react";
 import { useRef } from "react";
 import ModalUpdateVocabulary from "./tool/ModalUpdateVocabulary";
+import { use } from "react";
 
 const VocabularyManagement = () => {
   const vocabularies = useSelector((state) => state.vocabularies);
@@ -230,7 +231,7 @@ const VocabularyManagement = () => {
       return;
     }
     const matchingRowIndex = vocabularies.findIndex(
-      (row) => row.word === searchTerm || row.meaning === searchTerm
+      (row) => row.word === searchTerm.toLowerCase() || row.meaning === searchTerm
     );
 
     if (matchingRowIndex !== -1) {
@@ -294,7 +295,7 @@ const VocabularyManagement = () => {
   //       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
   //   [vocabularies, order, orderBy, page, rowsPerPage]
   // );
-  const [pagecount, setPagecount] = useState(0);
+  const [pagecount, setPagecount] = useState();
 
   const visibleRows = useMemo(() => {
     const filteredVocabularies =
@@ -311,9 +312,19 @@ const VocabularyManagement = () => {
     if (fillter === "All") {
       setPagecount(vocabularies.length);
     } else {
-      setPagecount(visibleRows.length);
+      const filteredVocabularies =
+      fillter && fillter !== "All"
+        ? vocabularies.filter((vocabulary) => vocabulary.type === fillter)
+        : vocabularies;
+      setPagecount(filteredVocabularies.length);
+      // setPage(0);
     }
   }, [visibleRows]);
+
+  useEffect(() => {
+    setPage(0);
+  }, [fillter]);
+
 
   const [hasFetched, setHasFetched] = useState(false);
 
@@ -821,7 +832,7 @@ const VocabularyManagement = () => {
       </Snackbar>
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={3000}
+        autoHideDuration={100}
         onClose={() => setSnackbarOpen(false)}
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
         message="Word not found"
